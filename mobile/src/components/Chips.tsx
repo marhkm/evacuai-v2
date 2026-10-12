@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/components/ui';
 
-export type ChipItem = { key: string; label: string };
+export type ChipItem = { key: string; label: string; a11yLabel?: string };
 
 /** Large single-choice buttons (44pt+ targets, selected state announced to screen readers). */
 export function Chips({ items, active, onSelect, color = colors.primary }: {
@@ -14,7 +14,7 @@ export function Chips({ items, active, onSelect, color = colors.primary }: {
       {items.map(i => {
         const on = i.key === active;
         return (
-          <Pressable key={i.key} accessibilityRole="button" accessibilityLabel={i.label} accessibilityState={{ selected: on }}
+          <Pressable key={i.key} accessibilityRole="button" accessibilityLabel={i.a11yLabel ?? i.label} accessibilityState={{ selected: on }}
             onPress={() => onSelect(i.key)} style={[styles.chip, { borderColor: color }, on && { backgroundColor: color }]}>
             <Text style={[styles.text, { color: on ? '#fff' : color }]}>{i.label}</Text>
           </Pressable>

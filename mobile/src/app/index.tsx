@@ -33,6 +33,7 @@ export default function Home() {
       <Button label="Campus map" variant="secondary" onPress={() => router.push('/map')} />
       <Button label="Alerts" variant="secondary" onPress={() => router.push('/alerts')} />
       <Button label="Profile" variant="secondary" onPress={() => router.push('/profile')} />
+      <Button label="Send feedback" variant="secondary" onPress={() => router.push('/feedback')} />
     </Screen>
   );
 }
