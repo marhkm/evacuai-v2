@@ -44,6 +44,46 @@ Only the admin and safety officer accounts can open the admin dashboard.
 
 Forgot password works the same way: request a code, read it in Mailpit, set a new password.
 
+## Test scenarios
+
+Use two browser windows: the app as **student** (or your own account) and the dashboard as **safety officer**.
+Mark drills as drills ("This is a drill") so everyone knows it is practice.
+
+1. **Alert.** Dashboard → **Alerts** → **Broadcast alert**. The app shows the banner within a few seconds. Optionally
+   fill in the Cebuano and Filipino boxes; the app shows them under the English message.
+2. **Hazard reports.** Three different verified accounts report the same hazard on the same floor within 10 minutes.
+   The dashboard bell shows an **Unverified** alert; confirm or retract it in **Alerts**.
+3. **Evacuation route.** App → **Evacuation route** → **Pick my room** (or **Scan QR sticker** on a phone).
+   The route, steps and distance appear. Dashboard → **Paths**: set a stair on the route to **Blocked**. The app
+   re-routes by itself within a few seconds. Set it back to **Open** afterwards.
+4. **SOS.** App → **SOS** → pick your room → **Send SOS**. Dashboard → **SOS** → open it and reply. The app shows the
+   officer's reply live. Resolve it from the dashboard.
+5. **Check-in Safe.** With an active alert, app → **Check in safe** (scan the assembly-point sticker on a phone, or tap
+   **I'm safe**). Dashboard → **Safety Monitor** shows who is Safe, Needs help or Unknown.
+6. **Drill report.** **Safety Monitor** → **Drill report (CSV)** opens in Excel or Google Sheets. The **Dashboard**
+   shows the check-in rate and evacuation times of the latest alert.
+7. **3D.** App → **Campus map** → **All floors** or **3D**. Dashboard → **Campus 3D**: blocked paths, hazards, people
+   still inside and SOS pins update every 2 seconds; choose an alert under **Replay** and press **Play**.
+8. **Feedback.** App → **Send feedback**. Dashboard → **Reports** → **Feedback** (admins also see the **Activity log**).
+
+## Automated browser tests
+
+With the stack running, from the repository root (needs Node.js; Docker-only testers can skip this):
+
+```bash
+npm ci
+```
+
+```bash
+npx playwright install chromium
+```
+
+```bash
+npm run e2e
+```
+
+The tests only read data (no alerts, reports or SOS are created), so they are safe to run on a shared stack.
+
 ## Using a real phone
 
 The web build runs on your PC. To use the app on a phone on the same Wi-Fi, install the test APK (when available) and,
@@ -59,6 +99,17 @@ on the sign-in screen, tap **Server** and enter `http://<your-PC-LAN-IP>:8000`.
 
 The **Continue with Google** button only appears when `GOOGLE_CLIENT_ID` is set. Google sign-in on the phone APK comes
 with the APK build.
+
+## Optional extras (instructor setup)
+
+All are off until configured in `docker/.env`; restart with `docker compose -f docker/compose.yml up -d` (rebuild with
+`--build` for the Microsoft button).
+
+| Extra | Settings | Notes |
+|---|---|---|
+| Hazard feeds (USGS earthquakes, Open-Meteo rain) | `FEEDS_ENABLED=true`, `CAMPUS_LAT`, `CAMPUS_LNG` | Creates **draft** alerts only; an officer publishes or discards them. `FEEDS_FAKE=true` uses built-in sample events (no internet). |
+| AI translation of alerts | `GEMINI_API_KEY` and/or `GROQ_API_KEY` | Adds **Translate with AI** to the alert form. Free tiers may use prompts for training: never type names or phone numbers in alerts. Local model: `docker compose -f docker/compose.yml --profile ai-local up -d`, then `OLLAMA_URL=http://ollama:11434`. |
+| Microsoft 365 sign-in | `MICROSOFT_TENANT_ID`, `MICROSOFT_CLIENT_ID` | Entra "Single-page application" registration with redirect `http://localhost:8081`. Only accounts from that tenant can sign in. |
 
 ## Reset everything
 
