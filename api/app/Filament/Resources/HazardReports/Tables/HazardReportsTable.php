@@ -25,6 +25,9 @@ class HazardReportsTable
                 TextColumn::make('level')->label('Floor'),
                 TextColumn::make('room_id')->label('Room')->formatStateUsing(fn (?string $state) => $state ? last(explode('/', $state)) : null)->placeholder('—'),
                 TextColumn::make('description')->limit(60)->wrap(),
+                TextColumn::make('photo_path')->label('Photo')->placeholder('—')
+                    ->formatStateUsing(fn () => 'View photo')->color('primary')->icon('heroicon-o-photo')
+                    ->url(fn (HazardReport $record) => $record->photo_path ? route('reports.photo', $record) : null, shouldOpenInNewTab: true),
                 TextColumn::make('reporter.name')->label('Reported by'),
                 TextColumn::make('matching')->label('Same-floor reporters (10 min)')
                     ->state(fn (HazardReport $record) => ReportClusters::reporterCount($record->hazard_type, $record->building_id, $record->level))

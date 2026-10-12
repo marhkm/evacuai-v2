@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $hazard_type
  * @property string $status
  * @property ?int $alert_id
+ * @property ?string $photo_path
  */
 class HazardReport extends Model
 {

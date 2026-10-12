@@ -8,7 +8,9 @@ use App\Support\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -67,6 +69,7 @@ class MeController extends Controller
             }
         }
         $user->tokens()->delete();
+        Storage::disk('local')->delete(DB::table('hazard_reports')->where('reported_by', $user->id)->whereNotNull('photo_path')->pluck('photo_path')->all());
         Activity::log('account_deleted', ['user_id' => $user->id], $user->id);
         $user->delete();
 

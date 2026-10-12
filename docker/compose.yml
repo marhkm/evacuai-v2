@@ -16,6 +16,8 @@ services:
   app:
     <<: *php
     ports: ["8000:8000"]
+    volumes:
+      - uploads:/app/storage/app/private # report photos survive image rebuilds (only the app serves them)
     depends_on:
       postgres: { condition: service_healthy }
     healthcheck:
@@ -84,3 +86,4 @@ services:
 volumes:
   pgdata:
   ollama:
+  uploads:
