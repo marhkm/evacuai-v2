@@ -1,0 +1,12 @@
+{
+  "type": "FeatureCollection",
+  "metadata": { "title": "EvacuAI classroom sample (FEEDS_FAKE=true), not a real event" },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "sample-quake-1",
+      "properties": { "mag": 5.2, "place": "18 km NE of Mandaue City, Philippines (sample)", "time": 1791853200000 },
+      "geometry": { "type": "Point", "coordinates": [124.05, 10.42, 12.0] }
+    }
+  ]
+}

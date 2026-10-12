@@ -20,7 +20,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']); // own per-email limiter
     // Separate bucket per route (the prefix), 6 requests/minute per IP; codes are also capped at 5 tries each.
     foreach (['register' => 'register', 'verify-email' => 'verifyEmail', 'resend-code' => 'resendCode',
-        'forgot-password' => 'forgotPassword', 'reset-password' => 'resetPassword', 'google' => 'google'] as $uri => $action) {
+        'forgot-password' => 'forgotPassword', 'reset-password' => 'resetPassword', 'google' => 'google', 'microsoft' => 'microsoft'] as $uri => $action) {
         Route::post($uri, [AuthController::class, $action])->middleware("throttle:6,1,auth-{$uri}");
     }
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

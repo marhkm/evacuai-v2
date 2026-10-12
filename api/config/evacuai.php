@@ -28,6 +28,17 @@ return [
     // Data Privacy Act: IP/device in the activity log and location events are purged after this many days.
     'retention_days' => (int) env('PRIVACY_RETENTION_DAYS', 30),
 
+    // External feeds (slice 8, off by default). They only create DRAFT alerts; an officer must publish them.
+    'feeds' => [
+        'enabled' => (bool) env('FEEDS_ENABLED', false),
+        'fake' => (bool) env('FEEDS_FAKE', false), // read resources/feeds/*.json instead of the internet (classroom demos)
+        'campus_lat' => env('CAMPUS_LAT'), // required for feeds; set to the campus coordinates
+        'campus_lng' => env('CAMPUS_LNG'),
+        'quake_min_magnitude' => (float) env('FEEDS_QUAKE_MIN_MAGNITUDE', 4.5),
+        'quake_radius_km' => (int) env('FEEDS_QUAKE_RADIUS_KM', 100),
+        'rain_mm_per_hour' => (float) env('FEEDS_RAIN_MM_PER_HOUR', 15), // PAGASA orange rainfall warning starts at 15 mm/h
+    ],
+
     // Comma-separated; empty = allow any domain (local testing).
     'allowed_email_domains' => array_filter(array_map('trim', explode(',', (string) env('ALLOWED_EMAIL_DOMAINS', '')))),
 ];

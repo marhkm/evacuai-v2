@@ -36,6 +36,31 @@ return [
     ],
 
     // Mobile sends a Google access token; the server verifies it via Socialite (userFromToken).
+    // LLM assist (slice 8). Tried in this order; any provider without a key is skipped. All speak the OpenAI
+    // chat-completions format. Free tiers may use prompts for training: never send personal data (see AlertTranslator).
+    'llm' => [
+        'gemini' => [
+            'url' => 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+            'key' => env('GEMINI_API_KEY'),
+            'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        ],
+        'groq' => [
+            'url' => 'https://api.groq.com/openai/v1/chat/completions',
+            'key' => env('GROQ_API_KEY'),
+            'model' => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+        ],
+        'ollama' => [ // local model, docker compose --profile ai-local
+            'url' => env('OLLAMA_URL') ? rtrim((string) env('OLLAMA_URL'), '/').'/v1/chat/completions' : null,
+            'key' => env('OLLAMA_URL') ? 'ollama' : null,
+            'model' => env('OLLAMA_MODEL', 'llama3.2'),
+        ],
+    ],
+
+    // Microsoft 365 sign-in (slice 8): only accounts from this Entra tenant (UCLM's) are accepted.
+    'microsoft' => [
+        'tenant_id' => env('MICROSOFT_TENANT_ID'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

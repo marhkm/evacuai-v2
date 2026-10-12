@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Feeds;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
@@ -15,3 +16,10 @@ Artisan::command('evacuai:purge-personal-data', function () {
 })->purpose('Data Privacy Act retention: clear IP/device and delete location events past the retention period');
 
 Schedule::command('evacuai:purge-personal-data')->dailyAt('02:00');
+
+Artisan::command('evacuai:poll-feeds', function () {
+    $drafts = Feeds::poll();
+    $this->info(count($drafts).' new draft alert(s).');
+})->purpose('Check USGS earthquakes and Open-Meteo rainfall near campus; create draft alerts for officers to review');
+
+Schedule::command('evacuai:poll-feeds')->everyFiveMinutes()->withoutOverlapping()->when(fn () => config('evacuai.feeds.enabled'));

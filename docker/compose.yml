@@ -49,6 +49,8 @@ services:
       dockerfile: docker/Dockerfile.mobile-web
       args:
         EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${GOOGLE_CLIENT_ID:-} # Google button appears only when set
+        EXPO_PUBLIC_MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID:-} # Microsoft button needs both of these
+        EXPO_PUBLIC_MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID:-}
     ports: ["8081:80"]
     restart: unless-stopped
 
@@ -73,5 +75,12 @@ services:
     ports: ["127.0.0.1:8025:8025", "127.0.0.1:1025:1025"]
     restart: unless-stopped
 
+  ollama: # optional local LLM (~4 GB RAM more): docker compose --profile ai-local up, then set OLLAMA_URL
+    image: ollama/ollama:latest
+    profiles: [ai-local]
+    volumes: [ollama:/root/.ollama]
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  ollama:

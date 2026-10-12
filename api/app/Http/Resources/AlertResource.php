@@ -17,6 +17,7 @@ class AlertResource extends JsonResource
             'hazard_type' => $this->hazard_type,
             'severity_level' => $this->severity_level,
             'message' => $this->message,
+            'translations' => $this->translations,
             'status' => $this->status,
             'source' => $this->source,
             'verified' => $this->verified,

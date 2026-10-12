@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -98,26 +99,62 @@ class AuthController extends Controller
         }
         Validator::make(['email' => $g->getEmail()], ['email' => ['required', 'email', new AllowedEmailDomain]])->validate();
 
-        $user = DB::transaction(function () use ($g) {
-            $linked = DB::table('social_accounts')->where(['provider' => 'google', 'provider_id' => $g->getId()])->value('user_id');
-            $user = $linked ? User::find($linked) : User::where('email', $g->getEmail())->first();
+        $user = $this->socialUser('google', (string) $g->getId(), (string) $g->getEmail(), $g->getName() ?: (string) $g->getEmail());
+
+        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name'], 'google');
+    }
+
+    /**
+     * Microsoft 365 sign-in (web build: browser OAuth access token for Microsoft Graph). Only accounts that belong to the
+     * configured Entra tenant are accepted, identified by userPrincipalName (its domain is verified by the tenant;
+     * the "mail" attribute is not, so it is never trusted). Guest accounts (#EXT#) are refused.
+     */
+    public function microsoft(Request $request): JsonResponse
+    {
+        $data = $request->validate(['access_token' => 'required|string', 'device_name' => 'required|string|max:100']);
+        $tenant = config('services.microsoft.tenant_id');
+        if (! $tenant) {
+            return response()->json(['reason' => 'microsoft_disabled', 'message' => 'Microsoft sign-in is not set up on this server.'], 404);
+        }
+        $graph = Http::withToken($data['access_token'])->acceptJson()->timeout(15);
+        try {
+            $me = $graph->get('https://graph.microsoft.com/v1.0/me', ['$select' => 'id,displayName,userPrincipalName'])->throw()->json();
+            $org = (string) $graph->get('https://graph.microsoft.com/v1.0/organization', ['$select' => 'id'])->throw()->json('value.0.id');
+        } catch (Throwable) {
+            return response()->json(['reason' => 'microsoft_token_invalid', 'message' => 'Microsoft sign-in failed.'], 401);
+        }
+        $email = Str::lower((string) ($me['userPrincipalName'] ?? ''));
+        if (! hash_equals(Str::lower($tenant), Str::lower($org)) || str_contains($email, '#ext#')) {
+            return response()->json(['reason' => 'wrong_tenant', 'message' => 'Use your school Microsoft 365 account.'], 403);
+        }
+        Validator::make(['email' => $email], ['email' => ['required', 'email', new AllowedEmailDomain]])->validate();
+
+        $user = $this->socialUser('microsoft', (string) $me['id'], $email, ($me['displayName'] ?? '') ?: $email);
+
+        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name'], 'microsoft');
+    }
+
+    /** One user per email: links the provider identity on first use; the provider has verified the address. */
+    private function socialUser(string $provider, string $providerId, string $email, string $name): User
+    {
+        return DB::transaction(function () use ($provider, $providerId, $email, $name) {
+            $linked = DB::table('social_accounts')->where(['provider' => $provider, 'provider_id' => $providerId])->value('user_id');
+            $user = $linked ? User::find($linked) : User::where('email', $email)->first();
             if (! $user) {
-                $user = User::forceCreate(['name' => $g->getName() ?: $g->getEmail(), 'email' => $g->getEmail(), 'email_verified_at' => now()]);
+                $user = User::forceCreate(['name' => $name, 'email' => $email, 'email_verified_at' => now()]);
             }
             if (! $linked) {
                 DB::table('social_accounts')->insert([
-                    'user_id' => $user->id, 'provider' => 'google', 'provider_id' => $g->getId(),
+                    'user_id' => $user->id, 'provider' => $provider, 'provider_id' => $providerId,
                     'created_at' => now(), 'updated_at' => now(),
                 ]);
             }
             if (! $user->email_verified_at) {
-                $user->forceFill(['email_verified_at' => now()])->save(); // Google verified this address
+                $user->forceFill(['email_verified_at' => now()])->save();
             }
 
             return $user;
         });
-
-        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name'], 'google');
     }
 
     public function forgotPassword(Request $request): JsonResponse

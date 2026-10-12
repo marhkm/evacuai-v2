@@ -17,6 +17,8 @@ use Illuminate\Support\Carbon;
  * @property bool $verified
  * @property bool $is_drill
  * @property ?string $building_id
+ * @property ?array{ceb?: string, fil?: string} $translations
+ * @property ?string $external_id
  * @property ?Carbon $issued_at
  * @property ?Carbon $resolved_at
  */
@@ -28,7 +30,7 @@ class Alert extends Model
 
     protected function casts(): array
     {
-        return ['verified' => 'boolean', 'is_drill' => 'boolean', 'issued_at' => 'datetime', 'resolved_at' => 'datetime'];
+        return ['translations' => 'array', 'verified' => 'boolean', 'is_drill' => 'boolean', 'issued_at' => 'datetime', 'resolved_at' => 'datetime'];
     }
 
     /** The incident check-ins, SOS and location events belong to: the most recent active alert. */

@@ -17,6 +17,7 @@ class CreateAlert extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
+        $data['translations'] = array_filter($data['translations'] ?? []) ?: null;
         $alert = Alert::create($data + [
             'issued_by' => auth()->id(),
             'issued_at' => now(),
