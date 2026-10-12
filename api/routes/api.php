@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ClientConfigController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\HazardReportController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\ScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok']);
@@ -36,5 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/', [MeController::class, 'destroy']);
         Route::post('consent', [MeController::class, 'consent']);
         Route::put('password', [MeController::class, 'password']);
+        Route::get('schedule/now', [ScheduleController::class, 'now']);
     });
 });

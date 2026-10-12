@@ -84,6 +84,10 @@ class CampusSeeder extends Seeder
                 ], $chunk), ['id'], ['from_node_id', 'to_node_id', 'type', 'distance_m', 'bidirectional', 'flags', 'updated_at']);
             }
 
+            // Default registrar code = room name without spaces ("BE 203" -> "BE203"); admin edits are kept.
+            DB::table('rooms')->whereNull('code')->where('type', 'room')
+                ->update(['code' => DB::raw("UPPER(REPLACE(name, ' ', ''))")]);
+
             DB::table('assembly_points')->upsert(array_map(fn ($a) => [
                 'id' => $a['id'],
                 'node_id' => $a['node_id'],

@@ -22,6 +22,9 @@ return [
     'reverb_public_port' => (int) env('VITE_REVERB_PORT', 8080),
     'reverb_public_scheme' => env('VITE_REVERB_SCHEME', 'http'),
 
+    // Class schedules are in local campus time.
+    'timezone' => env('CAMPUS_TIMEZONE', 'Asia/Manila'),
+
     // Comma-separated; empty = allow any domain (local testing).
     'allowed_email_domains' => array_filter(array_map('trim', explode(',', (string) env('ALLOWED_EMAIL_DOMAINS', '')))),
 ];
