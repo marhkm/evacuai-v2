@@ -1,12 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\AlertController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CampusSnapshotController;
+use App\Http\Controllers\Api\ClientConfigController;
+use App\Http\Controllers\Api\DeviceController;
+use App\Http\Controllers\Api\HazardReportController;
 use App\Http\Controllers\Api\MeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok']);
-Route::get('/campus-snapshot', CampusSnapshotController::class)->middleware('auth:sanctum');
+Route::get('/client-config', ClientConfigController::class);
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']); // own per-email limiter
@@ -18,10 +22,19 @@ Route::prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
-Route::middleware('auth:sanctum')->prefix('me')->group(function () {
-    Route::get('/', [MeController::class, 'show']);
-    Route::patch('/', [MeController::class, 'update']);
-    Route::delete('/', [MeController::class, 'destroy']);
-    Route::post('consent', [MeController::class, 'consent']);
-    Route::put('password', [MeController::class, 'password']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/campus-snapshot', CampusSnapshotController::class);
+    Route::get('/alerts', [AlertController::class, 'index']);
+    Route::post('/hazard-reports', [HazardReportController::class, 'store'])->middleware('throttle:5,1,reports');
+    Route::get('/hazard-reports/mine', [HazardReportController::class, 'mine']);
+    Route::post('/devices', [DeviceController::class, 'store']);
+    Route::delete('/devices', [DeviceController::class, 'destroy']);
+
+    Route::prefix('me')->group(function () {
+        Route::get('/', [MeController::class, 'show']);
+        Route::patch('/', [MeController::class, 'update']);
+        Route::delete('/', [MeController::class, 'destroy']);
+        Route::post('consent', [MeController::class, 'consent']);
+        Route::put('password', [MeController::class, 'password']);
+    });
 });

@@ -65,7 +65,9 @@ class CampusSnapshotController extends Controller
                 'lat' => $a->lat === null ? null : self::num($a->lat), 'lng' => $a->lng === null ? null : self::num($a->lng),
                 'radius_m' => $a->radius_m,
             ]),
-            'hazardRoomIds' => [], // filled from verified hazard reports in the alerts slice
+            // Rooms with a verified, unresolved hazard: routing will not pass through or end in them.
+            'hazardRoomIds' => DB::table('hazard_reports')->where('status', 'verified')->whereNotNull('room_id')
+                ->distinct()->orderBy('room_id')->pluck('room_id'),
             'weights' => config('evacuai.route_weights'),
         ];
     }

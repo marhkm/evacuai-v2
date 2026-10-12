@@ -13,6 +13,15 @@ return [
         'blockFlags' => ['earthquake' => [], 'fire' => ['smoke'], 'flood' => ['flood_prone']],
     ],
 
+    // Auto-broadcast an UNVERIFIED alert when this many distinct verified users report the same hazard
+    // on the same building floor within the window (manuscript: 3 reports).
+    'report_cluster_threshold' => (int) env('REPORT_CLUSTER_THRESHOLD', 3),
+    'report_cluster_minutes' => (int) env('REPORT_CLUSTER_MINUTES', 10),
+
+    // Where phones/browsers reach Reverb (same host as the API). Behind TLS in production: 443 + https.
+    'reverb_public_port' => (int) env('VITE_REVERB_PORT', 8080),
+    'reverb_public_scheme' => env('VITE_REVERB_SCHEME', 'http'),
+
     // Comma-separated; empty = allow any domain (local testing).
     'allowed_email_domains' => array_filter(array_map('trim', explode(',', (string) env('ALLOWED_EMAIL_DOMAINS', '')))),
 ];
