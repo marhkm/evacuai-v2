@@ -30,14 +30,10 @@ test('campus map: floor plan, all floors and 3D', async ({ page }) => {
 });
 
 test('SOS, check-in, alerts, feedback and profile screens open', async ({ page }) => {
-  for (const [button, expected] of [
-    ['SOS', 'Hurt, trapped or in danger?'],
-    ['Alerts', 'Alerts'],
-    ['Send feedback', 'How useful is EvacuAI?'],
-    ['Profile', 'Profile'],
-  ] as const) {
+  // Screens stay mounted (hidden) in the stack, so check each screen's own heading.
+  for (const [button, heading] of [['SOS', 'SOS'], ['Alerts', 'Alerts'], ['Send feedback', 'Feedback'], ['Profile', 'Profile']] as const) {
     await page.getByRole('button', { name: button, exact: true }).click();
-    await expect(page.getByText(expected, { exact: false }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
     await page.goBack();
   }
   await page.goto('/checkin');

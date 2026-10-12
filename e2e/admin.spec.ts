@@ -3,7 +3,7 @@ import { DEMO_PASSWORD, demoEmail, expect, test } from './fixtures';
 test.beforeEach(async ({ page }) => {
   await page.goto('/admin/login');
   await page.getByLabel('Email address').fill(demoEmail('safety_officer'));
-  await page.getByLabel('Password').fill(DEMO_PASSWORD);
+  await page.locator('input[type=password]').fill(DEMO_PASSWORD); // the label also matches the show/hide toggles
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Registered people')).toBeVisible(); // dashboard stats
 });

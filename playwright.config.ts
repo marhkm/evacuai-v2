@@ -14,7 +14,8 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     trace: 'retain-on-failure',
-    channel: 'chromium', // full Chromium in new headless mode (better WebGL than the headless shell)
+    // Full Chromium in new headless mode (better WebGL than the headless shell). E2E_CHANNEL=msedge uses installed Edge.
+    channel: process.env.E2E_CHANNEL ?? 'chromium',
     // Software WebGL so the 3D views render on machines and CI runners without a GPU.
     launchOptions: { args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] },
   },
