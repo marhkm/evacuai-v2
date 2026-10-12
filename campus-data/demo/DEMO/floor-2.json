@@ -1,0 +1,20 @@
+{
+  "rooms": [
+    { "id": "R201", "name": "R201", "type": "room", "polygon": [[3, 0], [7, 0], [7, 4], [3, 4], [3, 0]] }
+  ],
+  "nodes": [
+    { "id": "R201", "type": "room", "x": 5, "y": 2, "room_id": "R201" },
+    { "id": "C3", "type": "hallway", "x": 5, "y": 6 },
+    { "id": "C4", "type": "hallway", "x": 15, "y": 6, "safe_for": ["flood"] },
+    { "id": "S2", "type": "stairwell", "x": 20, "y": 6 },
+    { "id": "E2", "type": "elevator", "x": 10, "y": 8 }
+  ],
+  "edges": [
+    { "from": "R201", "to": "C3", "type": "door" },
+    { "from": "C3", "to": "C4", "type": "corridor" },
+    { "from": "C4", "to": "S2", "type": "corridor" },
+    { "from": "C3", "to": "E2", "type": "corridor" },
+    { "from": "S2", "to": "DEMO/1/S1", "type": "stairs" },
+    { "from": "E2", "to": "DEMO/1/E1", "type": "elevator" }
+  ]
+}

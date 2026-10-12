@@ -1,0 +1,22 @@
+{
+  "rooms": [
+    { "id": "R101", "name": "R101", "type": "room", "polygon": [[3, 0], [7, 0], [7, 4], [3, 4], [3, 0]] }
+  ],
+  "nodes": [
+    { "id": "R101", "type": "room", "x": 5, "y": 2, "room_id": "R101" },
+    { "id": "C1", "type": "hallway", "x": 5, "y": 6 },
+    { "id": "C2", "type": "hallway", "x": 15, "y": 6 },
+    { "id": "S1", "type": "stairwell", "x": 20, "y": 6 },
+    { "id": "E1", "type": "elevator", "x": 10, "y": 8 },
+    { "id": "X1", "type": "exit", "x": 0, "y": 6, "safe_for": ["earthquake", "fire"] },
+    { "id": "AP", "type": "assembly_point", "x": -10, "y": 6, "safe_for": ["earthquake", "fire"] }
+  ],
+  "edges": [
+    { "from": "R101", "to": "C1", "type": "door" },
+    { "from": "C1", "to": "C2", "type": "corridor", "flags": ["glass"] },
+    { "from": "C2", "to": "S1", "type": "corridor" },
+    { "from": "C1", "to": "E1", "type": "corridor" },
+    { "from": "C1", "to": "X1", "type": "door" },
+    { "from": "X1", "to": "AP", "type": "outdoor" }
+  ]
+}

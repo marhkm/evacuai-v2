@@ -1,0 +1,11 @@
+{
+  "id": "DEMO",
+  "name": "Demo Building",
+  "origin": null,
+  "rotation_deg": 0,
+  "footprint": [],
+  "floors": [
+    { "level": 1, "name": "Ground", "elevation_m": 0, "height_m": 3.5 },
+    { "level": 2, "name": "Second", "elevation_m": 3.5, "height_m": 3.5 }
+  ]
+}

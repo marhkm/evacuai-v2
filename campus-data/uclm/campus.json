@@ -1,0 +1,16 @@
+{
+  "name": "UCLM",
+  "origin": null,
+  "buildings": [
+    "BE"
+  ],
+  "assembly_points": [
+    {
+      "id": "AP_Field",
+      "node_id": "BE/1/AP_Field",
+      "lat": null,
+      "lng": null,
+      "radius_m": 25
+    }
+  ]
+}

@@ -1,0 +1,648 @@
+{
+  "rooms": [
+    {
+      "id": "Corridor_Third",
+      "name": "Corridor Third",
+      "type": "corridor",
+      "polygon": [
+        [
+          4.5,
+          13.5
+        ],
+        [
+          45.75,
+          13.5
+        ],
+        [
+          45.75,
+          16.5
+        ],
+        [
+          4.5,
+          16.5
+        ],
+        [
+          4.5,
+          13.5
+        ]
+      ]
+    },
+    {
+      "id": "Stairs_Left_3",
+      "name": "Stairs Left",
+      "type": "stairwell",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4.5,
+          0
+        ],
+        [
+          4.5,
+          30
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "Stairs_Right_3",
+      "name": "Stairs Right",
+      "type": "stairwell",
+      "polygon": [
+        [
+          48,
+          0
+        ],
+        [
+          52.5,
+          0
+        ],
+        [
+          52.5,
+          30
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          48,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "Elevator_3",
+      "name": "Elevator",
+      "type": "elevator",
+      "polygon": [
+        [
+          45.75,
+          15.6
+        ],
+        [
+          48,
+          15.6
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          45.75,
+          30
+        ],
+        [
+          45.75,
+          15.6
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE301",
+      "name": "BE301",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          16.8
+        ],
+        [
+          12.45,
+          16.8
+        ],
+        [
+          12.45,
+          29.7
+        ],
+        [
+          4.8,
+          29.7
+        ],
+        [
+          4.8,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE303",
+      "name": "BE303",
+      "type": "room",
+      "polygon": [
+        [
+          13.05,
+          16.8
+        ],
+        [
+          20.7,
+          16.8
+        ],
+        [
+          20.7,
+          29.7
+        ],
+        [
+          13.05,
+          29.7
+        ],
+        [
+          13.05,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "FunctionHall",
+      "name": "FunctionHall",
+      "type": "room",
+      "polygon": [
+        [
+          21.3,
+          16.8
+        ],
+        [
+          28.95,
+          16.8
+        ],
+        [
+          28.95,
+          29.7
+        ],
+        [
+          21.3,
+          29.7
+        ],
+        [
+          21.3,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Library_HighSchool",
+      "name": "Library HighSchool",
+      "type": "room",
+      "polygon": [
+        [
+          29.55,
+          16.8
+        ],
+        [
+          37.2,
+          16.8
+        ],
+        [
+          37.2,
+          29.7
+        ],
+        [
+          29.55,
+          29.7
+        ],
+        [
+          29.55,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Faculty_Elem",
+      "name": "Faculty Elem",
+      "type": "room",
+      "polygon": [
+        [
+          37.8,
+          16.8
+        ],
+        [
+          45.45,
+          16.8
+        ],
+        [
+          45.45,
+          29.7
+        ],
+        [
+          37.8,
+          29.7
+        ],
+        [
+          37.8,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE302",
+      "name": "BE302",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          0.3
+        ],
+        [
+          12.45,
+          0.3
+        ],
+        [
+          12.45,
+          13.2
+        ],
+        [
+          4.8,
+          13.2
+        ],
+        [
+          4.8,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE304",
+      "name": "BE304",
+      "type": "room",
+      "polygon": [
+        [
+          13.05,
+          0.3
+        ],
+        [
+          20.7,
+          0.3
+        ],
+        [
+          20.7,
+          13.2
+        ],
+        [
+          13.05,
+          13.2
+        ],
+        [
+          13.05,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "Library_Elem",
+      "name": "Library Elem",
+      "type": "room",
+      "polygon": [
+        [
+          21.3,
+          0.3
+        ],
+        [
+          28.95,
+          0.3
+        ],
+        [
+          28.95,
+          13.2
+        ],
+        [
+          21.3,
+          13.2
+        ],
+        [
+          21.3,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "InternetSection",
+      "name": "InternetSection",
+      "type": "room",
+      "polygon": [
+        [
+          29.55,
+          0.3
+        ],
+        [
+          37.2,
+          0.3
+        ],
+        [
+          37.2,
+          13.2
+        ],
+        [
+          29.55,
+          13.2
+        ],
+        [
+          29.55,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "StudentLounge",
+      "name": "StudentLounge",
+      "type": "room",
+      "polygon": [
+        [
+          37.8,
+          0.3
+        ],
+        [
+          45.45,
+          0.3
+        ],
+        [
+          45.45,
+          13.2
+        ],
+        [
+          37.8,
+          13.2
+        ],
+        [
+          37.8,
+          0.3
+        ]
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "C3_01",
+      "type": "hallway",
+      "x": 8.625,
+      "y": 15,
+      "room_id": "Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ]
+    },
+    {
+      "id": "C3_02",
+      "type": "hallway",
+      "x": 16.875,
+      "y": 15,
+      "room_id": "Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ]
+    },
+    {
+      "id": "C3_03",
+      "type": "hallway",
+      "x": 25.125,
+      "y": 15,
+      "room_id": "Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ]
+    },
+    {
+      "id": "C3_04",
+      "type": "hallway",
+      "x": 33.375,
+      "y": 15,
+      "room_id": "Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ]
+    },
+    {
+      "id": "C3_05",
+      "type": "hallway",
+      "x": 41.625,
+      "y": 15,
+      "room_id": "Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ]
+    },
+    {
+      "id": "C3_06",
+      "type": "hallway",
+      "x": 46.875,
+      "y": 15,
+      "room_id": "Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ]
+    },
+    {
+      "id": "Stairs_Left_3",
+      "type": "stairwell",
+      "x": 2.25,
+      "y": 15,
+      "room_id": "Stairs_Left_3"
+    },
+    {
+      "id": "Stairs_Right_3",
+      "type": "stairwell",
+      "x": 50.25,
+      "y": 15,
+      "room_id": "Stairs_Right_3"
+    },
+    {
+      "id": "Elevator_3",
+      "type": "elevator",
+      "x": 46.875,
+      "y": 30,
+      "room_id": "Elevator_3"
+    },
+    {
+      "id": "Room_BE301",
+      "type": "room",
+      "x": 8.625,
+      "y": 16.8,
+      "room_id": "Room_BE301"
+    },
+    {
+      "id": "Room_BE303",
+      "type": "room",
+      "x": 16.875,
+      "y": 16.8,
+      "room_id": "Room_BE303"
+    },
+    {
+      "id": "FunctionHall",
+      "type": "room",
+      "x": 25.125,
+      "y": 16.8,
+      "room_id": "FunctionHall"
+    },
+    {
+      "id": "Library_HighSchool",
+      "type": "room",
+      "x": 33.375,
+      "y": 16.8,
+      "room_id": "Library_HighSchool"
+    },
+    {
+      "id": "Faculty_Elem",
+      "type": "room",
+      "x": 41.625,
+      "y": 16.8,
+      "room_id": "Faculty_Elem"
+    },
+    {
+      "id": "Room_BE302",
+      "type": "room",
+      "x": 8.625,
+      "y": 13.2,
+      "room_id": "Room_BE302"
+    },
+    {
+      "id": "Room_BE304",
+      "type": "room",
+      "x": 16.875,
+      "y": 13.2,
+      "room_id": "Room_BE304"
+    },
+    {
+      "id": "Library_Elem",
+      "type": "room",
+      "x": 25.125,
+      "y": 13.2,
+      "room_id": "Library_Elem"
+    },
+    {
+      "id": "InternetSection",
+      "type": "room",
+      "x": 33.375,
+      "y": 13.2,
+      "room_id": "InternetSection"
+    },
+    {
+      "id": "StudentLounge",
+      "type": "room",
+      "x": 41.625,
+      "y": 13.2,
+      "room_id": "StudentLounge"
+    }
+  ],
+  "edges": [
+    {
+      "from": "C3_01",
+      "to": "C3_02",
+      "type": "corridor"
+    },
+    {
+      "from": "C3_02",
+      "to": "C3_03",
+      "type": "corridor"
+    },
+    {
+      "from": "C3_03",
+      "to": "C3_04",
+      "type": "corridor"
+    },
+    {
+      "from": "C3_04",
+      "to": "C3_05",
+      "type": "corridor"
+    },
+    {
+      "from": "C3_05",
+      "to": "C3_06",
+      "type": "corridor"
+    },
+    {
+      "from": "Stairs_Left_3",
+      "to": "C3_01",
+      "type": "corridor"
+    },
+    {
+      "from": "Stairs_Right_3",
+      "to": "C3_06",
+      "type": "corridor"
+    },
+    {
+      "from": "Elevator_3",
+      "to": "C3_06",
+      "type": "corridor"
+    },
+    {
+      "from": "Room_BE301",
+      "to": "C3_01",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE303",
+      "to": "C3_02",
+      "type": "door"
+    },
+    {
+      "from": "FunctionHall",
+      "to": "C3_03",
+      "type": "door"
+    },
+    {
+      "from": "Library_HighSchool",
+      "to": "C3_04",
+      "type": "door"
+    },
+    {
+      "from": "Faculty_Elem",
+      "to": "C3_05",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE302",
+      "to": "C3_01",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE304",
+      "to": "C3_02",
+      "type": "door"
+    },
+    {
+      "from": "Library_Elem",
+      "to": "C3_03",
+      "type": "door"
+    },
+    {
+      "from": "InternetSection",
+      "to": "C3_04",
+      "type": "door"
+    },
+    {
+      "from": "StudentLounge",
+      "to": "C3_05",
+      "type": "door"
+    },
+    {
+      "from": "Stairs_Left_3",
+      "to": "BE/2/Stairs_Left_2",
+      "type": "stairs"
+    },
+    {
+      "from": "Stairs_Right_3",
+      "to": "BE/2/Stairs_Right_2",
+      "type": "stairs"
+    },
+    {
+      "from": "Elevator_3",
+      "to": "BE/2/Elevator_2",
+      "type": "elevator"
+    }
+  ]
+}

@@ -1,0 +1,685 @@
+{
+  "rooms": [
+    {
+      "id": "Corridor_Ground",
+      "name": "Corridor Ground",
+      "type": "corridor",
+      "polygon": [
+        [
+          4.5,
+          13.5
+        ],
+        [
+          48,
+          13.5
+        ],
+        [
+          48,
+          16.5
+        ],
+        [
+          4.5,
+          16.5
+        ],
+        [
+          4.5,
+          13.5
+        ]
+      ]
+    },
+    {
+      "id": "Stairs_Left_G",
+      "name": "Stairs Left",
+      "type": "stairwell",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4.5,
+          0
+        ],
+        [
+          4.5,
+          30
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "Stairs_Right_G",
+      "name": "Stairs Right",
+      "type": "stairwell",
+      "polygon": [
+        [
+          48,
+          0
+        ],
+        [
+          52.5,
+          0
+        ],
+        [
+          52.5,
+          30
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          48,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE101",
+      "name": "BE101",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          16.8
+        ],
+        [
+          11.449,
+          16.8
+        ],
+        [
+          11.449,
+          29.7
+        ],
+        [
+          4.8,
+          29.7
+        ],
+        [
+          4.8,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE103",
+      "name": "BE103",
+      "type": "room",
+      "polygon": [
+        [
+          12.05,
+          16.8
+        ],
+        [
+          18.699,
+          16.8
+        ],
+        [
+          18.699,
+          29.7
+        ],
+        [
+          12.05,
+          29.7
+        ],
+        [
+          12.05,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE105",
+      "name": "BE105",
+      "type": "room",
+      "polygon": [
+        [
+          19.3,
+          16.8
+        ],
+        [
+          25.95,
+          16.8
+        ],
+        [
+          25.95,
+          29.7
+        ],
+        [
+          19.3,
+          29.7
+        ],
+        [
+          19.3,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE107",
+      "name": "BE107",
+      "type": "room",
+      "polygon": [
+        [
+          26.55,
+          16.8
+        ],
+        [
+          33.199,
+          16.8
+        ],
+        [
+          33.199,
+          29.7
+        ],
+        [
+          26.55,
+          29.7
+        ],
+        [
+          26.55,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Canteen",
+      "name": "Canteen",
+      "type": "room",
+      "polygon": [
+        [
+          33.8,
+          16.8
+        ],
+        [
+          40.449,
+          16.8
+        ],
+        [
+          40.449,
+          29.7
+        ],
+        [
+          33.8,
+          29.7
+        ],
+        [
+          33.8,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Exit_South",
+      "name": "Exit South",
+      "type": "exit",
+      "polygon": [
+        [
+          41.051,
+          16.8
+        ],
+        [
+          47.7,
+          16.8
+        ],
+        [
+          47.7,
+          29.7
+        ],
+        [
+          41.051,
+          29.7
+        ],
+        [
+          41.051,
+          16.8
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE102",
+      "name": "BE102",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          0.3
+        ],
+        [
+          11.449,
+          0.3
+        ],
+        [
+          11.449,
+          13.2
+        ],
+        [
+          4.8,
+          13.2
+        ],
+        [
+          4.8,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE104",
+      "name": "BE104",
+      "type": "room",
+      "polygon": [
+        [
+          12.05,
+          0.3
+        ],
+        [
+          18.699,
+          0.3
+        ],
+        [
+          18.699,
+          13.2
+        ],
+        [
+          12.05,
+          13.2
+        ],
+        [
+          12.05,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE106",
+      "name": "BE106",
+      "type": "room",
+      "polygon": [
+        [
+          19.3,
+          0.3
+        ],
+        [
+          25.95,
+          0.3
+        ],
+        [
+          25.95,
+          13.2
+        ],
+        [
+          19.3,
+          13.2
+        ],
+        [
+          19.3,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "Room_BE108",
+      "name": "BE108",
+      "type": "room",
+      "polygon": [
+        [
+          26.55,
+          0.3
+        ],
+        [
+          33.199,
+          0.3
+        ],
+        [
+          33.199,
+          13.2
+        ],
+        [
+          26.55,
+          13.2
+        ],
+        [
+          26.55,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "Exit_North",
+      "name": "Exit North",
+      "type": "exit",
+      "polygon": [
+        [
+          33.8,
+          0.3
+        ],
+        [
+          40.449,
+          0.3
+        ],
+        [
+          40.449,
+          13.2
+        ],
+        [
+          33.8,
+          13.2
+        ],
+        [
+          33.8,
+          0.3
+        ]
+      ]
+    },
+    {
+      "id": "PumpRoom",
+      "name": "PumpRoom",
+      "type": "room",
+      "polygon": [
+        [
+          41.051,
+          0.3
+        ],
+        [
+          47.7,
+          0.3
+        ],
+        [
+          47.7,
+          13.2
+        ],
+        [
+          41.051,
+          13.2
+        ],
+        [
+          41.051,
+          0.3
+        ]
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "C1_01",
+      "type": "hallway",
+      "x": 8.126,
+      "y": 15,
+      "room_id": "Corridor_Ground",
+      "name": "Ground floor corridor"
+    },
+    {
+      "id": "C1_02",
+      "type": "hallway",
+      "x": 15.375,
+      "y": 15,
+      "room_id": "Corridor_Ground",
+      "name": "Ground floor corridor"
+    },
+    {
+      "id": "C1_03",
+      "type": "hallway",
+      "x": 22.625,
+      "y": 15,
+      "room_id": "Corridor_Ground",
+      "name": "Ground floor corridor"
+    },
+    {
+      "id": "C1_04",
+      "type": "hallway",
+      "x": 29.875,
+      "y": 15,
+      "room_id": "Corridor_Ground",
+      "name": "Ground floor corridor"
+    },
+    {
+      "id": "C1_05",
+      "type": "hallway",
+      "x": 37.125,
+      "y": 15,
+      "room_id": "Corridor_Ground",
+      "name": "Ground floor corridor"
+    },
+    {
+      "id": "C1_06",
+      "type": "hallway",
+      "x": 44.376,
+      "y": 15,
+      "room_id": "Corridor_Ground",
+      "name": "Ground floor corridor"
+    },
+    {
+      "id": "Stairs_Left_G",
+      "type": "stairwell",
+      "x": 2.25,
+      "y": 15,
+      "room_id": "Stairs_Left_G"
+    },
+    {
+      "id": "Stairs_Right_G",
+      "type": "stairwell",
+      "x": 50.25,
+      "y": 15,
+      "room_id": "Stairs_Right_G"
+    },
+    {
+      "id": "Room_BE101",
+      "type": "room",
+      "x": 8.126,
+      "y": 16.8,
+      "room_id": "Room_BE101"
+    },
+    {
+      "id": "Room_BE103",
+      "type": "room",
+      "x": 15.375,
+      "y": 16.8,
+      "room_id": "Room_BE103"
+    },
+    {
+      "id": "Room_BE105",
+      "type": "room",
+      "x": 22.625,
+      "y": 16.8,
+      "room_id": "Room_BE105"
+    },
+    {
+      "id": "Room_BE107",
+      "type": "room",
+      "x": 29.875,
+      "y": 16.8,
+      "room_id": "Room_BE107"
+    },
+    {
+      "id": "Canteen",
+      "type": "room",
+      "x": 37.125,
+      "y": 16.8,
+      "room_id": "Canteen"
+    },
+    {
+      "id": "Exit_South",
+      "type": "exit",
+      "x": 44.376,
+      "y": 16.8,
+      "room_id": "Exit_South",
+      "safe_for": [
+        "earthquake",
+        "fire"
+      ]
+    },
+    {
+      "id": "Room_BE102",
+      "type": "room",
+      "x": 8.126,
+      "y": 13.2,
+      "room_id": "Room_BE102"
+    },
+    {
+      "id": "Room_BE104",
+      "type": "room",
+      "x": 15.375,
+      "y": 13.2,
+      "room_id": "Room_BE104"
+    },
+    {
+      "id": "Room_BE106",
+      "type": "room",
+      "x": 22.625,
+      "y": 13.2,
+      "room_id": "Room_BE106"
+    },
+    {
+      "id": "Room_BE108",
+      "type": "room",
+      "x": 29.875,
+      "y": 13.2,
+      "room_id": "Room_BE108"
+    },
+    {
+      "id": "Exit_North",
+      "type": "exit",
+      "x": 37.125,
+      "y": 13.2,
+      "room_id": "Exit_North",
+      "safe_for": [
+        "earthquake",
+        "fire"
+      ]
+    },
+    {
+      "id": "PumpRoom",
+      "type": "room",
+      "x": 44.376,
+      "y": 13.2,
+      "room_id": "PumpRoom"
+    },
+    {
+      "id": "AP_Field",
+      "type": "assembly_point",
+      "x": 8.126,
+      "y": 60,
+      "safe_for": [
+        "earthquake",
+        "fire",
+        "flood"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "C1_01",
+      "to": "C1_02",
+      "type": "corridor"
+    },
+    {
+      "from": "C1_02",
+      "to": "C1_03",
+      "type": "corridor"
+    },
+    {
+      "from": "C1_03",
+      "to": "C1_04",
+      "type": "corridor"
+    },
+    {
+      "from": "C1_04",
+      "to": "C1_05",
+      "type": "corridor"
+    },
+    {
+      "from": "C1_05",
+      "to": "C1_06",
+      "type": "corridor"
+    },
+    {
+      "from": "Stairs_Left_G",
+      "to": "C1_01",
+      "type": "corridor"
+    },
+    {
+      "from": "Stairs_Right_G",
+      "to": "C1_06",
+      "type": "corridor"
+    },
+    {
+      "from": "Room_BE101",
+      "to": "C1_01",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE103",
+      "to": "C1_02",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE105",
+      "to": "C1_03",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE107",
+      "to": "C1_04",
+      "type": "door"
+    },
+    {
+      "from": "Canteen",
+      "to": "C1_05",
+      "type": "door"
+    },
+    {
+      "from": "Exit_South",
+      "to": "C1_06",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE102",
+      "to": "C1_01",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE104",
+      "to": "C1_02",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE106",
+      "to": "C1_03",
+      "type": "door"
+    },
+    {
+      "from": "Room_BE108",
+      "to": "C1_04",
+      "type": "door"
+    },
+    {
+      "from": "Exit_North",
+      "to": "C1_05",
+      "type": "door"
+    },
+    {
+      "from": "PumpRoom",
+      "to": "C1_06",
+      "type": "door"
+    },
+    {
+      "from": "Exit_South",
+      "to": "AP_Field",
+      "type": "outdoor",
+      "distance_m": 30
+    },
+    {
+      "from": "Exit_North",
+      "to": "AP_Field",
+      "type": "outdoor",
+      "distance_m": 30
+    }
+  ]
+}

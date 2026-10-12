@@ -1,0 +1,6 @@
+{
+  "name": "Demo Campus",
+  "origin": null,
+  "buildings": ["DEMO"],
+  "assembly_points": [{ "id": "AP", "node_id": "DEMO/1/AP", "lat": null, "lng": null, "radius_m": 25 }]
+}
