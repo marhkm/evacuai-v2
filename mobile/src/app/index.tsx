@@ -1,12 +1,15 @@
 import { Redirect, router } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { AlertBanner } from '@/components/AlertBanner';
 import { Button, Screen, colors } from '@/components/ui';
+import { useAlerts } from '@/lib/alerts';
 import { getServerUrl } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 
 export default function Home() {
   const { state } = useAuth();
+  const { active } = useAlerts();
 
   if (state.status === 'loading') {
     return (
@@ -20,10 +23,12 @@ export default function Home() {
 
   return (
     <Screen title="EvacuAI">
+      {active.map(a => <AlertBanner key={a.id} alert={a} />)}
       <Text style={styles.welcome}>Welcome, {state.user.name}</Text>
       <Text style={styles.meta}>{state.user.role.replace('_', ' ')} · {getServerUrl()}</Text>
-      <Text style={styles.meta}>Alerts, evacuation routes, SOS and check-in arrive in the next builds.</Text>
+      <Button label="Report a hazard" variant="danger" onPress={() => router.push('/report')} />
       <Button label="Campus map" onPress={() => router.push('/map')} />
+      <Button label="Alerts" variant="secondary" onPress={() => router.push('/alerts')} />
       <Button label="Profile" variant="secondary" onPress={() => router.push('/profile')} />
     </Screen>
   );
