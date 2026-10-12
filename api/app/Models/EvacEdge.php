@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\CampusChanged;
+use App\Support\Activity;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -32,6 +33,7 @@ class EvacEdge extends Model
         });
         static::updated(function (EvacEdge $edge) {
             if ($edge->wasChanged('status')) {
+                Activity::log('path_status_changed', ['edge' => $edge->id, 'from' => $edge->getOriginal('status'), 'to' => $edge->status]);
                 event(new CampusChanged);
             }
         });

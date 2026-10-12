@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\EvacuationLog;
+use App\Support\Activity;
 use App\Support\Places;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,8 @@ class SafetyController extends Controller
             ['user_id' => $request->user()->id, 'alert_id' => $alert->id],
             ['status' => $data['status'], 'assembly_node_id' => $data['node_id'] ?? null, 'checked_in_at' => now()],
         );
+
+        Activity::log('checked_in', ['alert_id' => $alert->id, 'status' => $log->status]);
 
         return response()->json(['check_in' => self::payload($alert, $log)]);
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\HazardReport;
+use App\Support\Activity;
 use App\Support\ReportClusters;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class HazardReportController extends Controller
         }
 
         $report = HazardReport::create($data + ['reported_by' => $request->user()->id]);
+        Activity::log('report_submitted', ['report_id' => $report->id, 'hazard' => $report->hazard_type]);
         ReportClusters::evaluate($report);
 
         return response()->json(['report' => $report->fresh()->only(self::FIELDS)], 201);

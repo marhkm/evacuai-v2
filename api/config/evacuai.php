@@ -25,6 +25,9 @@ return [
     // Class schedules are in local campus time.
     'timezone' => env('CAMPUS_TIMEZONE', 'Asia/Manila'),
 
+    // Data Privacy Act: IP/device in the activity log and location events are purged after this many days.
+    'retention_days' => (int) env('PRIVACY_RETENTION_DAYS', 30),
+
     // Comma-separated; empty = allow any domain (local testing).
     'allowed_email_domains' => array_filter(array_map('trim', explode(',', (string) env('ALLOWED_EMAIL_DOMAINS', '')))),
 ];

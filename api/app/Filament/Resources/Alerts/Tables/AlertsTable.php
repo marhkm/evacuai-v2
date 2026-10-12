@@ -42,6 +42,8 @@ class AlertsTable
                 SelectFilter::make('status')->options(['active' => 'Active', 'resolved' => 'Resolved', 'retracted' => 'Retracted']),
             ])
             ->recordActions([
+                Action::make('report')->label('Drill report')->icon('heroicon-o-arrow-down-tray')->color('gray')
+                    ->url(fn (Alert $record) => route('reports.drill', ['alert' => $record])),
                 Action::make('confirm')->label('Confirm')->icon('heroicon-o-check-badge')->color('warning')
                     ->visible(fn (Alert $record) => $active($record) && ! $record->verified)
                     ->requiresConfirmation()->modalDescription('Mark this report-based alert as verified by a safety officer.')

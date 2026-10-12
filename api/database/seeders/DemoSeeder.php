@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 /** Local/student testing accounts only (SEED_DEMO=true). Listed in docs/TESTING.md. Never run in production. */
 class DemoSeeder extends Seeder
@@ -21,7 +22,8 @@ class DemoSeeder extends Seeder
             $user = User::firstOrNew(['email' => "{$role->value}@evacuai.test"]);
             $user->forceFill([
                 'name' => 'Demo '.str($role->value)->replace('_', ' ')->title(),
-                'password' => self::PASSWORD,
+                // Rehashing on every boot would change the hash and sign officers out of the admin panel.
+                'password' => $user->password && Hash::check(self::PASSWORD, $user->password) ? $user->password : self::PASSWORD,
                 'role' => $role,
                 'email_verified_at' => $user->email_verified_at ?? now(),
                 'consented_at' => $user->consented_at ?? now(),

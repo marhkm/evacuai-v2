@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Support\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -66,6 +67,7 @@ class MeController extends Controller
             }
         }
         $user->tokens()->delete();
+        Activity::log('account_deleted', ['user_id' => $user->id], $user->id);
         $user->delete();
 
         return response()->noContent();

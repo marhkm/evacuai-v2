@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Rules\AllowedEmailDomain;
+use App\Support\Activity;
 use App\Support\AuthCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,6 +36,7 @@ class AuthController extends Controller
         ]);
         // Role is never taken from the request: every self-registered account is a student.
         $user = User::create($data);
+        Activity::log('registered', [], $user->id);
         AuthCodes::send($user, 'verify');
 
         return response()->json(['message' => 'Account created. Enter the code sent to your email.'], 201);
@@ -49,7 +51,7 @@ class AuthController extends Controller
         }
         $user->forceFill(['email_verified_at' => $user->email_verified_at ?? now()])->save();
 
-        return $this->tokenResponse($user, $data['device_name']);
+        return $this->tokenResponse($user, $data['device_name'], 'email_code');
     }
 
     public function resendCode(Request $request): JsonResponse
@@ -78,7 +80,7 @@ class AuthController extends Controller
         }
         RateLimiter::clear($key);
 
-        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name']);
+        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name'], 'password');
     }
 
     public function google(Request $request): JsonResponse
@@ -115,7 +117,7 @@ class AuthController extends Controller
             return $user;
         });
 
-        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name']);
+        return $this->guard($user) ?? $this->tokenResponse($user, $data['device_name'], 'google');
     }
 
     public function forgotPassword(Request $request): JsonResponse
@@ -166,8 +168,10 @@ class AuthController extends Controller
         return null;
     }
 
-    private function tokenResponse(User $user, string $device): JsonResponse
+    private function tokenResponse(User $user, string $device, string $method): JsonResponse
     {
+        Activity::log('login', ['method' => $method], $user->id);
+
         return response()->json(['token' => $user->createToken($device)->plainTextToken, 'user' => new UserResource($user)]);
     }
 }

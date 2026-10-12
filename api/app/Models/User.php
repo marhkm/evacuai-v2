@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use App\Support\Activity;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -44,15 +44,10 @@ class User extends Authenticatable implements FilamentUser
         // Audit trail for privilege changes (who promoted whom).
         static::updated(function (User $user) {
             if ($user->wasChanged('role')) {
-                DB::table('user_activity_logs')->insert([
-                    'user_id' => auth()->id(),
-                    'activity_type' => 'role_changed',
-                    'details' => json_encode([
-                        'target_user_id' => $user->id,
-                        'from' => $user->getOriginal('role')?->value,
-                        'to' => $user->role->value,
-                    ]),
-                    'created_at' => now(),
+                Activity::log('role_changed', [
+                    'target_user_id' => $user->id,
+                    'from' => $user->getOriginal('role')?->value,
+                    'to' => $user->role->value,
                 ]);
             }
         });

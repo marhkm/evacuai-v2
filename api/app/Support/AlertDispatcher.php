@@ -12,6 +12,7 @@ class AlertDispatcher
 {
     public static function dispatch(Alert $alert): void
     {
+        Activity::log('alert_issued', ['alert_id' => $alert->id, 'hazard' => $alert->hazard_type, 'source' => $alert->source, 'drill' => $alert->is_drill]);
         event(new AlertBroadcast($alert));
         SendAlertPush::dispatch($alert);
         if (config('services.semaphore.key')) {
@@ -22,6 +23,7 @@ class AlertDispatcher
     /** Status change (resolved/retracted/confirmed): live update only, no new push or SMS. */
     public static function update(Alert $alert): void
     {
+        Activity::log('alert_updated', ['alert_id' => $alert->id, 'status' => $alert->status, 'verified' => $alert->verified]);
         event(new AlertBroadcast($alert));
     }
 

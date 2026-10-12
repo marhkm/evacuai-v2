@@ -5,8 +5,10 @@ namespace App\Filament\Pages;
 use App\Models\Alert;
 use App\Models\SosAlert;
 use App\Models\User;
+use App\Support\DrillStats;
 use App\Support\Places;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -54,10 +56,18 @@ class SafetyMonitor extends Page implements HasTable
             ->all();
     }
 
-    /** People who are expected to evacuate (officers are responders, not counted). */
     private function people(): Builder
     {
-        return User::query()->where('users.is_active', true)->whereNotIn('users.role', ['admin', 'safety_officer']);
+        return DrillStats::people();
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('report')->label('Drill report (CSV)')->icon('heroicon-o-arrow-down-tray')
+                ->visible(fn () => (bool) $this->alertId())
+                ->url(fn () => route('reports.drill', ['alert' => $this->alertId()])),
+        ];
     }
 
     /** @return array{total: int, safe: int, needs_help: int, unknown: int, sos: int} */

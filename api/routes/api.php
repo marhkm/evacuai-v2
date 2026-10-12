@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CampusSnapshotController;
 use App\Http\Controllers\Api\ClientConfigController;
 use App\Http\Controllers\Api\DeviceController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\HazardReportController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\SafetyController;
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/check-in', [SafetyController::class, 'status']);
     Route::post('/check-in', [SafetyController::class, 'checkIn'])->middleware('throttle:10,1,check-in');
     Route::post('/location', [SafetyController::class, 'location'])->middleware('throttle:30,1,location');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:3,1,feedback');
 
     Route::prefix('me')->group(function () {
         Route::get('/', [MeController::class, 'show']);

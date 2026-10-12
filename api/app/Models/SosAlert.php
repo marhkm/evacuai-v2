@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\SosUpdated;
+use App\Support\Activity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,7 +40,12 @@ class SosAlert extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn (SosAlert $sos) => event(new SosUpdated($sos)));
+        static::saved(function (SosAlert $sos) {
+            if ($sos->wasRecentlyCreated || $sos->wasChanged('status')) {
+                Activity::log($sos->wasRecentlyCreated ? 'sos_sent' : "sos_{$sos->status}", ['sos_id' => $sos->id]);
+            }
+            event(new SosUpdated($sos));
+        });
     }
 
     public function isOpen(): bool
