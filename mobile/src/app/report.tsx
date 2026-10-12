@@ -1,8 +1,8 @@
 import type { CampusSnapshot } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Chips, Section } from '@/components/Chips';
 import { Button, Field, Message, Screen, colors } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -67,7 +67,7 @@ export default function Report() {
   return (
     <Screen title="Report a hazard">
       <Section label="What is it?">
-        <Chips items={HAZARDS} active={hazard} onSelect={setHazard} />
+        <Chips items={HAZARDS} active={hazard} onSelect={setHazard} color={colors.danger} />
       </Section>
       {snapshot && snapshot.buildings.length > 1 ? (
         <Section label="Building">
@@ -94,34 +94,3 @@ export default function Report() {
     </Screen>
   );
 }
-
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <View style={{ gap: 8 }}>
-      <Text style={styles.label}>{label}</Text>
-      {children}
-    </View>
-  );
-}
-
-function Chips({ items, active, onSelect }: { items: { key: string; label: string }[]; active: string | null; onSelect: (k: string) => void }) {
-  return (
-    <View style={styles.chips}>
-      {items.map(i => (
-        <Pressable key={i.key} accessibilityRole="button" accessibilityLabel={i.label} accessibilityState={{ selected: i.key === active }}
-          onPress={() => onSelect(i.key)} style={[styles.chip, i.key === active && styles.chipActive]}>
-          <Text style={[styles.chipText, i.key === active && styles.chipTextActive]}>{i.label}</Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  label: { fontSize: 15, fontWeight: '600', color: colors.text },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { minHeight: 44, paddingHorizontal: 14, justifyContent: 'center', borderRadius: 22, borderWidth: 1, borderColor: colors.danger },
-  chipActive: { backgroundColor: colors.danger },
-  chipText: { fontSize: 15, color: colors.danger, fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
-});

@@ -9,6 +9,7 @@
     "@react-native-community/netinfo": "12.0.1",
     "expo": "~57.0.27",
     "expo-auth-session": "~57.0.14",
+    "expo-camera": "~57.0.6",
     "expo-constants": "~57.0.21",
     "expo-crypto": "~57.0.3",
     "expo-device": "~57.0.2",
@@ -60,7 +61,8 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "/__tests__/helpers.ts"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.ts"

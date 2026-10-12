@@ -1,15 +1,18 @@
 import type { FloorShapes } from '@evacuai/campus-view';
+import type { Point } from '@evacuai/routing';
 import { useMemo } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Line, Polygon, Polyline, Text as SvgText } from 'react-native-svg';
 
 import { colors } from '@/components/ui';
 
 const ROOM_FILL = { room: '#e8efe9', corridor: '#f7f7f7', stairwell: '#dbe7f5', exit: '#d4edda', elevator: '#ececec' } as Record<string, string>;
 const NODE_COLOR = { exit: colors.primary, assembly_point: colors.primary, stairwell: '#2f6db5' } as Record<string, string>;
 
+type Overlay = { route?: Point[]; you?: Point; goal?: Point };
+
 /** Pure SVG drawing of one floor (metres → viewBox). Status is shown by colour and dash pattern, never colour alone. */
-export function FloorPlan({ shapes }: { shapes: FloorShapes }) {
+export function FloorPlan({ shapes, route, you, goal }: { shapes: FloorShapes } & Overlay) {
   const box = useMemo(() => {
     const pts = [...shapes.rooms.flatMap(r => r.polygon), ...shapes.nodes.map(n => [n.x, n.y] as const)];
     const xs = pts.map(p => p[0]);
@@ -47,6 +50,15 @@ export function FloorPlan({ shapes }: { shapes: FloorShapes }) {
         {shapes.nodes.filter(n => NODE_COLOR[n.type]).map(n => (
           <Circle key={n.id} cx={n.x} cy={n.y} r={label / 1.5} fill={NODE_COLOR[n.type]} />
         ))}
+        {route && route.length > 1 ? (
+          <Polyline
+            accessibilityLabel="Your evacuation route"
+            points={route.map(p => p.join(',')).join(' ')}
+            fill="none" stroke="#0b6bcb" strokeWidth={label / 1.6} strokeLinejoin="round" strokeLinecap="round"
+          />
+        ) : null}
+        {goal ? <Circle accessibilityLabel="Destination" cx={goal[0]} cy={goal[1]} r={label * 1.1} fill={colors.primary} stroke="#fff" strokeWidth={label / 4} /> : null}
+        {you ? <Circle accessibilityLabel="You are here" cx={you[0]} cy={you[1]} r={label * 1.1} fill="#0b6bcb" stroke="#fff" strokeWidth={label / 4} /> : null}
         {shapes.rooms.filter(r => r.type !== 'corridor').map(r => {
           const cx = r.polygon.reduce((s, p) => s + p[0], 0) / r.polygon.length;
           const cy = r.polygon.reduce((s, p) => s + p[1], 0) / r.polygon.length;

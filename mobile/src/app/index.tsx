@@ -26,8 +26,9 @@ export default function Home() {
       {active.map(a => <AlertBanner key={a.id} alert={a} />)}
       <Text style={styles.welcome}>Welcome, {state.user.name}</Text>
       <Text style={styles.meta}>{state.user.role.replace('_', ' ')} · {getServerUrl()}</Text>
+      <Button label="Evacuation route" onPress={() => router.push('/route')} />
       <Button label="Report a hazard" variant="danger" onPress={() => router.push('/report')} />
-      <Button label="Campus map" onPress={() => router.push('/map')} />
+      <Button label="Campus map" variant="secondary" onPress={() => router.push('/map')} />
       <Button label="Alerts" variant="secondary" onPress={() => router.push('/alerts')} />
       <Button label="Profile" variant="secondary" onPress={() => router.push('/profile')} />
     </Screen>

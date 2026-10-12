@@ -48,6 +48,7 @@ test('signing in shows the home screen and stores the token', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
   expect(await screen.findByText('Welcome, Juan')).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Campus map' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Evacuation route' })).toBeTruthy();
   expect(mockMem.get('token')).toBe('tok-1');
 });
 
