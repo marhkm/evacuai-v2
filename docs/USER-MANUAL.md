@@ -49,7 +49,7 @@ You do not need PHP, Node.js or a database. Docker runs everything.
 Either download the repository as a ZIP from GitHub (green **Code** button, then **Download ZIP**) and unzip it, or use git:
 
 ```bash
-git clone https://github.com/Lexageda/evacuai-v2.git
+git clone https://github.com/marhkm/evacuai-v2.git
 ```
 
 ### 1.3 Configure
