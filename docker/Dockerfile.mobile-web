@@ -1,0 +1,15 @@
+# Expo web build of the mobile app, served by nginx. Build context: repository root.
+FROM node:26-alpine AS build
+WORKDIR /repo
+COPY package.json package-lock.json ./
+COPY packages/ packages/
+COPY mobile/ mobile/
+RUN npm ci --no-audit --no-fund
+# Baked in at build time; the default suits `docker compose up` on the same machine.
+ARG EXPO_PUBLIC_API_URL=http://localhost:8000
+ENV EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL
+RUN cd mobile && npx expo export --platform web --output-dir dist
+
+FROM nginx:alpine
+COPY docker/mobile-web.nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /repo/mobile/dist /usr/share/nginx/html

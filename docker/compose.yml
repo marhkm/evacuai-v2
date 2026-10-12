@@ -1,0 +1,75 @@
+# EvacuAI full stack. Students: copy .env.example to .env, then `docker compose up`.
+name: evacuai
+
+x-php: &php
+  image: ${EVACUAI_IMAGE:-ghcr.io/lexageda/evacuai-api:latest}
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+    target: app
+  env_file: .env
+  restart: unless-stopped
+  healthcheck:
+    disable: true # base image probes Caddy's admin port; only `app` serves HTTP (it overrides this)
+
+services:
+  app:
+    <<: *php
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost:8000/up') === false ? 1 : 0);"]
+      interval: 5s
+      retries: 30
+
+  reverb:
+    <<: *php
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    ports: ["8080:8080"]
+    depends_on:
+      app: { condition: service_healthy }
+
+  queue:
+    <<: *php
+    command: ["php", "artisan", "queue:work", "--tries=3"]
+    depends_on:
+      app: { condition: service_healthy }
+
+  scheduler:
+    <<: *php
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      app: { condition: service_healthy }
+
+  mobile-web:
+    image: ${EVACUAI_MOBILE_WEB_IMAGE:-ghcr.io/lexageda/evacuai-mobile-web:latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mobile-web
+    ports: ["8081:80"]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-evacuai}
+      POSTGRES_USER: ${DB_USERNAME:-evacuai}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-evacuai}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports: ["127.0.0.1:5432:5432"] # host-only: lets local dev (Herd) and tests reach it
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      retries: 30
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["127.0.0.1:8025:8025", "127.0.0.1:1025:1025"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
