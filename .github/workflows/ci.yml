@@ -15,6 +15,7 @@ jobs:
       - run: npx expo lint
         working-directory: mobile
       - run: npm run snapshots && git diff --exit-code campus-data/*.snapshot.json
+      - run: npm run build:3d && git diff --exit-code api/public/js/campus-3d.js
 
   api:
     runs-on: ubuntu-latest

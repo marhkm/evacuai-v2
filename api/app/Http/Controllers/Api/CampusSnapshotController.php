@@ -26,7 +26,7 @@ class CampusSnapshotController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function build(): array
+    public function build(): array
     {
         $floors = DB::table('floors')->orderBy('level')->get()->groupBy('building_id');
 
