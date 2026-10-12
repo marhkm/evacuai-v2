@@ -10,9 +10,11 @@
     "typecheck": "tsc -p tsconfig.base.json",
     "validate": "tsx packages/routing/src/cli/validate.ts campus-data/demo campus-data/uclm",
     "snapshots": "tsx packages/routing/src/cli/snapshot.ts campus-data/demo campus-data/uclm",
-    "build:3d": "vite build --config packages/campus-3d/vite.config.ts --logLevel warn"
+    "build:3d": "vite build --config packages/campus-3d/vite.config.ts --logLevel warn",
+    "e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^26.6.4",
     "fast-check": "^4.10.2",
     "tsx": "^4.23.15",

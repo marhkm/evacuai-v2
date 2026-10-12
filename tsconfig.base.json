@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["packages/*/src", "packages/*/test", "campus-data/tools"]
+  "include": ["packages/*/src", "packages/*/test", "campus-data/tools", "e2e", "playwright.config.ts"]
 }
