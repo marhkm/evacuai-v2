@@ -20,6 +20,8 @@ jest.mock('@/lib/realtime', () => ({
   subscribeSos: async () => () => undefined,
 }));
 jest.mock('@/lib/push', () => ({ registerForPush: async () => undefined }));
+const mockBaro: { floors?: (n: number) => void } = {};
+jest.mock('@/lib/barometer', () => ({ watchFloorChanges: (_h: number, cb: (n: number) => void) => { mockBaro.floors = cb; return () => undefined; } }));
 jest.mock('expo-camera', () => {
   // jest.mock factories are hoisted above imports, so modules must be required inside them.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -114,4 +116,18 @@ test('re-routes live when an officer blocks a path, and says so when there is no
   snapshot.edges.find(e => e.id === 'DEMO/1/C1->DEMO/1/C2')!.status = 'blocked';
   await act(async () => mockLive.campus!());
   expect(await screen.findByText(/No safe way out found/)).toBeTruthy();
+});
+
+test('a barometer floor change moves the start to the stair landing and re-routes', async () => {
+  alerts = [activeAlert('flood')];
+  await open();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Ground' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'R101' }));
+  expect(await screen.findByText('Take S1 up to Second')).toBeTruthy();
+
+  await act(async () => mockBaro.floors!(1)); // climbed one floor
+  expect(await screen.findByText(/floor change detected/)).toBeTruthy();
+  expect(screen.getByText('Start at S2')).toBeTruthy();
+  expect(screen.queryByText('Take S1 up to Second')).toBeNull();
 });

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, Platform, Text } from 'react-native';
 
 import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { TEST_BUILD } from '@/config';
 import { ApiError, api } from '@/lib/api';
 import { useAuth, type User } from '@/lib/auth';
 
@@ -78,6 +79,7 @@ function ProfileForm({ user }: { user: User }) {
       <Message text={error && Object.keys(error.errors).length === 0 ? error.message : null} />
       <Message text={info} kind="info" />
 
+      {TEST_BUILD ? <Button label="Record pressure trace (test builds)" variant="secondary" onPress={() => router.push('/pressure')} /> : null}
       <Button label="Sign out" variant="secondary" onPress={async () => { await signOut(); router.replace('/login'); }} />
 
       <Text style={{ fontSize: 18, fontWeight: '700', marginTop: 16, color: colors.danger }}>Delete account</Text>

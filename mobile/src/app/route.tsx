@@ -13,7 +13,8 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { current, routeOrigin, type Estimate, type Observation } from '@/lib/estimator';
 import { useCampus } from '@/lib/useCampus';
-import { lastEstimate, updateWhereabouts } from '@/lib/whereabouts';
+import { watchFloorChanges } from '@/lib/barometer';
+import { lastEstimate, moveFloors, updateWhereabouts } from '@/lib/whereabouts';
 
 const HAZARD_CHOICES: { key: Hazard; label: string }[] = [
   { key: 'earthquake', label: 'Earthquake' }, { key: 'fire', label: 'Fire' }, { key: 'flood', label: 'Flood' },
@@ -44,6 +45,18 @@ export default function RouteScreen() {
   }, [token]);
 
   const hazard: Hazard | null = active[0] ? toHazard(active[0].hazard_type) : chosenHazard;
+  const alertActive = !!active[0];
+
+  // Barometer: once we know the building, a stair climb or descent moves the start to the new floor and re-routes.
+  const knownBuilding = estimate?.building;
+  const floorHeight = snapshot?.buildings.find(b => b.id === knownBuilding)?.floors[0]?.height_m;
+  useEffect(() => {
+    if (!snapshot || !floorHeight) return;
+    return watchFloorChanges(floorHeight, floors => {
+      setViewLevel(null);
+      setEstimate(moveFloors(snapshot, floors, token, alertActive));
+    });
+  }, [snapshot, floorHeight, token, alertActive]);
   const live = current(estimate, now);
   const origin = snapshot ? routeOrigin(snapshot, live) : null;
   const result = useMemo(() => (snapshot && origin && hazard ? findRoute(snapshot, origin, hazard) : null), [snapshot, origin, hazard]);
@@ -63,7 +76,7 @@ export default function RouteScreen() {
 
   function locate(obs: Observation) {
     setViewLevel(null);
-    setEstimate(updateWhereabouts(obs, token, !!active[0]));
+    setEstimate(updateWhereabouts(obs, token, alertActive));
   }
 
   const sourceText = live && { qr: 'scanned sticker', manual: 'you picked it', schedule: 'from your class schedule', barometer: 'floor change detected', gps: 'GPS' }[live.source];
