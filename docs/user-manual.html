@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EvacuAI User Manual</title>
+<meta name="description" content="How to run EvacuAI with Docker and use every function of the mobile app and the admin dashboard.">
+<style>
+  :root {
+    --primary: #1a7a3c; --primary-dark: #145f2f; --primary-tint: #e3f1e8; --danger: #c0392b; --amber: #b9770e;
+    --text: #111; --muted: #555; --card: #f2f5f3; --border: #cfd8d3; --bg: #fff; --code-bg: #f2f5f3; --route: #eef5fd;
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #4cc276; --primary-dark: #7fd9a0; --primary-tint: #16301f; --danger: #ef6b5d; --amber: #e0a43a;
+      --text: #e8ece9; --muted: #a9b5ae; --card: #18201b; --border: #2c3a31; --bg: #0f1411; --code-bg: #18201b; --route: #142133;
+    }
+  }
+  :root[data-theme="dark"] {
+    --primary: #4cc276; --primary-dark: #7fd9a0; --primary-tint: #16301f; --danger: #ef6b5d; --amber: #e0a43a;
+    --text: #e8ece9; --muted: #a9b5ae; --card: #18201b; --border: #2c3a31; --bg: #0f1411; --code-bg: #18201b; --route: #142133;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--primary); }
+  header.bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+    background: #1a7a3c; color: #fff; box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+  header.bar .logo { width: 36px; height: 36px; flex: none; }
+  header.bar h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: .2px; }
+  header.bar span { opacity: .85; font-size: 14px; }
+  header.bar .spacer { flex: 1; }
+  header.bar button { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 20px;
+    padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; min-height: 36px; }
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+  nav.toc { position: sticky; top: 84px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; padding-right: 8px; }
+  nav.toc strong { display: block; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .6px; margin: 4px 0 8px; }
+  nav.toc a { display: block; text-decoration: none; color: var(--text); border-radius: 8px; padding: 5px 10px; font-size: 15px; line-height: 1.35; }
+  nav.toc a.toc-2 { font-weight: 700; margin-top: 8px; }
+  nav.toc a.toc-3 { color: var(--muted); padding-left: 22px; font-size: 14px; }
+  nav.toc a:hover, nav.toc a.active { background: var(--primary-tint); color: var(--primary-dark); }
+  main { min-width: 0; max-width: 820px; }
+  .welcome { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 8px; }
+  .welcome p:first-child { font-size: 19px; margin-top: 0; }
+  h2 { font-size: 28px; color: var(--primary); margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 20px; margin: 32px 0 8px; }
+  h2 .anchor, h3 .anchor { float: left; margin-left: -1em; padding-right: .3em; color: var(--border); text-decoration: none; visibility: hidden; }
+  h2:hover .anchor, h3:hover .anchor { visibility: visible; }
+  p, li { max-width: 72ch; }
+  li { margin: 4px 0; }
+  strong { font-weight: 700; }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; background: var(--code-bg);
+    border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; }
+  .code { position: relative; margin: 12px 0; }
+  .code pre { margin: 0; background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; padding-right: 72px; overflow-x: auto; }
+  .code pre code { background: none; border: 0; padding: 0; font-size: 14px; overflow-wrap: normal; }
+  .code .copy { position: absolute; top: 8px; right: 8px; border: 1px solid var(--primary); background: var(--bg); color: var(--primary);
+    border-radius: 20px; padding: 3px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .code .copy.done { background: var(--primary); color: #fff; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--border); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  th { background: var(--card); font-weight: 700; }
+  tr:last-child td { border-bottom: 0; }
+  aside.tip { background: var(--route); border-left: 4px solid #0b6bcb; border-radius: var(--radius); padding: 4px 16px; margin: 16px 0; }
+  hr { display: none; }
+  .back { position: fixed; right: 20px; bottom: 20px; background: var(--primary); color: #fff; border-radius: 24px; padding: 10px 16px;
+    text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+  footer { color: var(--muted); font-size: 14px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); }
+  details.toc-mobile { display: none; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; padding: 16px 16px 64px; }
+    nav.toc { display: none; }
+    details.toc-mobile { display: block; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; }
+    details.toc-mobile summary { font-weight: 700; cursor: pointer; min-height: 32px; }
+    details.toc-mobile a { display: block; padding: 4px 0; text-decoration: none; }
+    details.toc-mobile a.toc-3 { padding-left: 16px; font-size: 15px; color: var(--muted); }
+    header.bar span { display: none; }
+    h2 { font-size: 24px; }
+  }
+  @media print {
+    header.bar, nav.toc, details.toc-mobile, .back, .code .copy { display: none !important; }
+    .layout { display: block; padding: 0; }
+    h2 { break-before: page; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <svg class="logo" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#fff"/><path d="M18 6l10 4v7c0 6.5-4.2 11.4-10 13-5.8-1.6-10-6.5-10-13v-7z" fill="#1a7a3c"/><path d="M16 12h4v6h4l-6 7-6-7h4z" fill="#fff"/></svg>
+  <h1>EvacuAI User Manual</h1><span>Docker setup · mobile app · admin dashboard</span>
+  <div class="spacer"></div>
+  <button type="button" id="theme" aria-label="Switch between light and dark">Dark mode</button>
+</header>
+<div class="layout">
+  <nav class="toc" aria-label="Contents"><strong>Contents</strong>
+<a class="toc-2" href="#1-run-evacuai-on-your-computer-docker">1. Run EvacuAI on your computer (Docker)</a>
+<a class="toc-3" href="#11-what-you-need">1.1 What you need</a>
+<a class="toc-3" href="#12-get-the-code">1.2 Get the code</a>
+<a class="toc-3" href="#13-configure">1.3 Configure</a>
+<a class="toc-3" href="#14-start">1.4 Start</a>
+<a class="toc-3" href="#15-open-it">1.5 Open it</a>
+<a class="toc-3" href="#16-demo-accounts">1.6 Demo accounts</a>
+<a class="toc-3" href="#17-stop-update-reset">1.7 Stop, update, reset</a>
+<a class="toc-3" href="#18-use-a-real-phone-optional">1.8 Use a real phone (optional)</a>
+<a class="toc-2" href="#2-the-mobile-app">2. The mobile app</a>
+<a class="toc-3" href="#21-create-an-account-and-sign-in">2.1 Create an account and sign in</a>
+<a class="toc-3" href="#22-home-screen">2.2 Home screen</a>
+<a class="toc-3" href="#23-alerts">2.3 Alerts</a>
+<a class="toc-3" href="#24-report-a-hazard">2.4 Report a hazard</a>
+<a class="toc-3" href="#25-evacuation-route">2.5 Evacuation route</a>
+<a class="toc-3" href="#26-campus-map">2.6 Campus map</a>
+<a class="toc-3" href="#27-sos">2.7 SOS</a>
+<a class="toc-3" href="#28-check-in-safe">2.8 Check in safe</a>
+<a class="toc-3" href="#29-feedback">2.9 Feedback</a>
+<a class="toc-3" href="#210-profile">2.10 Profile</a>
+<a class="toc-2" href="#3-the-admin-dashboard-web">3. The admin dashboard (web)</a>
+<a class="toc-3" href="#31-dashboard">3.1 Dashboard</a>
+<a class="toc-3" href="#32-sos">3.2 SOS</a>
+<a class="toc-3" href="#33-safety-monitor">3.3 Safety Monitor</a>
+<a class="toc-3" href="#34-campus-3d">3.4 Campus 3D</a>
+<a class="toc-3" href="#35-alerts">3.5 Alerts</a>
+<a class="toc-3" href="#36-hazard-reports">3.6 Hazard Reports</a>
+<a class="toc-3" href="#37-paths">3.7 Paths</a>
+<a class="toc-3" href="#38-users">3.8 Users</a>
+<a class="toc-3" href="#39-import-class-schedules">3.9 Import class schedules</a>
+<a class="toc-3" href="#310-qr-stickers">3.10 QR stickers</a>
+<a class="toc-3" href="#311-reports-feedback-and-activity-log">3.11 Reports: Feedback and Activity log</a>
+<a class="toc-2" href="#4-a-complete-drill-start-to-finish">4. A complete drill, start to finish</a>
+<a class="toc-2" href="#5-sample-data-and-simulations">5. Sample data and simulations</a>
+<a class="toc-3" href="#51-the-sample-drill">5.1 The sample drill</a>
+<a class="toc-3" href="#52-simulation-commands">5.2 Simulation commands</a>
+<a class="toc-2" href="#6-optional-features">6. Optional features</a>
+<a class="toc-2" href="#7-privacy-and-data">7. Privacy and data</a>
+<a class="toc-2" href="#8-troubleshooting">8. Troubleshooting</a>
+  </nav>
+  <main>
+    <details class="toc-mobile"><summary>Contents</summary>
+<a class="toc-2" href="#1-run-evacuai-on-your-computer-docker">1. Run EvacuAI on your computer (Docker)</a>
+<a class="toc-3" href="#11-what-you-need">1.1 What you need</a>
+<a class="toc-3" href="#12-get-the-code">1.2 Get the code</a>
+<a class="toc-3" href="#13-configure">1.3 Configure</a>
+<a class="toc-3" href="#14-start">1.4 Start</a>
+<a class="toc-3" href="#15-open-it">1.5 Open it</a>
+<a class="toc-3" href="#16-demo-accounts">1.6 Demo accounts</a>
+<a class="toc-3" href="#17-stop-update-reset">1.7 Stop, update, reset</a>
+<a class="toc-3" href="#18-use-a-real-phone-optional">1.8 Use a real phone (optional)</a>
+<a class="toc-2" href="#2-the-mobile-app">2. The mobile app</a>
+<a class="toc-3" href="#21-create-an-account-and-sign-in">2.1 Create an account and sign in</a>
+<a class="toc-3" href="#22-home-screen">2.2 Home screen</a>
+<a class="toc-3" href="#23-alerts">2.3 Alerts</a>
+<a class="toc-3" href="#24-report-a-hazard">2.4 Report a hazard</a>
+<a class="toc-3" href="#25-evacuation-route">2.5 Evacuation route</a>
+<a class="toc-3" href="#26-campus-map">2.6 Campus map</a>
+<a class="toc-3" href="#27-sos">2.7 SOS</a>
+<a class="toc-3" href="#28-check-in-safe">2.8 Check in safe</a>
+<a class="toc-3" href="#29-feedback">2.9 Feedback</a>
+<a class="toc-3" href="#210-profile">2.10 Profile</a>
+<a class="toc-2" href="#3-the-admin-dashboard-web">3. The admin dashboard (web)</a>
+<a class="toc-3" href="#31-dashboard">3.1 Dashboard</a>
+<a class="toc-3" href="#32-sos">3.2 SOS</a>
+<a class="toc-3" href="#33-safety-monitor">3.3 Safety Monitor</a>
+<a class="toc-3" href="#34-campus-3d">3.4 Campus 3D</a>
+<a class="toc-3" href="#35-alerts">3.5 Alerts</a>
+<a class="toc-3" href="#36-hazard-reports">3.6 Hazard Reports</a>
+<a class="toc-3" href="#37-paths">3.7 Paths</a>
+<a class="toc-3" href="#38-users">3.8 Users</a>
+<a class="toc-3" href="#39-import-class-schedules">3.9 Import class schedules</a>
+<a class="toc-3" href="#310-qr-stickers">3.10 QR stickers</a>
+<a class="toc-3" href="#311-reports-feedback-and-activity-log">3.11 Reports: Feedback and Activity log</a>
+<a class="toc-2" href="#4-a-complete-drill-start-to-finish">4. A complete drill, start to finish</a>
+<a class="toc-2" href="#5-sample-data-and-simulations">5. Sample data and simulations</a>
+<a class="toc-3" href="#51-the-sample-drill">5.1 The sample drill</a>
+<a class="toc-3" href="#52-simulation-commands">5.2 Simulation commands</a>
+<a class="toc-2" href="#6-optional-features">6. Optional features</a>
+<a class="toc-2" href="#7-privacy-and-data">7. Privacy and data</a>
+<a class="toc-2" href="#8-troubleshooting">8. Troubleshooting</a>
+    </details>
+    <section class="welcome">
+<p>EvacuAI warns people on campus about emergencies, shows each person a safe way out of the building, and gives safety
+officers a live picture of who is safe and who needs help.</p>
+<p><strong>Who uses what</strong></p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Uses</th>
+<th>Can do</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Student, faculty, staff</td>
+<td>Mobile app</td>
+<td>Receive alerts, find the evacuation route, report hazards, send SOS, check in safe</td>
+</tr>
+<tr>
+<td>Safety officer</td>
+<td>Admin dashboard (and the app)</td>
+<td>Everything above, plus broadcast alerts, verify reports, block paths, answer SOS, monitor the evacuation</td>
+</tr>
+<tr>
+<td>Admin</td>
+<td>Admin dashboard</td>
+<td>Everything a safety officer can do, plus manage users and roles and read the activity log</td>
+</tr>
+</tbody></table>
+<p>New accounts are always students. Only an admin can make someone a safety officer or admin.</p>
+<hr>
+
+    </section>
+<h2 id="1-run-evacuai-on-your-computer-docker"><a class="anchor" href="#1-run-evacuai-on-your-computer-docker" aria-hidden="true">#</a>1. Run EvacuAI on your computer (Docker)</h2>
+<h3 id="11-what-you-need"><a class="anchor" href="#11-what-you-need" aria-hidden="true">#</a>1.1 What you need</h3>
+<ul>
+<li>A computer with 8 GB of RAM or more (Windows 10/11, macOS or Linux).</li>
+<li><strong>Docker Desktop</strong>: <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a> (on Windows, accept the WSL 2 option during setup).</li>
+<li>A modern browser (Chrome, Edge or Firefox).</li>
+<li>Optional: an Android phone on the same Wi-Fi.</li>
+</ul>
+<p>You do not need PHP, Node.js or a database. Docker runs everything.</p>
+<aside class="tip"><p><strong>Windows tip:</strong> Docker uses WSL 2, which can take most of your memory. To cap it, create <code>C:\Users\&lt;you&gt;\.wslconfig</code>
+with these lines, then run <code>wsl --shutdown</code> and restart Docker Desktop:</p>
+<div class="code"><pre><code data-lang="ini">[wsl2]
+memory=4GB</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</aside>
+<h3 id="12-get-the-code"><a class="anchor" href="#12-get-the-code" aria-hidden="true">#</a>1.2 Get the code</h3>
+<p>Either download the repository as a ZIP from GitHub (green <strong>Code</strong> button, then <strong>Download ZIP</strong>) and unzip it, or use git:</p>
+<div class="code"><pre><code data-lang="bash">git clone https://github.com/marhkm/evacuai-v2.git</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<h3 id="13-configure"><a class="anchor" href="#13-configure" aria-hidden="true">#</a>1.3 Configure</h3>
+<p>In the <code>docker</code> folder, copy <code>.env.example</code> to a new file named <code>.env</code>. The defaults work as they are for local testing.</p>
+<div class="code"><pre><code data-lang="bash">cp docker/.env.example docker/.env</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>(On Windows without git bash: copy and rename the file in File Explorer.)</p>
+<h3 id="14-start"><a class="anchor" href="#14-start" aria-hidden="true">#</a>1.4 Start</h3>
+<p>Open Docker Desktop and wait until it says it is running. Then, in a terminal in the repository folder:</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml up -d --build</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>The first start takes several minutes: it builds the images, creates the database, imports the campus map and creates
+the demo accounts. Later starts take seconds.</p>
+<p>Check that everything is up:</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml ps</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>All services should show <code>running</code> (and <code>app</code> should show <code>healthy</code>).</p>
+<h3 id="15-open-it"><a class="anchor" href="#15-open-it" aria-hidden="true">#</a>1.5 Open it</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What</th>
+<th>Address</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mobile app (web version)</td>
+<td><a href="http://localhost:8081">http://localhost:8081</a></td>
+</tr>
+<tr>
+<td>Admin dashboard</td>
+<td><a href="http://localhost:8000/admin">http://localhost:8000/admin</a></td>
+</tr>
+<tr>
+<td>Test mailbox (verification and reset codes)</td>
+<td><a href="http://localhost:8025">http://localhost:8025</a></td>
+</tr>
+</tbody></table>
+</div><p>Tip: open the mobile app in your browser&#39;s phone view (press F12, then the phone/tablet icon) so it looks like a phone.</p>
+<h3 id="16-demo-accounts"><a class="anchor" href="#16-demo-accounts" aria-hidden="true">#</a>1.6 Demo accounts</h3>
+<p>All demo accounts use the password <strong><code>evacuai-demo</code></strong>. They exist only on test setups (<code>SEED_DEMO=true</code>) and never
+in production.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Email</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Admin</td>
+<td><a href="mailto:admin@evacuai.test">admin@evacuai.test</a></td>
+</tr>
+<tr>
+<td>Safety officer</td>
+<td><a href="mailto:safety_officer@evacuai.test">safety_officer@evacuai.test</a></td>
+</tr>
+<tr>
+<td>Student</td>
+<td><a href="mailto:student@evacuai.test">student@evacuai.test</a></td>
+</tr>
+<tr>
+<td>Faculty</td>
+<td><a href="mailto:faculty@evacuai.test">faculty@evacuai.test</a></td>
+</tr>
+<tr>
+<td>Staff</td>
+<td><a href="mailto:staff@evacuai.test">staff@evacuai.test</a></td>
+</tr>
+</tbody></table>
+</div><h3 id="17-stop-update-reset"><a class="anchor" href="#17-stop-update-reset" aria-hidden="true">#</a>1.7 Stop, update, reset</h3>
+<p>Stop (keeps your data):</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml down</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Update after pulling new code:</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml up -d --build</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Reset everything (deletes the database and uploaded photos, then starts fresh on the next <code>up</code>):</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml down -v</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<h3 id="18-use-a-real-phone-optional"><a class="anchor" href="#18-use-a-real-phone-optional" aria-hidden="true">#</a>1.8 Use a real phone (optional)</h3>
+<p>The web version runs on your PC. To use a phone on the same Wi-Fi:</p>
+<ol>
+<li>Find your PC&#39;s local IP address (Windows: run <code>ipconfig</code> and look for the IPv4 address, e.g. <code>192.168.1.5</code>).</li>
+<li>Install the EvacuAI test APK on the phone (when available).</li>
+<li>On the sign-in screen, tap <strong>Server: …</strong>, enter <code>http://&lt;your-PC-IP&gt;:8000</code>, then tap <strong>Save server</strong>.</li>
+</ol>
+<p>The phone app adds the camera (QR stickers, hazard photos), the barometer (floor tracking), GPS check-in and push
+notifications. If Windows Firewall asks, allow Docker on private networks.</p>
+<hr>
+<h2 id="2-the-mobile-app"><a class="anchor" href="#2-the-mobile-app" aria-hidden="true">#</a>2. The mobile app</h2>
+<p>Open <a href="http://localhost:8081">http://localhost:8081</a> (or the app on your phone).</p>
+<h3 id="21-create-an-account-and-sign-in"><a class="anchor" href="#21-create-an-account-and-sign-in" aria-hidden="true">#</a>2.1 Create an account and sign in</h3>
+<p><strong>Sign in:</strong> enter your email and password, then tap <strong>Sign in</strong>.</p>
+<p><strong>Create an account:</strong></p>
+<ol>
+<li>Tap <strong>Create an account</strong>.</li>
+<li>Enter your full name, email and a password (8 characters or more) twice, then tap <strong>Create account</strong>.</li>
+<li>A 6-digit code is emailed to you. On a test setup, open <a href="http://localhost:8025">http://localhost:8025</a> to read it.</li>
+<li>Enter the code and tap <strong>Verify</strong>. (<strong>Send a new code</strong> if it expired.)</li>
+</ol>
+<p><strong>Forgot password:</strong> tap <strong>Forgot password?</strong>, enter your email, read the code (Mailpit on a test setup), then set a new
+password.</p>
+<p><strong>Google or Microsoft 365:</strong> the <strong>Continue with Google</strong> and <strong>Continue with Microsoft 365</strong> buttons appear only when
+the instructor has set them up (see <a href="#6-optional-features">6. Optional features</a>).</p>
+<p><strong>Privacy notice:</strong> the first time you sign in, read the notice and tap <strong>I agree</strong>. The app only uses your location
+during an emergency (route, SOS, check-in).</p>
+<h3 id="22-home-screen"><a class="anchor" href="#22-home-screen" aria-hidden="true">#</a>2.2 Home screen</h3>
+<p>The home screen shows any <strong>active alert</strong> at the top (red for real alerts, amber for drills), your name, and these
+buttons:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Button</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SOS</strong></td>
+<td>Ask safety officers for help (always available)</td>
+</tr>
+<tr>
+<td><strong>Check in safe</strong></td>
+<td>Tell officers you are safe (shown only while an alert is active)</td>
+</tr>
+<tr>
+<td><strong>Evacuation route</strong></td>
+<td>Step-by-step way out from where you are</td>
+</tr>
+<tr>
+<td><strong>Report a hazard</strong></td>
+<td>Report fire, smoke, flooding, damage and more</td>
+</tr>
+<tr>
+<td><strong>Campus map</strong></td>
+<td>Floor plans, all floors at once, and 3D</td>
+</tr>
+<tr>
+<td><strong>Alerts</strong></td>
+<td>Current and past alerts</td>
+</tr>
+<tr>
+<td><strong>Profile</strong></td>
+<td>Your details, password, sign out, delete account</td>
+</tr>
+<tr>
+<td><strong>Send feedback</strong></td>
+<td>Rate the app</td>
+</tr>
+</tbody></table>
+</div><h3 id="23-alerts"><a class="anchor" href="#23-alerts" aria-hidden="true">#</a>2.3 Alerts</h3>
+<ul>
+<li>New alerts appear on the home screen within seconds, even without refreshing. On a phone they also arrive as push
+notifications.</li>
+<li>Labels tell you what kind of alert it is: <strong>[DRILL]</strong> means practice; <strong>UNVERIFIED</strong> means several people reported
+it but an officer has not confirmed it yet.</li>
+<li>If the officer added Cebuano or Filipino translations, they appear under the English message.</li>
+<li><strong>Alerts</strong> lists the active alerts first, then the last 30 days, with their status (active, resolved, retracted).</li>
+</ul>
+<h3 id="24-report-a-hazard"><a class="anchor" href="#24-report-a-hazard" aria-hidden="true">#</a>2.4 Report a hazard</h3>
+<ol>
+<li>Tap <strong>Report a hazard</strong>.</li>
+<li>Choose what it is: <strong>Fire</strong>, <strong>Earthquake</strong>, <strong>Flood</strong>, <strong>Structural damage</strong> or <strong>Other</strong>.</li>
+<li>Choose the building (if there are several) and the floor. Optionally choose the room or area.</li>
+<li>Optionally describe what you see (up to 500 characters).</li>
+<li>Optionally add a photo: <strong>Take photo</strong> (phone) or <strong>Choose photo</strong>. Tap <strong>Remove photo</strong> to drop it.</li>
+<li>Tap <strong>Send report</strong>.</li>
+</ol>
+<p>Safety officers see the report right away. When <strong>three different people</strong> report the same hazard on the same floor
+within 10 minutes, everyone automatically gets an <strong>UNVERIFIED</strong> alert while an officer checks it.</p>
+<p>Do not put people&#39;s names or faces in reports if you can avoid it.</p>
+<h3 id="25-evacuation-route"><a class="anchor" href="#25-evacuation-route" aria-hidden="true">#</a>2.5 Evacuation route</h3>
+<ol>
+<li>Tap <strong>Evacuation route</strong>.</li>
+<li><strong>What is happening?</strong> If an alert is active, the app already knows (e.g. &quot;Routing for: fire&quot;). Otherwise choose
+<strong>Earthquake</strong>, <strong>Fire</strong> or <strong>Flood</strong>. Each hazard has its own rules: fire avoids smoky paths, flood leads upstairs,
+and elevators are never used.</li>
+<li><strong>Tell the app where you are</strong>, in any of these ways:<ul>
+<li><strong>Your class now:</strong> if your class schedule is loaded, tap <strong>Yes, I&#39;m in <room></strong>.</li>
+<li><strong>Scan QR sticker</strong> (phone): scan the EvacuAI sticker inside the room door or at a stairwell. This is the most
+accurate.</li>
+<li><strong>Pick my room:</strong> choose the building, floor and room.</li>
+</ul>
+</li>
+<li>The app shows <strong>&quot;N m to safety&quot;</strong>, numbered steps (e.g. &quot;Exit BE301&quot;, &quot;Take Stairs Left down to Ground&quot;,
+&quot;Go to Exit North&quot;) and the route drawn on the floor plan, with your position and the destination. Use the floor
+buttons to see each floor of the route.</li>
+</ol>
+<p>While you follow the route:</p>
+<ul>
+<li><strong>It updates itself.</strong> If an officer blocks a path (for example a smoky stairway), the route changes within a few
+seconds.</li>
+<li><strong>Floor tracking (phones with a barometer):</strong> when you go up or down the stairs, the app moves your starting point to
+that floor&#39;s stair landing and recalculates. The source shows as &quot;floor change detected&quot;. Confirm your exact spot
+with a sticker or <strong>Pick my room</strong> when you can.</li>
+<li><strong>Offline:</strong> the last downloaded map is kept on the phone, so routing still works without a connection. The app says
+when it is offline.</li>
+<li>If there is <strong>no safe way out</strong>, the app tells you to stay where you are if it is safe, call for help, and follow
+safety officers. Use <strong>SOS</strong>.</li>
+</ul>
+<h3 id="26-campus-map"><a class="anchor" href="#26-campus-map" aria-hidden="true">#</a>2.6 Campus map</h3>
+<p>Tap <strong>Campus map</strong>. If there are several buildings, choose one at the top. Then choose a view:</p>
+<ul>
+<li><strong>Floor plan:</strong> one floor at a time (choose the floor). Blocked paths are red and dashed; congested paths are orange;
+rooms with a reported hazard are red. Exits and assembly points are green dots; stairs are blue dots. The text below
+says how many paths are blocked on that floor.</li>
+<li><strong>All floors:</strong> every floor stacked, ground floor at the bottom, with hazard and blocked-path counts per floor.
+Works on every phone.</li>
+<li><strong>3D:</strong> drag to turn, pinch or scroll to zoom, tap a room to see its name. Shown only on phones with enough memory
+(3 GB or more) and on computers. When a new alert starts, the map switches back to the plain floor plan.</li>
+</ul>
+<h3 id="27-sos"><a class="anchor" href="#27-sos" aria-hidden="true">#</a>2.7 SOS</h3>
+<p>Use SOS when you are hurt, trapped or in danger.</p>
+<ol>
+<li>Tap <strong>SOS</strong>.</li>
+<li>Tell officers where you are: <strong>Scan QR sticker</strong> or <strong>Pick my room</strong>. (If you already did this on the route screen,
+the app remembers it.)</li>
+<li>Optionally write what happened.</li>
+<li>Tap <strong>Send SOS</strong>.</li>
+</ol>
+<p>Then:</p>
+<ul>
+<li>The screen shows <strong>Waiting for a safety officer…</strong>, then <strong><Officer> is responding.</strong></li>
+<li><strong>Chat:</strong> type in <strong>Message</strong> and tap <strong>Send message</strong>. Officer replies appear within seconds.</li>
+<li><strong>Cancel SOS (I&#39;m safe now):</strong> possible only until an officer responds. After that, tell them in the chat.</li>
+<li>Pressing SOS again while one is open does not create a second request.</li>
+</ul>
+<h3 id="28-check-in-safe"><a class="anchor" href="#28-check-in-safe" aria-hidden="true">#</a>2.8 Check in safe</h3>
+<p>During an active alert, when you reach a safe place:</p>
+<ol>
+<li>Tap <strong>Check in safe</strong> on the home screen.</li>
+<li>Choose one:<ul>
+<li><strong>Check in safe at <assembly point></strong>: shown when your phone&#39;s GPS says you are at an assembly point (one tap).</li>
+<li><strong>Scan assembly point QR</strong> (phone): scan the sticker at the assembly point.</li>
+<li><strong>I&#39;m safe (not at an assembly point)</strong>: for example if you left campus.</li>
+<li><strong>I need help</strong>: officers see you as needing help; then tap <strong>Send SOS</strong> to talk to them.</li>
+</ul>
+</li>
+<li>The screen confirms, e.g. &quot;You checked in safe at Field, 9:42 AM&quot;. You can change your answer at any time during
+the alert.</li>
+</ol>
+<h3 id="29-feedback"><a class="anchor" href="#29-feedback" aria-hidden="true">#</a>2.9 Feedback</h3>
+<p>Tap <strong>Send feedback</strong>, choose 1 to 5 stars, optionally add comments, and tap <strong>Send feedback</strong>.</p>
+<h3 id="210-profile"><a class="anchor" href="#210-profile" aria-hidden="true">#</a>2.10 Profile</h3>
+<ul>
+<li><strong>Full name</strong>, <strong>Department</strong>, <strong>Mobile number</strong> (format 09XXXXXXXXX): edit and tap <strong>Save profile</strong>.</li>
+<li><strong>Change password:</strong> current password (if you have one), new password twice, then <strong>Update password</strong>.</li>
+<li><strong>Sign out.</strong></li>
+<li><strong>Delete my account:</strong> enter your password and confirm. This removes your account, reports and photos permanently.</li>
+<li><strong>Record pressure trace (test builds):</strong> for students helping tune floor tracking. Stand still, tap
+<strong>Start recording</strong>, walk the stairs written in the note, stand still, <strong>Stop recording</strong>, then <strong>Share trace</strong>.</li>
+</ul>
+<hr>
+<h2 id="3-the-admin-dashboard-web"><a class="anchor" href="#3-the-admin-dashboard-web" aria-hidden="true">#</a>3. The admin dashboard (web)</h2>
+<p>Open <a href="http://localhost:8000/admin">http://localhost:8000/admin</a> and sign in as a safety officer or admin (e.g. <code>safety_officer@evacuai.test</code>). Other
+accounts cannot open the dashboard.</p>
+<p>The bell icon (top right) shows notifications: new SOS requests, unverified alerts from reports, and new draft alerts
+from hazard feeds.</p>
+<h3 id="31-dashboard"><a class="anchor" href="#31-dashboard" aria-hidden="true">#</a>3.1 Dashboard</h3>
+<p>Live numbers (refresh every 10 seconds):</p>
+<ul>
+<li><strong>Registered people</strong>, <strong>Pending hazard reports</strong>, <strong>Open SOS</strong>, <strong>Blocked / congested paths</strong>.</li>
+<li><strong>SOS response (30 days):</strong> average time until an officer acknowledges an SOS.</li>
+<li><strong>Feedback:</strong> average rating.</li>
+<li>For the current or latest alert: <strong>Checked in</strong> (safe / need help / unknown and the check-in rate) and
+<strong>Evacuation time (median)</strong> with the slowest time.</li>
+</ul>
+<h3 id="32-sos"><a class="anchor" href="#32-sos" aria-hidden="true">#</a>3.2 SOS</h3>
+<p>The SOS list shows open requests first, with the person, their location, message, number of chat messages, status and
+the responding officer. It refreshes every 5 seconds.</p>
+<ul>
+<li><strong>Acknowledge:</strong> tells the person an officer is on it.</li>
+<li><strong>Resolve:</strong> closes the request.</li>
+<li>Click a row to open the <strong>chat</strong>: see the person&#39;s location, phone number and messages, then type a reply and press
+<strong>Send</strong>. Replying also acknowledges the SOS.</li>
+</ul>
+<h3 id="33-safety-monitor"><a class="anchor" href="#33-safety-monitor" aria-hidden="true">#</a>3.3 Safety Monitor</h3>
+<p>For the current alert (or a past one chosen under <strong>Alert</strong>):</p>
+<ul>
+<li>Totals: <strong>Safe</strong>, <strong>Needs help</strong>, <strong>Unknown</strong> (no check-in yet), <strong>Open SOS</strong>, <strong>People</strong>, plus how many people
+checked in at each assembly point.</li>
+<li>A list of everyone with their status, where they are (assembly point or last known location), last update and
+phone. People who need help or have an open SOS are listed first, then unknown, then safe.</li>
+<li>Filter by status, or search by name.</li>
+<li><strong>Drill report (CSV):</strong> downloads a spreadsheet for the selected alert (see 3.5).</li>
+</ul>
+<h3 id="34-campus-3d"><a class="anchor" href="#34-campus-3d" aria-hidden="true">#</a>3.4 Campus 3D</h3>
+<p>A live 3D view of the campus, updated every 2 seconds:</p>
+<ul>
+<li>Red tubes: blocked paths. Orange: congested paths.</li>
+<li>Red rooms: hazard reported. Yellow to dark orange rooms: people still inside (from their last known location;
+people who checked in safe are not counted).</li>
+<li>Red pins: open SOS. Green pins: assembly points with people checked in.</li>
+</ul>
+<p>Drag to rotate, scroll to zoom, click a room or pin for details. <strong>Floors → Up to <floor></strong> hides the floors above, so
+you can look inside.</p>
+<p><strong>Replay:</strong> choose a past alert or drill under <strong>Replay</strong>, then press <strong>Play</strong> or drag the time slider to watch how
+people moved and checked in. People are numbered, not named. Choose <strong>Live (now)</strong> to go back.</p>
+<h3 id="35-alerts"><a class="anchor" href="#35-alerts" aria-hidden="true">#</a>3.5 Alerts</h3>
+<p><strong>Broadcast an alert:</strong></p>
+<ol>
+<li><strong>Alerts → Broadcast alert</strong>.</li>
+<li>Choose the <strong>hazard type</strong> and <strong>severity</strong>, the <strong>building</strong> (or leave it campus-wide), and write the <strong>message</strong>:
+what happened, where, and what to do (e.g. &quot;Fire at BE 2F. Use Stairs Left to Exit North.&quot;).</li>
+<li>Optional: fill in <strong>Cebuano</strong> and <strong>Filipino</strong> translations, or click <strong>Translate with AI</strong> (only if configured)
+and check its text.</li>
+<li>Turn on <strong>This is a drill</strong> for practice.</li>
+<li>If fewer than three people reported it, tick <strong>I verified this incident directly</strong>.</li>
+<li>Click <strong>Create</strong>. Everyone gets it within seconds (in the app, by push on phones, and by SMS if configured).</li>
+</ol>
+<p><strong>Manage alerts</strong> in the list:</p>
+<ul>
+<li><strong>Confirm:</strong> marks an unverified, report-based alert as verified.</li>
+<li><strong>Resolve:</strong> the emergency is over.</li>
+<li><strong>Retract:</strong> false alarm.</li>
+<li><strong>Drill report:</strong> downloads the CSV report: a summary (people, safe, needs help, unknown, check-in rate, median and
+slowest evacuation time, SOS count and response time) and one row per person. It opens in Excel or Google Sheets.</li>
+<li><strong>Drafts from hazard feeds</strong> (if enabled) show as &quot;Draft&quot;: <strong>Publish</strong> (you can edit the message first) or
+<strong>Discard</strong>. Drafts are never sent to anyone until published. Filter by status <strong>Draft (from feeds)</strong> to find them.</li>
+</ul>
+<h3 id="36-hazard-reports"><a class="anchor" href="#36-hazard-reports" aria-hidden="true">#</a>3.6 Hazard Reports</h3>
+<p>Reports from the app, newest first, refreshing every 5 seconds. The <strong>Same-floor reporters (10 min)</strong> column turns red
+at three reporters.</p>
+<ul>
+<li><strong>View photo:</strong> opens the reporter&#39;s photo (officers only).</li>
+<li><strong>Verify:</strong> confirms the hazard. Verified rooms are avoided by everyone&#39;s evacuation route.</li>
+<li><strong>Dismiss:</strong> not a real hazard.</li>
+<li><strong>Resolve:</strong> the hazard is cleared.</li>
+<li><strong>Broadcast alert</strong> (top right): opens the alert form.</li>
+</ul>
+<h3 id="37-paths"><a class="anchor" href="#37-paths" aria-hidden="true">#</a>3.7 Paths</h3>
+<p>Every path segment of the campus map (corridors, doors, stairs, outdoor paths). Set <strong>Status</strong> to <strong>Open</strong>,
+<strong>Congested</strong> or <strong>Blocked</strong> right in the list. Open apps re-route within seconds. Filter by status, building or type.
+The menu badge shows how many paths are blocked.</p>
+<h3 id="38-users"><a class="anchor" href="#38-users" aria-hidden="true">#</a>3.8 Users</h3>
+<ul>
+<li>Create, edit or delete accounts. Set <strong>Role</strong> (student, faculty, staff, safety officer, admin), department, phone and
+<strong>Active</strong>. Turning <strong>Active</strong> off stops that person from signing in.</li>
+<li>You cannot change your own role or deactivate yourself.</li>
+<li>Every role change is recorded in the activity log.</li>
+</ul>
+<h3 id="39-import-class-schedules"><a class="anchor" href="#39-import-class-schedules" aria-hidden="true">#</a>3.9 Import class schedules</h3>
+<p>Upload a CSV from the registrar with the columns <code>email, subject, room_code, days, time_start, time_end</code>, for example
+<code>juan@uclm.edu.ph, IT 101, BE203, MWF, 08:00, 09:30</code>. Day codes: M, T, W, TH, F, S, SU and combinations like MWF or
+TTH. Each listed student&#39;s previous schedule is replaced; problems are listed by row. The app then offers
+&quot;Yes, I&#39;m in <room>&quot; during class time.</p>
+<h3 id="310-qr-stickers"><a class="anchor" href="#310-qr-stickers" aria-hidden="true">#</a>3.10 QR stickers</h3>
+<p>A printable sheet with one QR sticker per room, stair landing, exit and assembly point. Choose a building, then print
+(or save as PDF from the print dialog). Put stickers inside every room door, at each stairwell landing on every floor,
+at exits and at assembly points.</p>
+<h3 id="311-reports-feedback-and-activity-log"><a class="anchor" href="#311-reports-feedback-and-activity-log" aria-hidden="true">#</a>3.11 Reports: Feedback and Activity log</h3>
+<ul>
+<li><strong>Feedback:</strong> every rating and comment, with the average.</li>
+<li><strong>Activity log</strong> (admins only): sign-ins, registrations, account deletions, role changes, alerts issued and updated,
+path changes, SOS sent/acknowledged/resolved, check-ins, hazard reports and feedback. Filter by activity type.</li>
+</ul>
+<hr>
+<h2 id="4-a-complete-drill-start-to-finish"><a class="anchor" href="#4-a-complete-drill-start-to-finish" aria-hidden="true">#</a>4. A complete drill, start to finish</h2>
+<p>Use two browser windows side by side: the app at <a href="http://localhost:8081">http://localhost:8081</a> signed in as <code>student@evacuai.test</code>, and the
+dashboard at <a href="http://localhost:8000/admin">http://localhost:8000/admin</a> signed in as <code>safety_officer@evacuai.test</code>.</p>
+<ol>
+<li><strong>Dashboard:</strong> open <strong>Campus 3D</strong> in a tab to watch.</li>
+<li><strong>Dashboard → Alerts → Broadcast alert:</strong> Earthquake, high, campus-wide, message &quot;Earthquake drill. Drop, cover and
+hold on. Then evacuate to the field.&quot;, <strong>This is a drill</strong> on, <strong>Create</strong>.</li>
+<li><strong>App:</strong> the amber <strong>[DRILL] EARTHQUAKE ALERT</strong> banner appears within seconds.</li>
+<li><strong>App → Evacuation route → Pick my room →</strong> Third → BE301. Read the steps.</li>
+<li><strong>Dashboard → Paths:</strong> set the first stair on that route to <strong>Blocked</strong>. The app&#39;s route changes by itself within a
+few seconds. Campus 3D shows the red stair.</li>
+<li><strong>App → SOS:</strong> pick your room, write &quot;Twisted ankle on the stairs&quot;, <strong>Send SOS</strong>.</li>
+<li><strong>Dashboard → SOS:</strong> open it, reply &quot;Stay where you are, we are coming.&quot; The app shows the reply.
+<strong>Resolve</strong> it.</li>
+<li><strong>App → Check in safe → I&#39;m safe (not at an assembly point)</strong> (or scan the assembly point sticker on a phone).</li>
+<li><strong>Dashboard → Safety Monitor:</strong> the student is Safe; the others are Unknown. Click <strong>Drill report (CSV)</strong>.</li>
+<li><strong>Dashboard → Alerts:</strong> <strong>Resolve</strong> the drill. Set the stair back to <strong>Open</strong> in <strong>Paths</strong>.</li>
+<li><strong>Dashboard → Campus 3D → Replay:</strong> choose the drill and press <strong>Play</strong>.</li>
+</ol>
+<hr>
+<h2 id="5-sample-data-and-simulations"><a class="anchor" href="#5-sample-data-and-simulations" aria-hidden="true">#</a>5. Sample data and simulations</h2>
+<p>Testing alone, you cannot easily be twenty students and an officer at once. EvacuAI comes with sample data and
+simulation commands for that. They exist only on test setups and refuse to run in production.</p>
+<h3 id="51-the-sample-drill"><a class="anchor" href="#51-the-sample-drill" aria-hidden="true">#</a>5.1 The sample drill</h3>
+<p>Every fresh test stack includes a finished <strong>sample earthquake drill</strong> from two days ago, so every dashboard screen has
+data from the start:</p>
+<ul>
+<li>12 sample people (<strong>Sample Student 01–12</strong>). They have no password, so nobody can sign in as them.</li>
+<li>9 checked in safe, 1 needed help (with a resolved SOS and a short chat), and 2 never checked in.</li>
+<li>Where each person was seen during the drill, plus three feedback ratings.</li>
+</ul>
+<p>Try it:</p>
+<ul>
+<li><strong>Safety Monitor</strong> → <strong>Alert</strong> → choose the sample drill.</li>
+<li><strong>Campus 3D</strong> → <strong>Replay</strong> → choose the sample drill → <strong>Play</strong>.</li>
+<li><strong>Alerts</strong> → <strong>Drill report</strong> on the sample drill.</li>
+<li><strong>SOS</strong> (filter <strong>Resolved</strong>) and <strong>Reports → Feedback</strong>.</li>
+</ul>
+<p>The sample people also appear as <strong>Unknown</strong> in your own drills; that is expected.</p>
+<h3 id="52-simulation-commands"><a class="anchor" href="#52-simulation-commands" aria-hidden="true">#</a>5.2 Simulation commands</h3>
+<p>Run these in a terminal in the repository folder while the app and the dashboard are open. Each prints what to look
+at.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What happens</th>
+<th>Where to look</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate drill</code></td>
+<td>A drill alert goes out. Over 90 seconds, sample people are seen in their rooms, move to the stairs and check in; one needs help and sends an SOS. The drill is resolved at the end.</td>
+<td>App banner, Dashboard, Safety Monitor, Campus 3D, SOS</td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reports</code></td>
+<td>Three sample people report a fire on the same floor, two seconds apart. The 3-report rule broadcasts an <strong>UNVERIFIED</strong> alert.</td>
+<td>App banner, Hazard Reports, bell, Alerts (Confirm or Retract)</td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate sos</code></td>
+<td>A sample student sends an SOS from a room.</td>
+<td>SOS desk, bell (reply in the chat)</td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate block</code></td>
+<td>The first open stair is blocked.</td>
+<td>Your open evacuation route re-routes; Paths; Campus 3D</td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reopen</code></td>
+<td>Every blocked or congested path is opened again.</td>
+<td>Paths, Campus 3D</td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate feed</code></td>
+<td>Sample earthquake and heavy-rain events become <strong>draft</strong> alerts.</td>
+<td>Alerts → filter <strong>Draft (from feeds)</strong> → Publish or Discard</td>
+</tr>
+</tbody></table>
+</div><p>Options for <code>drill</code>:</p>
+<ul>
+<li><code>--people=20</code>: how many sample people take part (up to 50).</li>
+<li><code>--seconds=180</code>: how long the drill runs.</li>
+<li><code>--keep</code>: leave the drill active at the end, so you can check in yourself, answer the SOS and resolve it in the
+dashboard.</li>
+</ul>
+<p>Options for <code>reports</code>: <code>--hazard=flood</code> (or earthquake, structural_damage, other).</p>
+<p>Tip: start an evacuation route in the app as <strong><a href="mailto:student@evacuai.test">student@evacuai.test</a></strong>, then run <code>drill --keep</code> and <code>block</code> to watch the
+banner, the re-route and the dashboards react together.</p>
+<hr>
+<h2 id="6-optional-features"><a class="anchor" href="#6-optional-features" aria-hidden="true">#</a>6. Optional features</h2>
+<p>These are off until the instructor sets them in <code>docker/.env</code>, then restarts with
+<code>docker compose -f docker/compose.yml up -d</code> (add <code>--build</code> for the Google and Microsoft buttons).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Settings in <code>docker/.env</code></th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Google sign-in</td>
+<td><code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code></td>
+<td>Google Cloud OAuth client of type Web application; add <code>http://localhost:8081</code> as an authorized origin and redirect URI. While in Testing mode, add each student&#39;s Google email as a test user.</td>
+</tr>
+<tr>
+<td>Microsoft 365 sign-in</td>
+<td><code>MICROSOFT_TENANT_ID</code>, <code>MICROSOFT_CLIENT_ID</code></td>
+<td>Entra ID &quot;Single-page application&quot; registration with redirect <code>http://localhost:8081</code>. Only accounts from that school tenant can sign in.</td>
+</tr>
+<tr>
+<td>Hazard feeds</td>
+<td><code>FEEDS_ENABLED=true</code>, <code>CAMPUS_LAT</code>, <code>CAMPUS_LNG</code></td>
+<td>Checks USGS earthquakes (magnitude 4.5+ within 100 km) and Open-Meteo rain forecasts (15 mm/h+) every 5 minutes and creates <strong>draft</strong> alerts for officers. <code>FEEDS_FAKE=true</code> uses built-in samples without internet.</td>
+</tr>
+<tr>
+<td>AI translation</td>
+<td><code>GEMINI_API_KEY</code> and/or <code>GROQ_API_KEY</code>, or <code>OLLAMA_URL</code></td>
+<td>Adds <strong>Translate with AI</strong> to the alert form. Tries Gemini, then Groq, then a local Ollama model (<code>docker compose -f docker/compose.yml --profile ai-local up -d</code>, then <code>OLLAMA_URL=http://ollama:11434</code>).</td>
+</tr>
+<tr>
+<td>SMS alerts</td>
+<td><code>SEMAPHORE_API_KEY</code></td>
+<td>Sends alerts by SMS (Semaphore, paid per message) to users with a mobile number.</td>
+</tr>
+</tbody></table>
+</div><hr>
+<h2 id="7-privacy-and-data"><a class="anchor" href="#7-privacy-and-data" aria-hidden="true">#</a>7. Privacy and data</h2>
+<p>EvacuAI follows the Data Privacy Act of 2012 (RA 10173):</p>
+<ul>
+<li>Location is used only during an emergency: on the route screen, for SOS and for check-in. Location history is kept
+only for an active alert and deleted after 30 days.</li>
+<li>Report photos are re-saved without their hidden data (GPS position, phone model, time), are visible only to safety
+officers and admins, and are deleted 30 days after the report is closed.</li>
+<li>IP addresses in the activity log are cleared after 30 days.</li>
+<li>Deleting your account deletes your reports and photos.</li>
+<li>The AI translation sends only the alert text, never names or contact details. Do not type names or phone numbers in
+alert messages.</li>
+<li>The 30-day period is <code>PRIVACY_RETENTION_DAYS</code> in <code>docker/.env</code>. Before a pilot with real users, check the setup with
+the UCLM Data Protection Officer.</li>
+</ul>
+<hr>
+<h2 id="8-troubleshooting"><a class="anchor" href="#8-troubleshooting" aria-hidden="true">#</a>8. Troubleshooting</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docker compose</code> says the port is already in use</td>
+<td>Another program uses port 8000, 8080, 8081, 5432, 8025 or 1025. Close it, or stop the other Docker project.</td>
+</tr>
+<tr>
+<td>The first start seems stuck</td>
+<td>The first build downloads a lot. Wait, then check <code>docker compose -f docker/compose.yml logs app</code>.</td>
+</tr>
+<tr>
+<td>The PC becomes very slow</td>
+<td>Cap WSL memory (see 1.1) and build images one at a time: <code>docker compose -f docker/compose.yml build app</code>, then <code>... build mobile-web</code>.</td>
+</tr>
+<tr>
+<td>The app says &quot;Cannot reach the server&quot;</td>
+<td>Make sure <code>app</code> is running (<code>docker compose -f docker/compose.yml ps</code>). On a phone, check the server address and that the phone and PC are on the same Wi-Fi.</td>
+</tr>
+<tr>
+<td>No verification email</td>
+<td>Open <a href="http://localhost:8025">http://localhost:8025</a> (Mailpit). Real emails are only sent when SMTP is configured.</td>
+</tr>
+<tr>
+<td>Alerts or chat do not update live</td>
+<td>Check that <code>reverb</code> is running. The app still catches up when you reopen a screen.</td>
+</tr>
+<tr>
+<td>&quot;This browser cannot show 3D&quot;</td>
+<td>Turn on hardware acceleration in the browser settings, or use <strong>All floors</strong> instead.</td>
+</tr>
+<tr>
+<td>The admin dashboard refuses a student account</td>
+<td>Correct: only safety officers and admins can use it. An admin can change the role in <strong>Users</strong>.</td>
+</tr>
+<tr>
+<td>Start over completely</td>
+<td><code>docker compose -f docker/compose.yml down -v</code>, then <code>up -d --build</code>.</td>
+</tr>
+</tbody></table>
+</div><p>Found a bug? Open a GitHub issue with the steps you took, what you expected, what happened, and a screenshot.</p>
+
+    <footer>Generated from docs/USER-MANUAL.md. EvacuAI, UCLM capstone project.</footer>
+  </main>
+</div>
+<a class="back" href="#">↑ Top</a>
+<script>
+  // Copy buttons on commands.
+  document.querySelectorAll('.code .copy').forEach(b => b.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(b.parentElement.querySelector('code').innerText);
+      b.textContent = 'Copied'; b.classList.add('done');
+      setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('done'); }, 1500);
+    } catch { b.textContent = 'Select and copy'; }
+  }));
+  // Light / dark, remembered on this device when storage is available.
+  const root = document.documentElement, btn = document.getElementById('theme');
+  const dark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => { btn.textContent = dark() ? 'Light mode' : 'Dark mode'; };
+  try { const t = localStorage.getItem('evacuai-manual-theme'); if (t) root.dataset.theme = t; } catch {}
+  label();
+  btn.addEventListener('click', () => {
+    root.dataset.theme = dark() ? 'light' : 'dark'; label();
+    try { localStorage.setItem('evacuai-manual-theme', root.dataset.theme); } catch {}
+  });
+  // Highlight the section being read in the contents.
+  const links = [...document.querySelectorAll('nav.toc a')];
+  const observer = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+  }), { rootMargin: '-80px 0px -70% 0px' });
+  document.querySelectorAll('main h2[id], main h3[id]').forEach(h => observer.observe(h));
+</script>
+</body>
+</html>

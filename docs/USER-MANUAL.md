@@ -9,9 +9,10 @@ This manual walks through everything, in order:
 2. [The mobile app](#2-the-mobile-app)
 3. [The admin dashboard (web)](#3-the-admin-dashboard-web)
 4. [A complete drill, start to finish](#4-a-complete-drill-start-to-finish)
-5. [Optional features](#5-optional-features)
-6. [Privacy and data](#6-privacy-and-data)
-7. [Troubleshooting](#7-troubleshooting)
+5. [Sample data and simulations](#5-sample-data-and-simulations)
+6. [Optional features](#6-optional-features)
+7. [Privacy and data](#7-privacy-and-data)
+8. [Troubleshooting](#8-troubleshooting)
 
 **Who uses what**
 
@@ -156,7 +157,7 @@ Open http://localhost:8081 (or the app on your phone).
 password.
 
 **Google or Microsoft 365:** the **Continue with Google** and **Continue with Microsoft 365** buttons appear only when
-the instructor has set them up (see [5. Optional features](#5-optional-features)).
+the instructor has set them up (see [6. Optional features](#6-optional-features)).
 
 **Privacy notice:** the first time you sign in, read the notice and tap **I agree**. The app only uses your location
 during an emergency (route, SOS, check-in).
@@ -428,7 +429,58 @@ dashboard at http://localhost:8000/admin signed in as `safety_officer@evacuai.te
 
 ---
 
-## 5. Optional features
+## 5. Sample data and simulations
+
+Testing alone, you cannot easily be twenty students and an officer at once. EvacuAI comes with sample data and
+simulation commands for that. They exist only on test setups and refuse to run in production.
+
+### 5.1 The sample drill
+
+Every fresh test stack includes a finished **sample earthquake drill** from two days ago, so every dashboard screen has
+data from the start:
+
+- 12 sample people (**Sample Student 01–12**). They have no password, so nobody can sign in as them.
+- 9 checked in safe, 1 needed help (with a resolved SOS and a short chat), and 2 never checked in.
+- Where each person was seen during the drill, plus three feedback ratings.
+
+Try it:
+
+- **Safety Monitor** → **Alert** → choose the sample drill.
+- **Campus 3D** → **Replay** → choose the sample drill → **Play**.
+- **Alerts** → **Drill report** on the sample drill.
+- **SOS** (filter **Resolved**) and **Reports → Feedback**.
+
+The sample people also appear as **Unknown** in your own drills; that is expected.
+
+### 5.2 Simulation commands
+
+Run these in a terminal in the repository folder while the app and the dashboard are open. Each prints what to look
+at.
+
+| Command | What happens | Where to look |
+|---|---|---|
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate drill` | A drill alert goes out. Over 90 seconds, sample people are seen in their rooms, move to the stairs and check in; one needs help and sends an SOS. The drill is resolved at the end. | App banner, Dashboard, Safety Monitor, Campus 3D, SOS |
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reports` | Three sample people report a fire on the same floor, two seconds apart. The 3-report rule broadcasts an **UNVERIFIED** alert. | App banner, Hazard Reports, bell, Alerts (Confirm or Retract) |
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate sos` | A sample student sends an SOS from a room. | SOS desk, bell (reply in the chat) |
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate block` | The first open stair is blocked. | Your open evacuation route re-routes; Paths; Campus 3D |
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reopen` | Every blocked or congested path is opened again. | Paths, Campus 3D |
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate feed` | Sample earthquake and heavy-rain events become **draft** alerts. | Alerts → filter **Draft (from feeds)** → Publish or Discard |
+
+Options for `drill`:
+
+- `--people=20`: how many sample people take part (up to 50).
+- `--seconds=180`: how long the drill runs.
+- `--keep`: leave the drill active at the end, so you can check in yourself, answer the SOS and resolve it in the
+  dashboard.
+
+Options for `reports`: `--hazard=flood` (or earthquake, structural_damage, other).
+
+Tip: start an evacuation route in the app as **student@evacuai.test**, then run `drill --keep` and `block` to watch the
+banner, the re-route and the dashboards react together.
+
+---
+
+## 6. Optional features
 
 These are off until the instructor sets them in `docker/.env`, then restarts with
 `docker compose -f docker/compose.yml up -d` (add `--build` for the Google and Microsoft buttons).
@@ -443,7 +495,7 @@ These are off until the instructor sets them in `docker/.env`, then restarts wit
 
 ---
 
-## 6. Privacy and data
+## 7. Privacy and data
 
 EvacuAI follows the Data Privacy Act of 2012 (RA 10173):
 
@@ -460,7 +512,7 @@ EvacuAI follows the Data Privacy Act of 2012 (RA 10173):
 
 ---
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 | Problem | Fix |
 |---|---|

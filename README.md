@@ -25,7 +25,8 @@ Then open the app at http://localhost:8081 and the dashboard at http://localhost
 
 ## Documentation
 
-- [User manual](docs/USER-MANUAL.md): running it, every app and dashboard function, a full drill walkthrough.
+- [User manual](docs/USER-MANUAL.md) ([HTML version](docs/user-manual.html), open it in a browser): running it, every app and
+  dashboard function, a full drill walkthrough, sample data and simulations.
 - [Testing guide for students](docs/TESTING.md): test scenarios and automated browser tests.
 - [Project plan](docs/PLAN.md): architecture, design decisions, testing and deployment.
 

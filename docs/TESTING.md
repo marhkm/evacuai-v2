@@ -66,6 +66,17 @@ Mark drills as drills ("This is a drill") so everyone knows it is practice.
    still inside and SOS pins update every 2 seconds; choose an alert under **Replay** and press **Play**.
 8. **Feedback.** App → **Send feedback**. Dashboard → **Reports** → **Feedback** (admins also see the **Activity log**).
 
+## Testing alone: sample data and simulations
+
+A fresh stack already contains a finished sample drill (Safety Monitor, Campus 3D replay, drill report). To make other
+"people" act while you watch, run a simulation, for example:
+
+```bash
+docker compose -f docker/compose.yml exec app php artisan evacuai:simulate drill
+```
+
+Other scenarios: `reports`, `sos`, `block`, `reopen`, `feed`. See section 5 of the [user manual](USER-MANUAL.md).
+
 ## Automated browser tests
 
 With the stack running, from the repository root (needs Node.js; Docker-only testers can skip this):
