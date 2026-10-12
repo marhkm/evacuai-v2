@@ -1,28 +1,30 @@
 import { toFloorShapes } from '@evacuai/campus-view';
-import type { CampusSnapshot } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Suspense, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Campus3DView } from '@/components/Campus3DLazy';
 import { FloorPlan } from '@/components/FloorPlan';
+import { StackedFloors } from '@/components/StackedFloors';
 import { Message, Screen, colors } from '@/components/ui';
+import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
-import { loadSnapshot } from '@/lib/campus';
+import { can3d } from '@/lib/can3d';
+import { useCampus } from '@/lib/useCampus';
+
+type Mode = 'plan' | 'stacked' | '3d';
 
 export default function MapScreen() {
-  const { state, token } = useAuth();
-  const [snapshot, setSnapshot] = useState<CampusSnapshot | null>(null);
-  const [offline, setOffline] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { state } = useAuth();
+  const { active } = useAlerts();
+  const { snapshot, offline, error } = useCampus(); // live: refetches when officers block or reopen paths
   const [buildingId, setBuildingId] = useState<string | null>(null);
   const [level, setLevel] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (state.status !== 'signedIn') return;
-    loadSnapshot(token)
-      .then(r => { setSnapshot(r.snapshot); setOffline(r.offline); })
-      .catch(e => setError((e as Error).message));
-  }, [state.status, token]);
+  const [has3d] = useState(can3d);
+  // A choice only lasts for the alert it was made under: a new alert always opens the plain floor plan (spec §3.4).
+  const alertId = active[0]?.id ?? null;
+  const [choice, setChoice] = useState<{ mode: Mode; alertId: number | null }>({ mode: 'plan', alertId: null });
+  const mode: Mode = choice.alertId === alertId ? choice.mode : 'plan';
 
   const building = snapshot?.buildings.find(b => b.id === buildingId) ?? snapshot?.buildings[0];
   const floor = building?.floors.find(f => f.level === level) ?? building?.floors[0];
@@ -43,11 +45,22 @@ export default function MapScreen() {
       {snapshot && snapshot.buildings.length > 1 ? (
         <Tabs items={snapshot.buildings.map(b => ({ key: b.id, label: b.name }))} active={building?.id} onSelect={id => { setBuildingId(id); setLevel(null); }} />
       ) : null}
-      {building ? (
+      <Tabs
+        items={[{ key: 'plan', label: 'Floor plan' }, { key: 'stacked', label: 'All floors' }, ...(has3d ? [{ key: '3d', label: '3D' }] : [])]}
+        active={mode} onSelect={m => setChoice({ mode: m as Mode, alertId })} />
+      {mode === 'plan' && building ? (
         <Tabs items={building.floors.map(f => ({ key: String(f.level), label: f.name }))} active={String(floor?.level)} onSelect={l => setLevel(Number(l))} />
       ) : null}
-      {shapes ? <FloorPlan shapes={shapes} /> : null}
-      {shapes ? (
+      {mode === 'stacked' && snapshot && building ? <StackedFloors snapshot={snapshot} buildingId={building.id} /> : null}
+      {mode === '3d' && snapshot ? (
+        <View style={styles.view3d}>
+          <Suspense fallback={<ActivityIndicator color={colors.primary} />}>
+            <Campus3DView snapshot={snapshot} dom={{ style: { flex: 1 }, scrollEnabled: false }} />
+          </Suspense>
+        </View>
+      ) : null}
+      {mode === 'plan' && shapes ? <FloorPlan shapes={shapes} /> : null}
+      {mode === 'plan' && shapes ? (
         <View style={styles.legend}>
           <Text style={styles.legendText}>● Exit / assembly point (green) · ● Stairs (blue)</Text>
           <Text style={[styles.legendText, blocked ? styles.blocked : null]}>
@@ -87,4 +100,5 @@ const styles = StyleSheet.create({
   legend: { gap: 4 },
   legendText: { fontSize: 14, color: colors.muted },
   blocked: { color: colors.danger, fontWeight: '700' },
+  view3d: { height: 460, borderRadius: 12, overflow: 'hidden', justifyContent: 'center' },
 });

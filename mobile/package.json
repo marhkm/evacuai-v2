@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@evacuai/campus-3d": "*",
     "@evacuai/campus-view": "*",
     "@evacuai/routing": "*",
     "@expo/ui": "~57.0.22",
