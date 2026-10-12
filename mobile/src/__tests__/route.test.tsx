@@ -1,5 +1,7 @@
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
+import { forgetWhereabouts } from '@/lib/whereabouts';
+
 import { loadDemoSnapshot } from './helpers';
 
 const mockMem = new Map<string, string>();
@@ -15,6 +17,7 @@ const mockLive: { alert?: (a: unknown) => void; campus?: () => void } = {};
 jest.mock('@/lib/realtime', () => ({
   subscribeAlerts: async (cb: (a: unknown) => void) => { mockLive.alert = cb; return () => undefined; },
   subscribeCampus: async (cb: () => void) => { mockLive.campus = cb; return () => undefined; },
+  subscribeSos: async () => () => undefined,
 }));
 jest.mock('@/lib/push', () => ({ registerForPush: async () => undefined }));
 jest.mock('expo-camera', () => {
@@ -41,6 +44,7 @@ const activeAlert = (hazard: string) => ({
 });
 
 beforeEach(() => {
+  forgetWhereabouts();
   mockMem.clear();
   mockMem.set('token', 't');
   mockMem.set('user', JSON.stringify(user));

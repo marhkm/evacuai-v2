@@ -1,5 +1,5 @@
 import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import Pusher, { type ChannelAuthorizationCallback } from 'pusher-js';
 
 import { api, getServerUrl } from '@/lib/api';
 import type { AlertItem } from '@/lib/alerts';
@@ -8,6 +8,7 @@ type ClientConfig = { reverb: { key: string; port: number; scheme: 'http' | 'htt
 
 let echo: Promise<Echo<'reverb'>> | null = null;
 let echoServer: string | null = null;
+let authToken: string | null = null; // read at subscribe time, so private channels use the current sign-in
 
 /**
  * One Reverb (Pusher protocol) connection per server, shared by all subscriptions. Connects to the same host as
@@ -26,6 +27,13 @@ function connection(): Promise<Echo<'reverb'>> {
       forceTLS: reverb.scheme === 'https',
       enabledTransports: ['ws', 'wss'],
       Pusher,
+      // Private channels (SOS chat) are authorized by the API with the app's bearer token, not a cookie.
+      authorizer: (channel: { name: string }) => ({
+        authorize: (socketId: string, callback: ChannelAuthorizationCallback) => {
+          api<Parameters<ChannelAuthorizationCallback>[1] & object>('/api/broadcasting/auth', { method: 'POST', token: authToken, body: { socket_id: socketId, channel_name: channel.name } })
+            .then(data => callback(null, data), (error: Error) => callback(error, null));
+        },
+      }),
     }));
     echo.catch(() => { echo = null; }); // offline: retry on the next subscribe
   }
@@ -43,3 +51,11 @@ export const subscribeAlerts = (onAlert: (alert: AlertItem) => void) =>
 
 /** Paths blocked/reopened or hazard rooms changed: refetch the campus snapshot and re-route. */
 export const subscribeCampus = (onChange: () => void) => listen('campus', '.campus.updated', () => onChange());
+
+/** SOS status changed or a new chat message: refetch the SOS. Private channel, sender and officers only. */
+export async function subscribeSos(id: number, token: string, onChange: () => void): Promise<() => void> {
+  authToken = token;
+  const e = await connection();
+  e.private(`sos.${id}`).listen('.sos.updated', () => onChange());
+  return () => e.leave(`sos.${id}`);
+}

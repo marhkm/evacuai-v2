@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 import { ApiError, api, setServerUrl } from '@/lib/api';
 import { storage } from '@/lib/storage';
+import { forgetWhereabouts } from '@/lib/whereabouts';
 
 export type User = {
   id: number;
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = await storage.get('token');
     if (token) await api('/api/auth/logout', { method: 'POST', token }).catch(() => undefined);
     await Promise.all([storage.remove('token'), storage.remove('user')]);
+    forgetWhereabouts();
     setState({ status: 'signedOut' });
   }, []);
 

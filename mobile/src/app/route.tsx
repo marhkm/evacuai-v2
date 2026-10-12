@@ -1,18 +1,19 @@
 import { routeOverlay, routeSteps, toFloorShapes } from '@evacuai/campus-view';
 import { findRoute, type Hazard } from '@evacuai/routing';
-import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Redirect } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
 import { FloorPlan } from '@/components/FloorPlan';
+import { LocationChooser } from '@/components/LocationChooser';
 import { Button, Message, Screen, colors } from '@/components/ui';
 import { useAlerts } from '@/lib/alerts';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { current, nodeForQr, observe, parseQr, routeOrigin, type Estimate } from '@/lib/estimator';
+import { current, routeOrigin, type Estimate, type Observation } from '@/lib/estimator';
 import { useCampus } from '@/lib/useCampus';
+import { lastEstimate, updateWhereabouts } from '@/lib/whereabouts';
 
 const HAZARD_CHOICES: { key: Hazard; label: string }[] = [
   { key: 'earthquake', label: 'Earthquake' }, { key: 'fire', label: 'Fire' }, { key: 'flood', label: 'Flood' },
@@ -27,13 +28,9 @@ export default function RouteScreen() {
   const { active } = useAlerts();
   const { snapshot, offline, error } = useCampus();
   const [chosenHazard, setChosenHazard] = useState<Hazard | null>(null);
-  const [estimate, setEstimate] = useState<Estimate | null>(null);
-  const [mode, setMode] = useState<'none' | 'pick' | 'scan'>('none');
-  const [pick, setPick] = useState<{ building?: string; level?: number }>({});
+  const [estimate, setEstimate] = useState<Estimate | null>(() => lastEstimate());
   const [schedule, setSchedule] = useState<ScheduleNow>(null);
-  const [scanError, setScanError] = useState<string | null>(null);
   const [viewLevel, setViewLevel] = useState<number | null>(null);
-  const [permission, requestPermission] = useCameraPermissions();
   const [now, setNow] = useState(() => Date.now()); // drives the 10-minute confidence decay
 
   useEffect(() => {
@@ -57,34 +54,18 @@ export default function RouteScreen() {
   const route = result?.ok ? result.route : null;
   const overlay = snapshot && route ? routeOverlay(snapshot, route) : null;
   const originNode = snapshot?.nodes.find(n => n.id === origin);
-  const building = snapshot?.buildings.find(b => b.id === (originNode?.building ?? pick.building)) ?? snapshot?.buildings[0];
+  const building = snapshot?.buildings.find(b => b.id === originNode?.building) ?? snapshot?.buildings[0];
   const level = viewLevel ?? originNode?.level ?? building?.floors[0]?.level;
   const shapes = snapshot && building && level !== undefined ? toFloorShapes(snapshot, building.id, level) : null;
   const segment = overlay?.segments.find(s => s.building === building?.id && s.level === level);
   // Explicit null check: React Compiler mis-tracks "route && snapshot?.nodes" as a dependency on snapshot.nodes.
   const goal = route && snapshot ? snapshot.nodes.find(n => n.id === route.destinationId) : undefined;
 
-  function onScanned(data: string) {
-    if (!snapshot || mode !== 'scan') return;
-    const qr = parseQr(data);
-    const node = qr ? nodeForQr(snapshot, qr) : null;
-    if (!node) return setScanError('That is not an EvacuAI sticker (or it is out of date). Try another one or pick your room.');
-    setScanError(null);
-    setMode('none');
+  function locate(obs: Observation) {
     setViewLevel(null);
-    setEstimate(e => observe(e, { source: 'qr', nodeId: node.id, building: node.building, floor: node.level }, Date.now()));
+    setEstimate(updateWhereabouts(obs, token, !!active[0]));
   }
 
-  function pickRoom(roomId: string) {
-    const room = snapshot!.rooms.find(r => r.id === roomId)!;
-    setMode('none');
-    setViewLevel(null);
-    setEstimate(e => observe(e, { source: 'manual', roomId, building: room.building, floor: room.level }, Date.now()));
-  }
-
-  const pickBuilding = snapshot?.buildings.find(b => b.id === pick.building) ?? snapshot?.buildings[0];
-  const pickRooms = snapshot && pickBuilding && pick.level !== undefined
-    ? snapshot.rooms.filter(r => r.building === pickBuilding.id && r.level === pick.level && r.type !== 'corridor') : [];
   const sourceText = live && { qr: 'scanned sticker', manual: 'you picked it', schedule: 'from your class schedule', barometer: 'floor change detected', gps: 'GPS' }[live.source];
 
   return (
@@ -104,7 +85,7 @@ export default function RouteScreen() {
         <View style={styles.card}>
           <Text style={styles.cardText}>Your class now: {schedule.subject} in {schedule.room_name}.</Text>
           <Button label={`Yes, I'm in ${schedule.room_name}`} onPress={() =>
-            setEstimate(e => observe(e, { source: 'schedule', roomId: schedule.room_id, building: schedule.building, floor: schedule.level }, Date.now()))} />
+            locate({ source: 'schedule', roomId: schedule.room_id, building: schedule.building, floor: schedule.level })} />
         </View>
       ) : null}
 
@@ -114,41 +95,12 @@ export default function RouteScreen() {
         </Text>
       ) : null}
 
-      <View style={styles.row}>
-        <View style={styles.flex}><Button label="Scan QR sticker" variant="secondary" onPress={async () => {
-          if (!permission?.granted && !(await requestPermission()).granted) return setScanError('Camera permission is needed to scan stickers. You can pick your room instead.');
-          setMode('scan');
-        }} /></View>
-        <View style={styles.flex}><Button label="Pick my room" variant="secondary" onPress={() => setMode('pick')} /></View>
-      </View>
-      <Message text={scanError} />
-
-      {mode === 'scan' ? (
-        <View style={styles.camera}>
-          <CameraView style={StyleSheet.absoluteFill} facing="back" barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-            onBarcodeScanned={r => onScanned(r.data)} />
-        </View>
-      ) : null}
-
-      {mode === 'pick' && snapshot ? (
-        <>
-          {snapshot.buildings.length > 1 ? (
-            <Section label="Building">
-              <Chips items={snapshot.buildings.map(b => ({ key: b.id, label: b.name }))} active={pickBuilding?.id ?? null}
-                onSelect={id => setPick({ building: id })} />
-            </Section>
-          ) : null}
-          <Section label="Floor">
-            <Chips items={(pickBuilding?.floors ?? []).map(f => ({ key: String(f.level), label: f.name }))}
-              active={pick.level !== undefined ? String(pick.level) : null} onSelect={l => setPick(p => ({ ...p, level: Number(l) }))} />
-          </Section>
-          {pickRooms.length ? (
-            <Section label="Room">
-              <Chips items={pickRooms.map(r => ({ key: r.id, label: r.name }))} active={null} onSelect={pickRoom} />
-            </Section>
-          ) : null}
-        </>
-      ) : null}
+      <LocationChooser snapshot={snapshot}
+        onNode={n => locate({ source: 'qr', nodeId: n.id, building: n.building, floor: n.level })}
+        onRoom={id => {
+          const room = snapshot!.rooms.find(r => r.id === id)!;
+          locate({ source: 'manual', roomId: id, building: room.building, floor: room.level });
+        }} />
 
       {live && hazard && result && !result.ok ? (
         <Message text={result.reason === 'no_safe_route'
@@ -181,9 +133,6 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: 12, padding: 14, gap: 10 },
   cardText: { fontSize: 16, color: colors.text },
   where: { fontSize: 15, color: colors.muted },
-  row: { flexDirection: 'row', gap: 8 },
-  flex: { flex: 1 },
-  camera: { height: 280, borderRadius: 12, overflow: 'hidden', backgroundColor: '#000' },
   steps: { gap: 6, backgroundColor: '#eef5fd', borderRadius: 12, padding: 14 },
   distance: { fontSize: 18, fontWeight: '800', color: '#0b6bcb' },
   step: { fontSize: 17, color: colors.text, lineHeight: 24 },
