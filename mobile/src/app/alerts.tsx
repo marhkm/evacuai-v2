@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Screen, colors } from '@/components/ui';
-import { alertTitle, useAlerts } from '@/lib/alerts';
+import { alertTitle, alertTranslations, useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 
 const STATUS = { active: 'Active', resolved: 'Resolved', retracted: 'Retracted' } as const;
@@ -23,6 +23,7 @@ export default function Alerts() {
             <Text style={[styles.status, a.status === 'active' && styles.activeStatus]}>{STATUS[a.status]}</Text>
           </View>
           <Text style={styles.message}>{a.message}</Text>
+          {alertTranslations(a).map(t => <Text key={t} style={styles.translation}>{t}</Text>)}
           {a.issued_at ? <Text style={styles.time}>{new Date(a.issued_at).toLocaleString()}</Text> : null}
         </View>
       ))}
@@ -39,5 +40,6 @@ const styles = StyleSheet.create({
   status: { fontSize: 14, color: colors.muted, fontWeight: '700' },
   activeStatus: { color: colors.danger },
   message: { fontSize: 16, color: colors.text, lineHeight: 22 },
+  translation: { fontSize: 15, color: colors.muted, lineHeight: 21 },
   time: { fontSize: 13, color: colors.muted },
 });

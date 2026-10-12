@@ -59,6 +59,13 @@ test('home shows the active alert banner', async () => {
   expect(screen.getByText('Fire at BE 2F. Use Stairs Left.')).toBeTruthy();
 });
 
+test('the banner shows reviewed Cebuano and Filipino translations', async () => {
+  alerts = [alert({ translations: { ceb: 'Sunog sa BE 2F. Gamita ang Stairs Left.', fil: 'May sunog sa BE 2F. Gamitin ang Stairs Left.' } })];
+  await renderRouter('./src/app', { initialUrl: '/' });
+  expect(await screen.findByText('Sunog sa BE 2F. Gamita ang Stairs Left.')).toBeTruthy();
+  expect(screen.getByText('May sunog sa BE 2F. Gamitin ang Stairs Left.')).toBeTruthy();
+});
+
 test('drill and unverified alerts are labelled', async () => {
   alerts = [alert({ id: 2, is_drill: true, verified: false, hazard_type: 'earthquake' })];
   await renderRouter('./src/app', { initialUrl: '/' });

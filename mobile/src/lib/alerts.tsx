@@ -12,6 +12,7 @@ export type AlertItem = {
   hazard_type: string;
   severity_level: 'low' | 'medium' | 'high' | 'critical';
   message: string;
+  translations?: { ceb?: string; fil?: string } | null; // officer-reviewed Cebuano / Filipino
   status: 'active' | 'resolved' | 'retracted';
   source: string;
   verified: boolean;
@@ -25,6 +26,9 @@ export type AlertItem = {
 export function alertTitle(a: AlertItem): string {
   return `${a.is_drill ? '[DRILL] ' : ''}${a.verified ? '' : 'UNVERIFIED '}${a.hazard_type.replace(/_/g, ' ').toUpperCase()} ALERT`;
 }
+
+/** Cebuano and Filipino versions to show under the English message. */
+export const alertTranslations = (a: AlertItem): string[] => [a.translations?.ceb, a.translations?.fil].filter((t): t is string => !!t);
 
 type Ctx = { alerts: AlertItem[]; active: AlertItem[]; refresh: () => Promise<void> };
 const AlertsContext = createContext<Ctx>({ alerts: [], active: [], refresh: async () => undefined });

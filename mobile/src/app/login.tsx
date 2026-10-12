@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 
-import { GoogleButton } from '@/components/GoogleButton';
+import { SocialButtons } from '@/components/SocialButtons';
 import { ServerSetting } from '@/components/ServerSetting';
 import { Button, Field, Link, Message, Screen } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
@@ -42,7 +42,7 @@ export default function Login() {
       <Field label="Password" value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" error={error?.fieldError('password')} />
       <Message text={error && !error.fieldError('email') && !error.fieldError('password') ? error.message : null} />
       <Button label="Sign in" onPress={submit} busy={busy} />
-      <GoogleButton onError={setError} />
+      <SocialButtons onError={setError} />
       <Link label="Create an account" onPress={() => router.push('/register')} />
       <Link label="Forgot password?" onPress={() => router.push('/forgot')} />
       <ServerSetting />
