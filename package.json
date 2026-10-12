@@ -11,12 +11,14 @@
     "validate": "tsx packages/routing/src/cli/validate.ts campus-data/demo campus-data/uclm",
     "snapshots": "tsx packages/routing/src/cli/snapshot.ts campus-data/demo campus-data/uclm",
     "build:3d": "vite build --config packages/campus-3d/vite.config.ts --logLevel warn",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "manual": "node scripts/build-manual.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.4",
     "fast-check": "^4.10.2",
+    "marked": "^18.0.14",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.3"
