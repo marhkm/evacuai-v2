@@ -29,5 +29,7 @@ class DemoSeeder extends Seeder
                 'consented_at' => $user->consented_at ?? now(),
             ])->save();
         }
+
+        $this->call(DemoDrillSeeder::class); // sample finished drill so the dashboards have data
     }
 }
