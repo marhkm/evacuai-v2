@@ -1,3 +1,4 @@
+import { displayName } from '@evacuai/campus-view';
 import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -7,6 +8,7 @@ import { Button, Message, Screen, colors } from '@/components/ui';
 import { api } from '@/lib/api';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
+import { nearbyAssemblyPoint } from '@/lib/geofence';
 import { useCampus } from '@/lib/useCampus';
 import { updateWhereabouts } from '@/lib/whereabouts';
 
@@ -20,11 +22,20 @@ export default function CheckInScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const alertId = active[0]?.id;
+  const [nearby, setNearby] = useState<string | null>(null); // assembly point node the phone's GPS is inside
 
   useEffect(() => {
     if (!token) return;
     api<{ check_in: CheckIn }>('/api/check-in', { token }).then(r => setCheckIn(r.check_in)).catch(e => setError((e as Error).message));
   }, [token, alertId]);
+
+  // GPS geofence (spec §8): one reading, only while checking in during an alert.
+  useEffect(() => {
+    if (!snapshot || !alertId) return;
+    let cancelled = false;
+    nearbyAssemblyPoint(snapshot).then(ap => { if (!cancelled) setNearby(ap?.nodeId ?? null); });
+    return () => { cancelled = true; };
+  }, [snapshot, alertId]);
 
   if (state.status === 'loading') return null;
   if (state.status === 'signedOut') return <Redirect href="/login" />;
@@ -65,6 +76,17 @@ export default function CheckInScreen() {
         <Text style={styles.text}>When you reach the assembly point, scan its QR sticker so safety officers know you are safe.</Text>
       )}
 
+      {nearby && snapshot && checkIn.status !== 'safe' ? (
+        <View style={[styles.card, styles.safe]}>
+          <Text style={styles.status}>You are at {displayName(snapshot, nearby)}.</Text>
+          <Button label={`Check in safe at ${displayName(snapshot, nearby)}`} busy={busy} onPress={() => {
+            const n = snapshot.nodes.find(x => x.id === nearby)!;
+            // GPS suggested it, the user confirmed it: a confirmed location, like picking it by hand.
+            updateWhereabouts({ source: 'manual', nodeId: n.id, building: n.building, floor: n.level }, token, true);
+            send('safe', n.id);
+          }} />
+        </View>
+      ) : null}
       <LocationChooser snapshot={snapshot} scanLabel="Scan assembly point QR" onNode={n => {
         if (n.type !== 'assembly_point') return setError('That sticker is not at an assembly point. Look for the assembly point sign.');
         updateWhereabouts({ source: 'qr', nodeId: n.id, building: n.building, floor: n.level }, token, true);

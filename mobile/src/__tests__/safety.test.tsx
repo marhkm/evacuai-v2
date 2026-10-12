@@ -20,6 +20,12 @@ jest.mock('@/lib/realtime', () => ({
   subscribeSos: async (_id: number, _token: string, cb: () => void) => { mockLive.sos = cb; return () => undefined; },
 }));
 jest.mock('@/lib/push', () => ({ registerForPush: async () => undefined }));
+let mockGps: { latitude: number; longitude: number; accuracy: number } | null = null;
+jest.mock('expo-location', () => ({
+  Accuracy: { High: 4 },
+  requestForegroundPermissionsAsync: async () => ({ granted: mockGps !== null }),
+  getCurrentPositionAsync: async () => ({ coords: mockGps }),
+}));
 let mockQr = 'evacuai://q/APSTICKR';
 jest.mock('expo-camera', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -61,6 +67,9 @@ beforeEach(() => {
   checkIn = null;
   posts = [];
   mockQr = 'evacuai://q/APSTICKR';
+  mockGps = null;
+  snapshot.assemblyPoints[0].lat = null;
+  snapshot.assemblyPoints[0].lng = null;
   global.fetch = jest.fn(async (url: string, init?: RequestInit) => {
     const path = url.replace(/^https?:\/\/[^/]+/, '');
     if (init?.method === 'POST') {
@@ -139,4 +148,15 @@ test('a sticker that is not an assembly point is rejected; "I need help" offers 
   await fireEvent.press(screen.getByRole('button', { name: 'I need help' }));
   expect(await screen.findByText('You said you need help.')).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Send SOS' })).toBeTruthy();
+});
+
+test('GPS inside the assembly point radius offers a one-tap check-in', async () => {
+  alerts = [alert];
+  checkIn = { alert_id: 7, status: null, place: null, checked_in_at: null };
+  Object.assign(snapshot.assemblyPoints[0], { lat: 10.3270, lng: 123.9500, radius_m: 25 });
+  mockGps = { latitude: 10.32705, longitude: 123.95008, accuracy: 8 }; // about 10 m away
+  await renderRouter('./src/app', { initialUrl: '/checkin' });
+  await fireEvent.press(await screen.findByRole('button', { name: 'Check in safe at AP' }));
+  expect(await screen.findByText('You checked in safe at Demo Building · Ground · AP.')).toBeTruthy();
+  expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ status: 'safe', node_id: 'DEMO/1/AP' });
 });

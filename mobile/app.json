@@ -42,6 +42,12 @@
           "recordAudioAndroid": false,
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "EvacuAI checks whether you are at an assembly point when you check in during an alert. Your location is not tracked in the background."
+        }
       ]
     ],
     "experiments": {
