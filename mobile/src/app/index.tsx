@@ -1,43 +1,35 @@
-import { HAZARDS } from '@evacuai/routing';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Redirect, router } from 'expo-router';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { API_URL } from '@/config';
+import { Button, Screen, colors } from '@/components/ui';
+import { getServerUrl } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 
-type Status = 'checking' | 'online' | 'offline';
+export default function Home() {
+  const { state } = useAuth();
 
-export default function HomeScreen() {
-  const [status, setStatus] = useState<Status>('checking');
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/health`)
-      .then(r => setStatus(r.ok ? 'online' : 'offline'))
-      .catch(() => setStatus('offline'));
-  }, []);
+  if (state.status === 'loading') {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+  if (state.status === 'signedOut') return <Redirect href="/login" />;
+  if (!state.user.consented) return <Redirect href="/consent" />;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>EvacuAI</Text>
-      <View style={styles.card}>
-        <Text style={styles.label}>Server</Text>
-        <Text style={styles.value}>{API_URL}</Text>
-        <Text style={[styles.value, status === 'online' ? styles.ok : status === 'offline' ? styles.bad : null]}>
-          {status}
-        </Text>
-      </View>
-      <Text style={styles.footer}>Hazards: {HAZARDS.join(', ')}</Text>
-    </SafeAreaView>
+    <Screen title="EvacuAI">
+      <Text style={styles.welcome}>Welcome, {state.user.name}</Text>
+      <Text style={styles.meta}>{state.user.role.replace('_', ' ')} · {getServerUrl()}</Text>
+      <Text style={styles.meta}>Alerts, evacuation routes, SOS and check-in arrive in the next builds.</Text>
+      <Button label="Profile" variant="secondary" onPress={() => router.push('/profile')} />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 16, backgroundColor: '#fff' },
-  title: { fontSize: 32, fontWeight: '700', color: '#1a7a3c' },
-  card: { width: '100%', maxWidth: 420, padding: 16, borderRadius: 12, backgroundColor: '#f2f5f3', gap: 4 },
-  label: { fontSize: 14, color: '#555' },
-  value: { fontSize: 18, color: '#111' },
-  ok: { color: '#1a7a3c', fontWeight: '700' },
-  bad: { color: '#c0392b', fontWeight: '700' },
-  footer: { fontSize: 14, color: '#555' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  welcome: { fontSize: 22, fontWeight: '700', color: colors.text },
+  meta: { fontSize: 15, color: colors.muted },
 });
