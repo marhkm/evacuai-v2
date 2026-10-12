@@ -1496,6 +1496,7 @@
       "x": 2.25,
       "y": 15,
       "room_id": "BE/1/Stairs_Left_G",
+      "qr_id": "60BC5B69",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1506,6 +1507,7 @@
       "x": 50.25,
       "y": 15,
       "room_id": "BE/1/Stairs_Right_G",
+      "qr_id": "F8AEC81D",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1516,6 +1518,7 @@
       "x": 8.126,
       "y": 16.8,
       "room_id": "BE/1/Room_BE101",
+      "qr_id": "B2856487",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1526,6 +1529,7 @@
       "x": 15.375,
       "y": 16.8,
       "room_id": "BE/1/Room_BE103",
+      "qr_id": "B04AA496",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1536,6 +1540,7 @@
       "x": 22.625,
       "y": 16.8,
       "room_id": "BE/1/Room_BE105",
+      "qr_id": "DAABE101",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1546,6 +1551,7 @@
       "x": 29.875,
       "y": 16.8,
       "room_id": "BE/1/Room_BE107",
+      "qr_id": "F40A1088",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1556,6 +1562,7 @@
       "x": 37.125,
       "y": 16.8,
       "room_id": "BE/1/Canteen",
+      "qr_id": "AF945EF0",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1570,6 +1577,7 @@
         "earthquake",
         "fire"
       ],
+      "qr_id": "DA9B7513",
       "building": "BE",
       "level": 1
     },
@@ -1579,6 +1587,7 @@
       "x": 8.126,
       "y": 13.2,
       "room_id": "BE/1/Room_BE102",
+      "qr_id": "CD8AE50A",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1589,6 +1598,7 @@
       "x": 15.375,
       "y": 13.2,
       "room_id": "BE/1/Room_BE104",
+      "qr_id": "95CFFD0B",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1599,6 +1609,7 @@
       "x": 22.625,
       "y": 13.2,
       "room_id": "BE/1/Room_BE106",
+      "qr_id": "D41C63B5",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1609,6 +1620,7 @@
       "x": 29.875,
       "y": 13.2,
       "room_id": "BE/1/Room_BE108",
+      "qr_id": "89241216",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1623,6 +1635,7 @@
         "earthquake",
         "fire"
       ],
+      "qr_id": "C19FDCCD",
       "building": "BE",
       "level": 1
     },
@@ -1632,6 +1645,7 @@
       "x": 44.376,
       "y": 13.2,
       "room_id": "BE/1/PumpRoom",
+      "qr_id": "058223CD",
       "building": "BE",
       "level": 1,
       "safe_for": []
@@ -1646,6 +1660,7 @@
         "fire",
         "flood"
       ],
+      "qr_id": "116DD2FA",
       "building": "BE",
       "level": 1
     },
@@ -1863,6 +1878,7 @@
       "x": 2.25,
       "y": 15,
       "room_id": "BE/2/Stairs_Left_2",
+      "qr_id": "2FF1045A",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1873,6 +1889,7 @@
       "x": 50.25,
       "y": 15,
       "room_id": "BE/2/Stairs_Right_2",
+      "qr_id": "F037D44A",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1893,6 +1910,7 @@
       "x": 7.078,
       "y": 16.8,
       "room_id": "BE/2/Room_BE201",
+      "qr_id": "44B2A5CA",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1903,6 +1921,7 @@
       "x": 12.235,
       "y": 16.8,
       "room_id": "BE/2/Room_BE203",
+      "qr_id": "DB63DF8E",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1913,6 +1932,7 @@
       "x": 17.391,
       "y": 16.8,
       "room_id": "BE/2/Room_BE205",
+      "qr_id": "FD2612F5",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1923,6 +1943,7 @@
       "x": 22.547,
       "y": 16.8,
       "room_id": "BE/2/Room_BE207",
+      "qr_id": "3590F25F",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1933,6 +1954,7 @@
       "x": 27.704,
       "y": 16.8,
       "room_id": "BE/2/Room_BE209",
+      "qr_id": "C25B0449",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1943,6 +1965,7 @@
       "x": 32.86,
       "y": 16.8,
       "room_id": "BE/2/Room_BE211",
+      "qr_id": "4C594895",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1953,6 +1976,7 @@
       "x": 38.016,
       "y": 16.8,
       "room_id": "BE/2/UtilityRoom",
+      "qr_id": "19D77427",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1963,6 +1987,7 @@
       "x": 43.172,
       "y": 16.8,
       "room_id": "BE/2/GuidanceOffice",
+      "qr_id": "1D8224CF",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1973,6 +1998,7 @@
       "x": 7.448,
       "y": 13.2,
       "room_id": "BE/2/Room_BE202",
+      "qr_id": "DEDBB4B8",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1983,6 +2009,7 @@
       "x": 13.341,
       "y": 13.2,
       "room_id": "BE/2/Room_BE204",
+      "qr_id": "5464D68E",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -1993,6 +2020,7 @@
       "x": 19.233,
       "y": 13.2,
       "room_id": "BE/2/Room_BE206",
+      "qr_id": "135F8FE3",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -2003,6 +2031,7 @@
       "x": 25.126,
       "y": 13.2,
       "room_id": "BE/2/Room_BE208",
+      "qr_id": "EA7A4329",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -2013,6 +2042,7 @@
       "x": 31.018,
       "y": 13.2,
       "room_id": "BE/2/Room_BE210",
+      "qr_id": "4AC8CDC9",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -2023,6 +2053,7 @@
       "x": 36.912,
       "y": 13.2,
       "room_id": "BE/2/Room_BE212",
+      "qr_id": "62524087",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -2033,6 +2064,7 @@
       "x": 42.803,
       "y": 13.2,
       "room_id": "BE/2/ScienceLab_Elem",
+      "qr_id": "F6601F71",
       "building": "BE",
       "level": 2,
       "safe_for": []
@@ -2121,6 +2153,7 @@
       "x": 2.25,
       "y": 15,
       "room_id": "BE/3/Stairs_Left_3",
+      "qr_id": "9457AB57",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2131,6 +2164,7 @@
       "x": 50.25,
       "y": 15,
       "room_id": "BE/3/Stairs_Right_3",
+      "qr_id": "E15C0733",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2151,6 +2185,7 @@
       "x": 8.625,
       "y": 16.8,
       "room_id": "BE/3/Room_BE301",
+      "qr_id": "F86BD8DB",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2161,6 +2196,7 @@
       "x": 16.875,
       "y": 16.8,
       "room_id": "BE/3/Room_BE303",
+      "qr_id": "86A000EA",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2171,6 +2207,7 @@
       "x": 25.125,
       "y": 16.8,
       "room_id": "BE/3/FunctionHall",
+      "qr_id": "03143293",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2181,6 +2218,7 @@
       "x": 33.375,
       "y": 16.8,
       "room_id": "BE/3/Library_HighSchool",
+      "qr_id": "C855CC1A",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2191,6 +2229,7 @@
       "x": 41.625,
       "y": 16.8,
       "room_id": "BE/3/Faculty_Elem",
+      "qr_id": "85733832",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2201,6 +2240,7 @@
       "x": 8.625,
       "y": 13.2,
       "room_id": "BE/3/Room_BE302",
+      "qr_id": "40DD69CA",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2211,6 +2251,7 @@
       "x": 16.875,
       "y": 13.2,
       "room_id": "BE/3/Room_BE304",
+      "qr_id": "CEFF5584",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2221,6 +2262,7 @@
       "x": 25.125,
       "y": 13.2,
       "room_id": "BE/3/Library_Elem",
+      "qr_id": "1BB79930",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2231,6 +2273,7 @@
       "x": 33.375,
       "y": 13.2,
       "room_id": "BE/3/InternetSection",
+      "qr_id": "78225825",
       "building": "BE",
       "level": 3,
       "safe_for": []
@@ -2241,6 +2284,7 @@
       "x": 41.625,
       "y": 13.2,
       "room_id": "BE/3/StudentLounge",
+      "qr_id": "A7FE123B",
       "building": "BE",
       "level": 3,
       "safe_for": []

@@ -5,6 +5,14 @@ return [
     'campus_data_path' => env('CAMPUS_DATA_PATH', base_path('../campus-data')),
     'campus_dataset' => env('CAMPUS_DATASET', 'uclm'),
 
+    // Routing weights sent in the campus snapshot. Must stay JSON-safe and mirror DEFAULT_WEIGHTS in packages/routing/src/types.ts.
+    'route_weights' => [
+        'congested' => 2.5,
+        'fullAssemblyPenalty_m' => 100,
+        'flags' => ['earthquake' => ['glass' => 3], 'fire' => (object) [], 'flood' => (object) []],
+        'blockFlags' => ['earthquake' => [], 'fire' => ['smoke'], 'flood' => ['flood_prone']],
+    ],
+
     // Comma-separated; empty = allow any domain (local testing).
     'allowed_email_domains' => array_filter(array_map('trim', explode(',', (string) env('ALLOWED_EMAIL_DOMAINS', '')))),
 ];

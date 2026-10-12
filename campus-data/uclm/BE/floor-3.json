@@ -451,14 +451,16 @@
       "type": "stairwell",
       "x": 2.25,
       "y": 15,
-      "room_id": "Stairs_Left_3"
+      "room_id": "Stairs_Left_3",
+      "qr_id": "9457AB57"
     },
     {
       "id": "Stairs_Right_3",
       "type": "stairwell",
       "x": 50.25,
       "y": 15,
-      "room_id": "Stairs_Right_3"
+      "room_id": "Stairs_Right_3",
+      "qr_id": "E15C0733"
     },
     {
       "id": "Elevator_3",
@@ -472,70 +474,80 @@
       "type": "room",
       "x": 8.625,
       "y": 16.8,
-      "room_id": "Room_BE301"
+      "room_id": "Room_BE301",
+      "qr_id": "F86BD8DB"
     },
     {
       "id": "Room_BE303",
       "type": "room",
       "x": 16.875,
       "y": 16.8,
-      "room_id": "Room_BE303"
+      "room_id": "Room_BE303",
+      "qr_id": "86A000EA"
     },
     {
       "id": "FunctionHall",
       "type": "room",
       "x": 25.125,
       "y": 16.8,
-      "room_id": "FunctionHall"
+      "room_id": "FunctionHall",
+      "qr_id": "03143293"
     },
     {
       "id": "Library_HighSchool",
       "type": "room",
       "x": 33.375,
       "y": 16.8,
-      "room_id": "Library_HighSchool"
+      "room_id": "Library_HighSchool",
+      "qr_id": "C855CC1A"
     },
     {
       "id": "Faculty_Elem",
       "type": "room",
       "x": 41.625,
       "y": 16.8,
-      "room_id": "Faculty_Elem"
+      "room_id": "Faculty_Elem",
+      "qr_id": "85733832"
     },
     {
       "id": "Room_BE302",
       "type": "room",
       "x": 8.625,
       "y": 13.2,
-      "room_id": "Room_BE302"
+      "room_id": "Room_BE302",
+      "qr_id": "40DD69CA"
     },
     {
       "id": "Room_BE304",
       "type": "room",
       "x": 16.875,
       "y": 13.2,
-      "room_id": "Room_BE304"
+      "room_id": "Room_BE304",
+      "qr_id": "CEFF5584"
     },
     {
       "id": "Library_Elem",
       "type": "room",
       "x": 25.125,
       "y": 13.2,
-      "room_id": "Library_Elem"
+      "room_id": "Library_Elem",
+      "qr_id": "1BB79930"
     },
     {
       "id": "InternetSection",
       "type": "room",
       "x": 33.375,
       "y": 13.2,
-      "room_id": "InternetSection"
+      "room_id": "InternetSection",
+      "qr_id": "78225825"
     },
     {
       "id": "StudentLounge",
       "type": "room",
       "x": 41.625,
       "y": 13.2,
-      "room_id": "StudentLounge"
+      "room_id": "StudentLounge",
+      "qr_id": "A7FE123B"
     }
   ],
   "edges": [

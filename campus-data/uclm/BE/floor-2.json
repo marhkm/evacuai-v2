@@ -696,14 +696,16 @@
       "type": "stairwell",
       "x": 2.25,
       "y": 15,
-      "room_id": "Stairs_Left_2"
+      "room_id": "Stairs_Left_2",
+      "qr_id": "2FF1045A"
     },
     {
       "id": "Stairs_Right_2",
       "type": "stairwell",
       "x": 50.25,
       "y": 15,
-      "room_id": "Stairs_Right_2"
+      "room_id": "Stairs_Right_2",
+      "qr_id": "F037D44A"
     },
     {
       "id": "Elevator_2",
@@ -717,105 +719,120 @@
       "type": "room",
       "x": 7.078,
       "y": 16.8,
-      "room_id": "Room_BE201"
+      "room_id": "Room_BE201",
+      "qr_id": "44B2A5CA"
     },
     {
       "id": "Room_BE203",
       "type": "room",
       "x": 12.235,
       "y": 16.8,
-      "room_id": "Room_BE203"
+      "room_id": "Room_BE203",
+      "qr_id": "DB63DF8E"
     },
     {
       "id": "Room_BE205",
       "type": "room",
       "x": 17.391,
       "y": 16.8,
-      "room_id": "Room_BE205"
+      "room_id": "Room_BE205",
+      "qr_id": "FD2612F5"
     },
     {
       "id": "Room_BE207",
       "type": "room",
       "x": 22.547,
       "y": 16.8,
-      "room_id": "Room_BE207"
+      "room_id": "Room_BE207",
+      "qr_id": "3590F25F"
     },
     {
       "id": "Room_BE209",
       "type": "room",
       "x": 27.704,
       "y": 16.8,
-      "room_id": "Room_BE209"
+      "room_id": "Room_BE209",
+      "qr_id": "C25B0449"
     },
     {
       "id": "Room_BE211",
       "type": "room",
       "x": 32.86,
       "y": 16.8,
-      "room_id": "Room_BE211"
+      "room_id": "Room_BE211",
+      "qr_id": "4C594895"
     },
     {
       "id": "UtilityRoom",
       "type": "room",
       "x": 38.016,
       "y": 16.8,
-      "room_id": "UtilityRoom"
+      "room_id": "UtilityRoom",
+      "qr_id": "19D77427"
     },
     {
       "id": "GuidanceOffice",
       "type": "room",
       "x": 43.172,
       "y": 16.8,
-      "room_id": "GuidanceOffice"
+      "room_id": "GuidanceOffice",
+      "qr_id": "1D8224CF"
     },
     {
       "id": "Room_BE202",
       "type": "room",
       "x": 7.448,
       "y": 13.2,
-      "room_id": "Room_BE202"
+      "room_id": "Room_BE202",
+      "qr_id": "DEDBB4B8"
     },
     {
       "id": "Room_BE204",
       "type": "room",
       "x": 13.341,
       "y": 13.2,
-      "room_id": "Room_BE204"
+      "room_id": "Room_BE204",
+      "qr_id": "5464D68E"
     },
     {
       "id": "Room_BE206",
       "type": "room",
       "x": 19.233,
       "y": 13.2,
-      "room_id": "Room_BE206"
+      "room_id": "Room_BE206",
+      "qr_id": "135F8FE3"
     },
     {
       "id": "Room_BE208",
       "type": "room",
       "x": 25.126,
       "y": 13.2,
-      "room_id": "Room_BE208"
+      "room_id": "Room_BE208",
+      "qr_id": "EA7A4329"
     },
     {
       "id": "Room_BE210",
       "type": "room",
       "x": 31.018,
       "y": 13.2,
-      "room_id": "Room_BE210"
+      "room_id": "Room_BE210",
+      "qr_id": "4AC8CDC9"
     },
     {
       "id": "Room_BE212",
       "type": "room",
       "x": 36.912,
       "y": 13.2,
-      "room_id": "Room_BE212"
+      "room_id": "Room_BE212",
+      "qr_id": "62524087"
     },
     {
       "id": "ScienceLab_Elem",
       "type": "room",
       "x": 42.803,
       "y": 13.2,
-      "room_id": "ScienceLab_Elem"
+      "room_id": "ScienceLab_Elem",
+      "qr_id": "F6601F71"
     }
   ],
   "edges": [

@@ -460,49 +460,56 @@
       "type": "stairwell",
       "x": 2.25,
       "y": 15,
-      "room_id": "Stairs_Left_G"
+      "room_id": "Stairs_Left_G",
+      "qr_id": "60BC5B69"
     },
     {
       "id": "Stairs_Right_G",
       "type": "stairwell",
       "x": 50.25,
       "y": 15,
-      "room_id": "Stairs_Right_G"
+      "room_id": "Stairs_Right_G",
+      "qr_id": "F8AEC81D"
     },
     {
       "id": "Room_BE101",
       "type": "room",
       "x": 8.126,
       "y": 16.8,
-      "room_id": "Room_BE101"
+      "room_id": "Room_BE101",
+      "qr_id": "B2856487"
     },
     {
       "id": "Room_BE103",
       "type": "room",
       "x": 15.375,
       "y": 16.8,
-      "room_id": "Room_BE103"
+      "room_id": "Room_BE103",
+      "qr_id": "B04AA496"
     },
     {
       "id": "Room_BE105",
       "type": "room",
       "x": 22.625,
       "y": 16.8,
-      "room_id": "Room_BE105"
+      "room_id": "Room_BE105",
+      "qr_id": "DAABE101"
     },
     {
       "id": "Room_BE107",
       "type": "room",
       "x": 29.875,
       "y": 16.8,
-      "room_id": "Room_BE107"
+      "room_id": "Room_BE107",
+      "qr_id": "F40A1088"
     },
     {
       "id": "Canteen",
       "type": "room",
       "x": 37.125,
       "y": 16.8,
-      "room_id": "Canteen"
+      "room_id": "Canteen",
+      "qr_id": "AF945EF0"
     },
     {
       "id": "Exit_South",
@@ -513,35 +520,40 @@
       "safe_for": [
         "earthquake",
         "fire"
-      ]
+      ],
+      "qr_id": "DA9B7513"
     },
     {
       "id": "Room_BE102",
       "type": "room",
       "x": 8.126,
       "y": 13.2,
-      "room_id": "Room_BE102"
+      "room_id": "Room_BE102",
+      "qr_id": "CD8AE50A"
     },
     {
       "id": "Room_BE104",
       "type": "room",
       "x": 15.375,
       "y": 13.2,
-      "room_id": "Room_BE104"
+      "room_id": "Room_BE104",
+      "qr_id": "95CFFD0B"
     },
     {
       "id": "Room_BE106",
       "type": "room",
       "x": 22.625,
       "y": 13.2,
-      "room_id": "Room_BE106"
+      "room_id": "Room_BE106",
+      "qr_id": "D41C63B5"
     },
     {
       "id": "Room_BE108",
       "type": "room",
       "x": 29.875,
       "y": 13.2,
-      "room_id": "Room_BE108"
+      "room_id": "Room_BE108",
+      "qr_id": "89241216"
     },
     {
       "id": "Exit_North",
@@ -552,14 +564,16 @@
       "safe_for": [
         "earthquake",
         "fire"
-      ]
+      ],
+      "qr_id": "C19FDCCD"
     },
     {
       "id": "PumpRoom",
       "type": "room",
       "x": 44.376,
       "y": 13.2,
-      "room_id": "PumpRoom"
+      "room_id": "PumpRoom",
+      "qr_id": "058223CD"
     },
     {
       "id": "AP_Field",
@@ -570,7 +584,8 @@
         "earthquake",
         "fire",
         "flood"
-      ]
+      ],
+      "qr_id": "116DD2FA"
     }
   ],
   "edges": [

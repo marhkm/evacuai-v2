@@ -23,6 +23,7 @@ export default function Home() {
       <Text style={styles.welcome}>Welcome, {state.user.name}</Text>
       <Text style={styles.meta}>{state.user.role.replace('_', ' ')} · {getServerUrl()}</Text>
       <Text style={styles.meta}>Alerts, evacuation routes, SOS and check-in arrive in the next builds.</Text>
+      <Button label="Campus map" onPress={() => router.push('/map')} />
       <Button label="Profile" variant="secondary" onPress={() => router.push('/profile')} />
     </Screen>
   );

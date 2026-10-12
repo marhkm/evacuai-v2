@@ -1,4 +1,5 @@
 // One-off importer: student prototype floor SVGs (github.com/Lexageda/evacuai, read-only copy) → campus-data JSON.
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -7,7 +8,7 @@ import type { EdgeType, Hazard, NodeType, Point } from '../../packages/routing/s
 export interface Rect { id: string; x: number; y: number; w: number; h: number }
 export interface RawFloor {
   rooms: { id: string; name: string; type: string; polygon: Point[] }[];
-  nodes: { id: string; type: NodeType; x: number; y: number; name?: string; room_id?: string; safe_for?: Hazard[] }[];
+  nodes: { id: string; type: NodeType; x: number; y: number; name?: string; room_id?: string; safe_for?: Hazard[]; qr_id?: string }[];
   edges: { from: string; to: string; type: EdgeType; distance_m?: number }[];
 }
 
@@ -20,10 +21,16 @@ export function parseRects(svg: string): Rect[] {
 }
 
 const r3 = (v: number) => Math.round(v * 1000) / 1000;
+// Stable sticker code per global node id; rotate a sticker by editing qr_id in the floor JSON.
+export const qrId = (globalId: string) => createHash('sha256').update(globalId).digest('hex').slice(0, 8).toUpperCase();
+const STICKER_TYPES: NodeType[] = ['room', 'stairwell', 'exit', 'assembly_point'];
 const kind = (id: string): NodeType =>
   id.startsWith('Stairs_') ? 'stairwell' : id.startsWith('Elevator_') ? 'elevator' : id.startsWith('Exit_') ? 'exit' : 'room';
 
-export function buildFloor(rects: Rect[], opts: { level: number; scale: number; floodSafe: boolean; floorName?: string }): RawFloor {
+export function buildFloor(
+  rects: Rect[],
+  opts: { level: number; scale: number; floodSafe: boolean; floorName?: string; building?: string },
+): RawFloor {
   const k = opts.scale;
   const corridor = rects.find(r => r.id.startsWith('Corridor_'));
   if (!corridor) throw new Error('no Corridor_* rect');
@@ -59,6 +66,7 @@ export function buildFloor(rects: Rect[], opts: { level: number; scale: number; 
     out.nodes.push({
       id: r.id, type: t, x: r3(cx * k), y: r3(y * k), room_id: r.id,
       ...(t === 'exit' ? { safe_for: ['earthquake', 'fire'] as Hazard[] } : {}),
+      ...(opts.building && STICKER_TYPES.includes(t) ? { qr_id: qrId(`${opts.building}/${opts.level}/${r.id}`) } : {}),
     });
     const nearest = doorXs.reduce((best, x, i) => (Math.abs(x - cx) < Math.abs(doorXs[best] - cx) ? i : best), 0);
     out.edges.push({ from: r.id, to: hallIds[nearest], type: t === 'room' || t === 'exit' ? 'door' : 'corridor' });
@@ -83,7 +91,7 @@ function main(argv: string[]) {
 
   const built = new Map<number, RawFloor>();
   for (const f of floors) {
-    built.set(f.level, buildFloor(parseRects(readFileSync(f.file, 'utf8')), { level: f.level, scale, floodSafe: f.level >= 2, floorName: f.name }));
+    built.set(f.level, buildFloor(parseRects(readFileSync(f.file, 'utf8')), { level: f.level, scale, floodSafe: f.level >= 2, floorName: f.name, building }));
   }
 
   for (const f of floors.slice(1)) {
@@ -99,7 +107,10 @@ function main(argv: string[]) {
   const ground = built.get(floors[0].level)!;
   const maxY = Math.max(...ground.rooms.flatMap(r => r.polygon.map(p => p[1])));
   // ponytail: AP position/distance are placeholders until the site survey; edit in floor-1.json
-  ground.nodes.push({ id: 'AP_Field', type: 'assembly_point', x: ground.nodes[0].x, y: r3(maxY + 30), safe_for: ['earthquake', 'fire', 'flood'] });
+  ground.nodes.push({
+    id: 'AP_Field', type: 'assembly_point', x: ground.nodes[0].x, y: r3(maxY + 30),
+    safe_for: ['earthquake', 'fire', 'flood'], qr_id: qrId(`${building}/${floors[0].level}/AP_Field`),
+  });
   for (const exit of ground.nodes.filter(n => n.type === 'exit')) ground.edges.push({ from: exit.id, to: 'AP_Field', type: 'outdoor', distance_m: 30 });
 
   mkdirSync(outDir, { recursive: true });

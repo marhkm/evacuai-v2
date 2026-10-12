@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CampusSnapshotController;
 use App\Http\Controllers\Api\MeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok']);
+Route::get('/campus-snapshot', CampusSnapshotController::class)->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']); // own per-email limiter

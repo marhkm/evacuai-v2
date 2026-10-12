@@ -36,3 +36,15 @@ test('I3: hallway nodes belong to the corridor room', () => {
   const f = buildFloor(parseRects(svg), { level: 1, scale: 0.1, floodSafe: false });
   expect(f.nodes.filter(n => n.type === 'hallway').every(n => n.room_id === 'Corridor_X')).toBe(true);
 });
+
+test('sticker nodes get a stable qr_id; corridor and elevator nodes do not', () => {
+  const a = buildFloor(parseRects(svg), { level: 1, scale: 0.1, floodSafe: false, building: 'BE' });
+  const b = buildFloor(parseRects(svg), { level: 1, scale: 0.1, floodSafe: false, building: 'BE' });
+  const qr = (f: typeof a, id: string) => f.nodes.find(n => n.id === id)!.qr_id;
+  for (const id of ['Room_A', 'Room_B', 'Stairs_Left_G', 'Exit_South']) {
+    expect(qr(a, id)).toMatch(/^[0-9A-F]{8}$/);
+    expect(qr(a, id)).toBe(qr(b, id));
+  }
+  expect(a.nodes.filter(n => n.type === 'hallway').every(n => n.qr_id === undefined)).toBe(true);
+  expect(new Set(a.nodes.map(n => n.qr_id).filter(Boolean)).size).toBe(4);
+});

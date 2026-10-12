@@ -22,6 +22,10 @@ class CampusSeeder extends Seeder
 
         DB::transaction(function () use ($snap) {
             $now = now();
+            DB::table('system_configurations')->upsert([[
+                'key' => 'campus_name', 'value' => json_encode($snap['name']), 'description' => 'Campus display name',
+                'created_at' => $now, 'updated_at' => $now,
+            ]], ['key'], ['value', 'updated_at']);
             foreach ($snap['buildings'] as $b) {
                 DB::table('buildings')->upsert([[
                     'id' => $b['id'],
