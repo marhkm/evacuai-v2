@@ -48,6 +48,13 @@
         {
           "locationWhenInUsePermission": "EvacuAI checks whether you are at an assembly point when you check in during an alert. Your location is not tracked in the background."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "EvacuAI lets you attach a photo of a hazard to your report.",
+          "cameraPermission": "EvacuAI uses the camera to scan QR stickers and to photograph hazards you report."
+        }
       ]
     ],
     "experiments": {

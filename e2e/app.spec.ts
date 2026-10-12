@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel('Email').fill(demoEmail('student'));
   await page.getByLabel('Password').fill(DEMO_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByText('Welcome, Demo Student')).toBeVisible();
+  await expect(page.getByText('Welcome, Demo Student')).toBeVisible({ timeout: 45_000 }); // first request after a cold start is slow
 });
 
 test('evacuation route from a picked room', async ({ page }) => {
@@ -29,13 +29,16 @@ test('campus map: floor plan, all floors and 3D', async ({ page }) => {
   await expect(page.locator('canvas')).toBeVisible();
 });
 
-test('SOS, check-in, alerts, feedback and profile screens open', async ({ page }) => {
+test('SOS, report, check-in, alerts, feedback and profile screens open', async ({ page }) => {
   // Screens stay mounted (hidden) in the stack, so check each screen's own heading.
   for (const [button, heading] of [['SOS', 'SOS'], ['Alerts', 'Alerts'], ['Send feedback', 'Feedback'], ['Profile', 'Profile']] as const) {
     await page.getByRole('button', { name: button, exact: true }).click();
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
     await page.goBack();
   }
+  await page.getByRole('button', { name: 'Report a hazard' }).click();
+  await expect(page.getByRole('button', { name: 'Choose photo' })).toBeVisible(); // photo attach (nothing is sent)
+  await page.goBack();
   await page.goto('/checkin');
   await expect(page.getByRole('heading', { name: 'Check in' })).toBeVisible();
 });

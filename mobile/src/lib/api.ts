@@ -35,10 +35,10 @@ export async function api<T = any>(path: string, { method = 'GET', body, token }
       method,
       headers: {
         Accept: 'application/json',
-        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(body !== undefined && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
     throw new ApiError(`Cannot reach the server at ${serverUrl}. Check your connection or the server address.`, 0);

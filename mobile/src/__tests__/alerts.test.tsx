@@ -19,6 +19,12 @@ jest.mock('@/lib/realtime', () => ({
   },
 }));
 jest.mock('@/lib/push', () => ({ registerForPush: async () => undefined }));
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: async () => ({ granted: true }),
+  requestCameraPermissionsAsync: async () => ({ granted: true }),
+  launchImageLibraryAsync: async () => ({ canceled: false, assets: [{ uri: 'file:///tmp/smoke.jpg', fileName: 'smoke.jpg', mimeType: 'image/jpeg', width: 4000, height: 3000 }] }),
+  launchCameraAsync: async () => ({ canceled: true, assets: null }),
+}));
 
 const user = { id: 1, name: 'Juan', email: 'j@x.test', role: 'student', department: null, phone: null, email_verified: true, consented: true, has_password: true };
 const alert = (over: object = {}) => ({
@@ -38,14 +44,15 @@ beforeEach(() => {
   global.fetch = jest.fn(async (url: string, init: any = {}) => {
     const path = url.replace(/^https?:\/\/[^/]+/, '');
     const method = init.method ?? 'GET';
-    if (method === 'POST') posted.push({ url: path, body: JSON.parse(init.body) });
+    const parsed = init.body instanceof FormData ? init.body : init.body ? JSON.parse(init.body) : undefined;
+    if (method === 'POST') posted.push({ url: path, body: parsed });
     let status = 200;
     let body: unknown = {};
     if (path === '/api/me') body = { user };
     else if (path === '/api/alerts') body = { alerts };
     else if (path === '/api/campus-snapshot') body = demo;
     else if (path === '/api/hazard-reports') {
-      const b = JSON.parse(init.body);
+      const b = parsed instanceof FormData ? Object.fromEntries(parsed.entries()) : parsed;
       [status, body] = b.room_id === 'DEMO/2/R201' ? [422, { errors: { room_id: ['That room is not on the selected floor.'] } }] : [201, { report: { id: 9, status: 'pending' } }];
     }
     return { ok: status < 300, status, json: async () => body, headers: { get: () => null } } as unknown as Response;
@@ -110,4 +117,22 @@ test('report requires a hazard type', async () => {
   await fireEvent.press(await screen.findByRole('button', { name: 'Send report' }));
   expect(await screen.findByText('Choose what kind of hazard it is.')).toBeTruthy();
   expect(posted.length).toBe(0);
+});
+
+test('a photo is sent as multipart with the report fields', async () => {
+  await renderRouter('./src/app', { initialUrl: '/report' });
+  await fireEvent.press(await screen.findByRole('button', { name: 'Fire' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Ground' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Choose photo' }));
+  expect(await screen.findByLabelText('Photo to send with the report')).toBeTruthy();
+  await fireEvent.press(screen.getByRole('button', { name: 'Send report' }));
+  expect(await screen.findByText(/Report sent/)).toBeTruthy();
+
+  const form = posted.find(p => p.url === '/api/hazard-reports')!.body as FormData;
+  expect(form).toBeInstanceOf(FormData);
+  expect(form.get('hazard_type')).toBe('fire');
+  expect(form.get('level')).toBe('1');
+  expect(form.has('room_id')).toBe(false); // no room chosen: field left out, not "null"
+  expect(form.get('photo')).toBeTruthy();
+  expect(screen.queryByLabelText('Photo to send with the report')).toBeNull(); // cleared after sending
 });

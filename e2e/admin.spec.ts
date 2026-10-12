@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel('Email address').fill(demoEmail('safety_officer'));
   await page.locator('input[type=password]').fill(DEMO_PASSWORD); // the label also matches the show/hide toggles
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByText('Registered people')).toBeVisible(); // dashboard stats
+  await expect(page.getByText('Registered people')).toBeVisible({ timeout: 45_000 }); // dashboard stats; slow on a cold start
 });
 
 test('main officer pages render', async ({ page }) => {
