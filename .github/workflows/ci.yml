@@ -11,6 +11,9 @@ jobs:
           cache: npm
       - run: npm ci && npm run typecheck && npm test && npm run validate
       - run: npx tsc --noEmit -p mobile
+      - run: npm test -w @evacuai/mobile -- --ci
+      - run: npx expo lint
+        working-directory: mobile
       - run: npm run snapshots && git diff --exit-code campus-data/*.snapshot.json
 
   api:

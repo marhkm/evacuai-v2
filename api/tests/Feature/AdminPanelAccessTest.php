@@ -27,3 +27,7 @@ it('defaults new users to student', function () {
     $u = User::create(['name' => 'N', 'email' => 'n@example.test', 'password' => 'secret-password']);
     expect($u->fresh()->role)->toBe(Role::Student);
 });
+
+it('offers password reset on the admin login', function () {
+    $this->get('/admin/password-reset/request')->assertOk();
+});

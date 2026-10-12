@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -19,7 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 // `role` is deliberately not fillable: only an admin action may change it (no self-promotion via registration).
 #[Fillable(['name', 'email', 'password', 'department', 'phone'])]
-#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
@@ -36,6 +37,25 @@ class User extends Authenticatable implements FilamentUser
             'role' => Role::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Audit trail for privilege changes (who promoted whom).
+        static::updated(function (User $user) {
+            if ($user->wasChanged('role')) {
+                DB::table('user_activity_logs')->insert([
+                    'user_id' => auth()->id(),
+                    'activity_type' => 'role_changed',
+                    'details' => json_encode([
+                        'target_user_id' => $user->id,
+                        'from' => $user->getOriginal('role')?->value,
+                        'to' => $user->role->value,
+                    ]),
+                    'created_at' => now(),
+                ]);
+            }
+        });
     }
 
     public function canAccessPanel(Panel $panel): bool

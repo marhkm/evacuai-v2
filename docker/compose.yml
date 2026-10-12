@@ -47,6 +47,8 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.mobile-web
+      args:
+        EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${GOOGLE_CLIENT_ID:-} # Google button appears only when set
     ports: ["8081:80"]
     restart: unless-stopped
 
