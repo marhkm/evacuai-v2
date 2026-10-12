@@ -29,6 +29,10 @@ services:
     <<: *php
     command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
     ports: ["8080:8080"]
+    healthcheck: # healthy once the WebSocket port accepts connections (compose --wait needs a real check)
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 8080) ? 0 : 1);"]
+      interval: 5s
+      retries: 30
     depends_on:
       app: { condition: service_healthy }
 
