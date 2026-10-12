@@ -31,6 +31,12 @@ class Alert extends Model
         return ['verified' => 'boolean', 'is_drill' => 'boolean', 'issued_at' => 'datetime', 'resolved_at' => 'datetime'];
     }
 
+    /** The incident check-ins, SOS and location events belong to: the most recent active alert. */
+    public static function current(): ?self
+    {
+        return self::where('status', 'active')->latest('issued_at')->first();
+    }
+
     public function issuer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'issued_by');

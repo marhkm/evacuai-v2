@@ -7,7 +7,9 @@ use App\Http\Controllers\Api\ClientConfigController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\HazardReportController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\SafetyController;
 use App\Http\Controllers\Api\ScheduleController;
+use App\Http\Controllers\Api\SosController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok']);
@@ -30,6 +32,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/hazard-reports/mine', [HazardReportController::class, 'mine']);
     Route::post('/devices', [DeviceController::class, 'store']);
     Route::delete('/devices', [DeviceController::class, 'destroy']);
+
+    Route::get('/sos/current', [SosController::class, 'current']);
+    Route::post('/sos', [SosController::class, 'store'])->middleware('throttle:5,1,sos');
+    Route::post('/sos/{sos}/messages', [SosController::class, 'message'])->middleware('throttle:30,1,sos-chat');
+    Route::post('/sos/{sos}/cancel', [SosController::class, 'cancel']);
+    Route::get('/check-in', [SafetyController::class, 'status']);
+    Route::post('/check-in', [SafetyController::class, 'checkIn'])->middleware('throttle:10,1,check-in');
+    Route::post('/location', [SafetyController::class, 'location'])->middleware('throttle:30,1,location');
 
     Route::prefix('me')->group(function () {
         Route::get('/', [MeController::class, 'show']);

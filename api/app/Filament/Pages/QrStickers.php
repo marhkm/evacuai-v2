@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Support\Places;
 use BackedEnum;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
@@ -54,18 +55,10 @@ class QrStickers extends Page
                 'label' => implode(' · ', [
                     $buildings[$n->building_id] ?? $n->building_id,
                     $floors["{$n->building_id}/{$n->level}"]->name ?? "Level {$n->level}",
-                    $n->name ?? ($n->room_id ? $rooms[$n->room_id] ?? null : null) ?? self::humanize($n->id),
+                    $n->name ?? ($n->room_id ? $rooms[$n->room_id] ?? null : null) ?? Places::humanize($n->id),
                 ]),
                 'image' => $qr->render(self::payload($n->qr_id)), // data:image/svg+xml;base64,...
             ])
             ->all();
-    }
-
-    // Same rule as displayName() in packages/campus-view.
-    private static function humanize(string $id): string
-    {
-        $local = last(explode('/', $id));
-
-        return str_replace('_', ' ', preg_replace('/_(G|\d+|Ground|Second|Third)$/', '', $local));
     }
 }
