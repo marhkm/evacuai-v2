@@ -2,12 +2,14 @@
   "name": "evacuai",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "mobile"
   ],
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.base.json",
-    "validate": "tsx packages/routing/src/cli/validate.ts campus-data/demo campus-data/uclm"
+    "validate": "tsx packages/routing/src/cli/validate.ts campus-data/demo campus-data/uclm",
+    "snapshots": "tsx packages/routing/src/cli/snapshot.ts campus-data/demo campus-data/uclm"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",

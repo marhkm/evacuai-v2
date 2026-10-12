@@ -1,0 +1,15 @@
+.git
+node_modules
+**/node_modules
+api/vendor
+api/.env
+api/database/*.sqlite
+api/storage/logs/*
+api/storage/framework/cache/*
+api/storage/framework/sessions/*
+api/storage/framework/views/*
+docker/.env
+.superpowers
+api/bootstrap/cache/*.php
+mobile/dist
+mobile/.expo

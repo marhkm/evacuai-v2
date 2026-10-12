@@ -57,3 +57,7 @@ test('I1: CLI reports load errors without a stack trace', () => {
   expect(r.stdout).toContain('✗ load');
   expect(r.stderr).not.toContain('    at ');
 });
+
+test('snapshot is JSON-safe (it is the API/seed contract)', () => {
+  expect(JSON.parse(JSON.stringify(snap))).toEqual(snap);
+});

@@ -1,0 +1,3051 @@
+{
+  "name": "UCLM",
+  "buildings": [
+    {
+      "id": "BE",
+      "name": "Basic Education Building",
+      "origin": null,
+      "rotation_deg": 0,
+      "footprint": [],
+      "floors": [
+        {
+          "level": 1,
+          "name": "Ground",
+          "elevation_m": 0,
+          "height_m": 3.5
+        },
+        {
+          "level": 2,
+          "name": "Second",
+          "elevation_m": 3.5,
+          "height_m": 3.5
+        },
+        {
+          "level": 3,
+          "name": "Third",
+          "elevation_m": 7,
+          "height_m": 3.5
+        }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "BE/1/Corridor_Ground",
+      "name": "Corridor Ground",
+      "type": "corridor",
+      "polygon": [
+        [
+          4.5,
+          13.5
+        ],
+        [
+          48,
+          13.5
+        ],
+        [
+          48,
+          16.5
+        ],
+        [
+          4.5,
+          16.5
+        ],
+        [
+          4.5,
+          13.5
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Stairs_Left_G",
+      "name": "Stairs Left",
+      "type": "stairwell",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4.5,
+          0
+        ],
+        [
+          4.5,
+          30
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Stairs_Right_G",
+      "name": "Stairs Right",
+      "type": "stairwell",
+      "polygon": [
+        [
+          48,
+          0
+        ],
+        [
+          52.5,
+          0
+        ],
+        [
+          52.5,
+          30
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          48,
+          0
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE101",
+      "name": "BE101",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          16.8
+        ],
+        [
+          11.449,
+          16.8
+        ],
+        [
+          11.449,
+          29.7
+        ],
+        [
+          4.8,
+          29.7
+        ],
+        [
+          4.8,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE103",
+      "name": "BE103",
+      "type": "room",
+      "polygon": [
+        [
+          12.05,
+          16.8
+        ],
+        [
+          18.699,
+          16.8
+        ],
+        [
+          18.699,
+          29.7
+        ],
+        [
+          12.05,
+          29.7
+        ],
+        [
+          12.05,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE105",
+      "name": "BE105",
+      "type": "room",
+      "polygon": [
+        [
+          19.3,
+          16.8
+        ],
+        [
+          25.95,
+          16.8
+        ],
+        [
+          25.95,
+          29.7
+        ],
+        [
+          19.3,
+          29.7
+        ],
+        [
+          19.3,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE107",
+      "name": "BE107",
+      "type": "room",
+      "polygon": [
+        [
+          26.55,
+          16.8
+        ],
+        [
+          33.199,
+          16.8
+        ],
+        [
+          33.199,
+          29.7
+        ],
+        [
+          26.55,
+          29.7
+        ],
+        [
+          26.55,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Canteen",
+      "name": "Canteen",
+      "type": "room",
+      "polygon": [
+        [
+          33.8,
+          16.8
+        ],
+        [
+          40.449,
+          16.8
+        ],
+        [
+          40.449,
+          29.7
+        ],
+        [
+          33.8,
+          29.7
+        ],
+        [
+          33.8,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Exit_South",
+      "name": "Exit South",
+      "type": "exit",
+      "polygon": [
+        [
+          41.051,
+          16.8
+        ],
+        [
+          47.7,
+          16.8
+        ],
+        [
+          47.7,
+          29.7
+        ],
+        [
+          41.051,
+          29.7
+        ],
+        [
+          41.051,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE102",
+      "name": "BE102",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          0.3
+        ],
+        [
+          11.449,
+          0.3
+        ],
+        [
+          11.449,
+          13.2
+        ],
+        [
+          4.8,
+          13.2
+        ],
+        [
+          4.8,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE104",
+      "name": "BE104",
+      "type": "room",
+      "polygon": [
+        [
+          12.05,
+          0.3
+        ],
+        [
+          18.699,
+          0.3
+        ],
+        [
+          18.699,
+          13.2
+        ],
+        [
+          12.05,
+          13.2
+        ],
+        [
+          12.05,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE106",
+      "name": "BE106",
+      "type": "room",
+      "polygon": [
+        [
+          19.3,
+          0.3
+        ],
+        [
+          25.95,
+          0.3
+        ],
+        [
+          25.95,
+          13.2
+        ],
+        [
+          19.3,
+          13.2
+        ],
+        [
+          19.3,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE108",
+      "name": "BE108",
+      "type": "room",
+      "polygon": [
+        [
+          26.55,
+          0.3
+        ],
+        [
+          33.199,
+          0.3
+        ],
+        [
+          33.199,
+          13.2
+        ],
+        [
+          26.55,
+          13.2
+        ],
+        [
+          26.55,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Exit_North",
+      "name": "Exit North",
+      "type": "exit",
+      "polygon": [
+        [
+          33.8,
+          0.3
+        ],
+        [
+          40.449,
+          0.3
+        ],
+        [
+          40.449,
+          13.2
+        ],
+        [
+          33.8,
+          13.2
+        ],
+        [
+          33.8,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/PumpRoom",
+      "name": "PumpRoom",
+      "type": "room",
+      "polygon": [
+        [
+          41.051,
+          0.3
+        ],
+        [
+          47.7,
+          0.3
+        ],
+        [
+          47.7,
+          13.2
+        ],
+        [
+          41.051,
+          13.2
+        ],
+        [
+          41.051,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/2/Corridor_Second",
+      "name": "Corridor Second",
+      "type": "corridor",
+      "polygon": [
+        [
+          4.5,
+          13.5
+        ],
+        [
+          45.75,
+          13.5
+        ],
+        [
+          45.75,
+          16.5
+        ],
+        [
+          4.5,
+          16.5
+        ],
+        [
+          4.5,
+          13.5
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Stairs_Left_2",
+      "name": "Stairs Left",
+      "type": "stairwell",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4.5,
+          0
+        ],
+        [
+          4.5,
+          30
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Stairs_Right_2",
+      "name": "Stairs Right",
+      "type": "stairwell",
+      "polygon": [
+        [
+          48,
+          0
+        ],
+        [
+          52.5,
+          0
+        ],
+        [
+          52.5,
+          30
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          48,
+          0
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Elevator_2",
+      "name": "Elevator",
+      "type": "elevator",
+      "polygon": [
+        [
+          45.75,
+          15.6
+        ],
+        [
+          48,
+          15.6
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          45.75,
+          30
+        ],
+        [
+          45.75,
+          15.6
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE201",
+      "name": "BE201",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          16.8
+        ],
+        [
+          9.357,
+          16.8
+        ],
+        [
+          9.357,
+          29.7
+        ],
+        [
+          4.8,
+          29.7
+        ],
+        [
+          4.8,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE203",
+      "name": "BE203",
+      "type": "room",
+      "polygon": [
+        [
+          9.957,
+          16.8
+        ],
+        [
+          14.514,
+          16.8
+        ],
+        [
+          14.514,
+          29.7
+        ],
+        [
+          9.957,
+          29.7
+        ],
+        [
+          9.957,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE205",
+      "name": "BE205",
+      "type": "room",
+      "polygon": [
+        [
+          15.112,
+          16.8
+        ],
+        [
+          19.67,
+          16.8
+        ],
+        [
+          19.67,
+          29.7
+        ],
+        [
+          15.112,
+          29.7
+        ],
+        [
+          15.112,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE207",
+      "name": "BE207",
+      "type": "room",
+      "polygon": [
+        [
+          20.268,
+          16.8
+        ],
+        [
+          24.825,
+          16.8
+        ],
+        [
+          24.825,
+          29.7
+        ],
+        [
+          20.268,
+          29.7
+        ],
+        [
+          20.268,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE209",
+      "name": "BE209",
+      "type": "room",
+      "polygon": [
+        [
+          25.425,
+          16.8
+        ],
+        [
+          29.982,
+          16.8
+        ],
+        [
+          29.982,
+          29.7
+        ],
+        [
+          25.425,
+          29.7
+        ],
+        [
+          25.425,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE211",
+      "name": "BE211",
+      "type": "room",
+      "polygon": [
+        [
+          30.582,
+          16.8
+        ],
+        [
+          35.139,
+          16.8
+        ],
+        [
+          35.139,
+          29.7
+        ],
+        [
+          30.582,
+          29.7
+        ],
+        [
+          30.582,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/UtilityRoom",
+      "name": "UtilityRoom",
+      "type": "room",
+      "polygon": [
+        [
+          35.738,
+          16.8
+        ],
+        [
+          40.295,
+          16.8
+        ],
+        [
+          40.295,
+          29.7
+        ],
+        [
+          35.738,
+          29.7
+        ],
+        [
+          35.738,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/GuidanceOffice",
+      "name": "GuidanceOffice",
+      "type": "room",
+      "polygon": [
+        [
+          40.893,
+          16.8
+        ],
+        [
+          45.45,
+          16.8
+        ],
+        [
+          45.45,
+          29.7
+        ],
+        [
+          40.893,
+          29.7
+        ],
+        [
+          40.893,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE202",
+      "name": "BE202",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          0.3
+        ],
+        [
+          10.093,
+          0.3
+        ],
+        [
+          10.093,
+          13.2
+        ],
+        [
+          4.8,
+          13.2
+        ],
+        [
+          4.8,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE204",
+      "name": "BE204",
+      "type": "room",
+      "polygon": [
+        [
+          10.694,
+          0.3
+        ],
+        [
+          15.987,
+          0.3
+        ],
+        [
+          15.987,
+          13.2
+        ],
+        [
+          10.694,
+          13.2
+        ],
+        [
+          10.694,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE206",
+      "name": "BE206",
+      "type": "room",
+      "polygon": [
+        [
+          16.586,
+          0.3
+        ],
+        [
+          21.879,
+          0.3
+        ],
+        [
+          21.879,
+          13.2
+        ],
+        [
+          16.586,
+          13.2
+        ],
+        [
+          16.586,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE208",
+      "name": "BE208",
+      "type": "room",
+      "polygon": [
+        [
+          22.479,
+          0.3
+        ],
+        [
+          27.773,
+          0.3
+        ],
+        [
+          27.773,
+          13.2
+        ],
+        [
+          22.479,
+          13.2
+        ],
+        [
+          22.479,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE210",
+      "name": "BE210",
+      "type": "room",
+      "polygon": [
+        [
+          28.371,
+          0.3
+        ],
+        [
+          33.665,
+          0.3
+        ],
+        [
+          33.665,
+          13.2
+        ],
+        [
+          28.371,
+          13.2
+        ],
+        [
+          28.371,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Room_BE212",
+      "name": "BE212",
+      "type": "room",
+      "polygon": [
+        [
+          34.265,
+          0.3
+        ],
+        [
+          39.558,
+          0.3
+        ],
+        [
+          39.558,
+          13.2
+        ],
+        [
+          34.265,
+          13.2
+        ],
+        [
+          34.265,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/ScienceLab_Elem",
+      "name": "ScienceLab Elem",
+      "type": "room",
+      "polygon": [
+        [
+          40.156,
+          0.3
+        ],
+        [
+          45.45,
+          0.3
+        ],
+        [
+          45.45,
+          13.2
+        ],
+        [
+          40.156,
+          13.2
+        ],
+        [
+          40.156,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/3/Corridor_Third",
+      "name": "Corridor Third",
+      "type": "corridor",
+      "polygon": [
+        [
+          4.5,
+          13.5
+        ],
+        [
+          45.75,
+          13.5
+        ],
+        [
+          45.75,
+          16.5
+        ],
+        [
+          4.5,
+          16.5
+        ],
+        [
+          4.5,
+          13.5
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Stairs_Left_3",
+      "name": "Stairs Left",
+      "type": "stairwell",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4.5,
+          0
+        ],
+        [
+          4.5,
+          30
+        ],
+        [
+          0,
+          30
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Stairs_Right_3",
+      "name": "Stairs Right",
+      "type": "stairwell",
+      "polygon": [
+        [
+          48,
+          0
+        ],
+        [
+          52.5,
+          0
+        ],
+        [
+          52.5,
+          30
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          48,
+          0
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Elevator_3",
+      "name": "Elevator",
+      "type": "elevator",
+      "polygon": [
+        [
+          45.75,
+          15.6
+        ],
+        [
+          48,
+          15.6
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          45.75,
+          30
+        ],
+        [
+          45.75,
+          15.6
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Room_BE301",
+      "name": "BE301",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          16.8
+        ],
+        [
+          12.45,
+          16.8
+        ],
+        [
+          12.45,
+          29.7
+        ],
+        [
+          4.8,
+          29.7
+        ],
+        [
+          4.8,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Room_BE303",
+      "name": "BE303",
+      "type": "room",
+      "polygon": [
+        [
+          13.05,
+          16.8
+        ],
+        [
+          20.7,
+          16.8
+        ],
+        [
+          20.7,
+          29.7
+        ],
+        [
+          13.05,
+          29.7
+        ],
+        [
+          13.05,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/FunctionHall",
+      "name": "FunctionHall",
+      "type": "room",
+      "polygon": [
+        [
+          21.3,
+          16.8
+        ],
+        [
+          28.95,
+          16.8
+        ],
+        [
+          28.95,
+          29.7
+        ],
+        [
+          21.3,
+          29.7
+        ],
+        [
+          21.3,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Library_HighSchool",
+      "name": "Library HighSchool",
+      "type": "room",
+      "polygon": [
+        [
+          29.55,
+          16.8
+        ],
+        [
+          37.2,
+          16.8
+        ],
+        [
+          37.2,
+          29.7
+        ],
+        [
+          29.55,
+          29.7
+        ],
+        [
+          29.55,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Faculty_Elem",
+      "name": "Faculty Elem",
+      "type": "room",
+      "polygon": [
+        [
+          37.8,
+          16.8
+        ],
+        [
+          45.45,
+          16.8
+        ],
+        [
+          45.45,
+          29.7
+        ],
+        [
+          37.8,
+          29.7
+        ],
+        [
+          37.8,
+          16.8
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Room_BE302",
+      "name": "BE302",
+      "type": "room",
+      "polygon": [
+        [
+          4.8,
+          0.3
+        ],
+        [
+          12.45,
+          0.3
+        ],
+        [
+          12.45,
+          13.2
+        ],
+        [
+          4.8,
+          13.2
+        ],
+        [
+          4.8,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Room_BE304",
+      "name": "BE304",
+      "type": "room",
+      "polygon": [
+        [
+          13.05,
+          0.3
+        ],
+        [
+          20.7,
+          0.3
+        ],
+        [
+          20.7,
+          13.2
+        ],
+        [
+          13.05,
+          13.2
+        ],
+        [
+          13.05,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Library_Elem",
+      "name": "Library Elem",
+      "type": "room",
+      "polygon": [
+        [
+          21.3,
+          0.3
+        ],
+        [
+          28.95,
+          0.3
+        ],
+        [
+          28.95,
+          13.2
+        ],
+        [
+          21.3,
+          13.2
+        ],
+        [
+          21.3,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/InternetSection",
+      "name": "InternetSection",
+      "type": "room",
+      "polygon": [
+        [
+          29.55,
+          0.3
+        ],
+        [
+          37.2,
+          0.3
+        ],
+        [
+          37.2,
+          13.2
+        ],
+        [
+          29.55,
+          13.2
+        ],
+        [
+          29.55,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/StudentLounge",
+      "name": "StudentLounge",
+      "type": "room",
+      "polygon": [
+        [
+          37.8,
+          0.3
+        ],
+        [
+          45.45,
+          0.3
+        ],
+        [
+          45.45,
+          13.2
+        ],
+        [
+          37.8,
+          13.2
+        ],
+        [
+          37.8,
+          0.3
+        ]
+      ],
+      "building": "BE",
+      "level": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "BE/1/C1_01",
+      "type": "hallway",
+      "x": 8.126,
+      "y": 15,
+      "room_id": "BE/1/Corridor_Ground",
+      "name": "Ground floor corridor",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/C1_02",
+      "type": "hallway",
+      "x": 15.375,
+      "y": 15,
+      "room_id": "BE/1/Corridor_Ground",
+      "name": "Ground floor corridor",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/C1_03",
+      "type": "hallway",
+      "x": 22.625,
+      "y": 15,
+      "room_id": "BE/1/Corridor_Ground",
+      "name": "Ground floor corridor",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/C1_04",
+      "type": "hallway",
+      "x": 29.875,
+      "y": 15,
+      "room_id": "BE/1/Corridor_Ground",
+      "name": "Ground floor corridor",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/C1_05",
+      "type": "hallway",
+      "x": 37.125,
+      "y": 15,
+      "room_id": "BE/1/Corridor_Ground",
+      "name": "Ground floor corridor",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/C1_06",
+      "type": "hallway",
+      "x": 44.376,
+      "y": 15,
+      "room_id": "BE/1/Corridor_Ground",
+      "name": "Ground floor corridor",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Stairs_Left_G",
+      "type": "stairwell",
+      "x": 2.25,
+      "y": 15,
+      "room_id": "BE/1/Stairs_Left_G",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Stairs_Right_G",
+      "type": "stairwell",
+      "x": 50.25,
+      "y": 15,
+      "room_id": "BE/1/Stairs_Right_G",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE101",
+      "type": "room",
+      "x": 8.126,
+      "y": 16.8,
+      "room_id": "BE/1/Room_BE101",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE103",
+      "type": "room",
+      "x": 15.375,
+      "y": 16.8,
+      "room_id": "BE/1/Room_BE103",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE105",
+      "type": "room",
+      "x": 22.625,
+      "y": 16.8,
+      "room_id": "BE/1/Room_BE105",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE107",
+      "type": "room",
+      "x": 29.875,
+      "y": 16.8,
+      "room_id": "BE/1/Room_BE107",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Canteen",
+      "type": "room",
+      "x": 37.125,
+      "y": 16.8,
+      "room_id": "BE/1/Canteen",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Exit_South",
+      "type": "exit",
+      "x": 44.376,
+      "y": 16.8,
+      "room_id": "BE/1/Exit_South",
+      "safe_for": [
+        "earthquake",
+        "fire"
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/Room_BE102",
+      "type": "room",
+      "x": 8.126,
+      "y": 13.2,
+      "room_id": "BE/1/Room_BE102",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE104",
+      "type": "room",
+      "x": 15.375,
+      "y": 13.2,
+      "room_id": "BE/1/Room_BE104",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE106",
+      "type": "room",
+      "x": 22.625,
+      "y": 13.2,
+      "room_id": "BE/1/Room_BE106",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Room_BE108",
+      "type": "room",
+      "x": 29.875,
+      "y": 13.2,
+      "room_id": "BE/1/Room_BE108",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/Exit_North",
+      "type": "exit",
+      "x": 37.125,
+      "y": 13.2,
+      "room_id": "BE/1/Exit_North",
+      "safe_for": [
+        "earthquake",
+        "fire"
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/1/PumpRoom",
+      "type": "room",
+      "x": 44.376,
+      "y": 13.2,
+      "room_id": "BE/1/PumpRoom",
+      "building": "BE",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "BE/1/AP_Field",
+      "type": "assembly_point",
+      "x": 8.126,
+      "y": 60,
+      "safe_for": [
+        "earthquake",
+        "fire",
+        "flood"
+      ],
+      "building": "BE",
+      "level": 1
+    },
+    {
+      "id": "BE/2/C2_01",
+      "type": "hallway",
+      "x": 7.078,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_02",
+      "type": "hallway",
+      "x": 7.448,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_03",
+      "type": "hallway",
+      "x": 12.235,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_04",
+      "type": "hallway",
+      "x": 13.341,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_05",
+      "type": "hallway",
+      "x": 17.391,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_06",
+      "type": "hallway",
+      "x": 19.233,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_07",
+      "type": "hallway",
+      "x": 22.547,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_08",
+      "type": "hallway",
+      "x": 25.126,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_09",
+      "type": "hallway",
+      "x": 27.704,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_10",
+      "type": "hallway",
+      "x": 31.018,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_11",
+      "type": "hallway",
+      "x": 32.86,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_12",
+      "type": "hallway",
+      "x": 36.912,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_13",
+      "type": "hallway",
+      "x": 38.016,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_14",
+      "type": "hallway",
+      "x": 42.803,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_15",
+      "type": "hallway",
+      "x": 43.172,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/C2_16",
+      "type": "hallway",
+      "x": 46.875,
+      "y": 15,
+      "room_id": "BE/2/Corridor_Second",
+      "name": "Second floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 2
+    },
+    {
+      "id": "BE/2/Stairs_Left_2",
+      "type": "stairwell",
+      "x": 2.25,
+      "y": 15,
+      "room_id": "BE/2/Stairs_Left_2",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Stairs_Right_2",
+      "type": "stairwell",
+      "x": 50.25,
+      "y": 15,
+      "room_id": "BE/2/Stairs_Right_2",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Elevator_2",
+      "type": "elevator",
+      "x": 46.875,
+      "y": 30,
+      "room_id": "BE/2/Elevator_2",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE201",
+      "type": "room",
+      "x": 7.078,
+      "y": 16.8,
+      "room_id": "BE/2/Room_BE201",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE203",
+      "type": "room",
+      "x": 12.235,
+      "y": 16.8,
+      "room_id": "BE/2/Room_BE203",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE205",
+      "type": "room",
+      "x": 17.391,
+      "y": 16.8,
+      "room_id": "BE/2/Room_BE205",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE207",
+      "type": "room",
+      "x": 22.547,
+      "y": 16.8,
+      "room_id": "BE/2/Room_BE207",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE209",
+      "type": "room",
+      "x": 27.704,
+      "y": 16.8,
+      "room_id": "BE/2/Room_BE209",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE211",
+      "type": "room",
+      "x": 32.86,
+      "y": 16.8,
+      "room_id": "BE/2/Room_BE211",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/UtilityRoom",
+      "type": "room",
+      "x": 38.016,
+      "y": 16.8,
+      "room_id": "BE/2/UtilityRoom",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/GuidanceOffice",
+      "type": "room",
+      "x": 43.172,
+      "y": 16.8,
+      "room_id": "BE/2/GuidanceOffice",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE202",
+      "type": "room",
+      "x": 7.448,
+      "y": 13.2,
+      "room_id": "BE/2/Room_BE202",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE204",
+      "type": "room",
+      "x": 13.341,
+      "y": 13.2,
+      "room_id": "BE/2/Room_BE204",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE206",
+      "type": "room",
+      "x": 19.233,
+      "y": 13.2,
+      "room_id": "BE/2/Room_BE206",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE208",
+      "type": "room",
+      "x": 25.126,
+      "y": 13.2,
+      "room_id": "BE/2/Room_BE208",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE210",
+      "type": "room",
+      "x": 31.018,
+      "y": 13.2,
+      "room_id": "BE/2/Room_BE210",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/Room_BE212",
+      "type": "room",
+      "x": 36.912,
+      "y": 13.2,
+      "room_id": "BE/2/Room_BE212",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/2/ScienceLab_Elem",
+      "type": "room",
+      "x": 42.803,
+      "y": 13.2,
+      "room_id": "BE/2/ScienceLab_Elem",
+      "building": "BE",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/C3_01",
+      "type": "hallway",
+      "x": 8.625,
+      "y": 15,
+      "room_id": "BE/3/Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/C3_02",
+      "type": "hallway",
+      "x": 16.875,
+      "y": 15,
+      "room_id": "BE/3/Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/C3_03",
+      "type": "hallway",
+      "x": 25.125,
+      "y": 15,
+      "room_id": "BE/3/Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/C3_04",
+      "type": "hallway",
+      "x": 33.375,
+      "y": 15,
+      "room_id": "BE/3/Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/C3_05",
+      "type": "hallway",
+      "x": 41.625,
+      "y": 15,
+      "room_id": "BE/3/Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/C3_06",
+      "type": "hallway",
+      "x": 46.875,
+      "y": 15,
+      "room_id": "BE/3/Corridor_Third",
+      "name": "Third floor corridor",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "BE",
+      "level": 3
+    },
+    {
+      "id": "BE/3/Stairs_Left_3",
+      "type": "stairwell",
+      "x": 2.25,
+      "y": 15,
+      "room_id": "BE/3/Stairs_Left_3",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Stairs_Right_3",
+      "type": "stairwell",
+      "x": 50.25,
+      "y": 15,
+      "room_id": "BE/3/Stairs_Right_3",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Elevator_3",
+      "type": "elevator",
+      "x": 46.875,
+      "y": 30,
+      "room_id": "BE/3/Elevator_3",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Room_BE301",
+      "type": "room",
+      "x": 8.625,
+      "y": 16.8,
+      "room_id": "BE/3/Room_BE301",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Room_BE303",
+      "type": "room",
+      "x": 16.875,
+      "y": 16.8,
+      "room_id": "BE/3/Room_BE303",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/FunctionHall",
+      "type": "room",
+      "x": 25.125,
+      "y": 16.8,
+      "room_id": "BE/3/FunctionHall",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Library_HighSchool",
+      "type": "room",
+      "x": 33.375,
+      "y": 16.8,
+      "room_id": "BE/3/Library_HighSchool",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Faculty_Elem",
+      "type": "room",
+      "x": 41.625,
+      "y": 16.8,
+      "room_id": "BE/3/Faculty_Elem",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Room_BE302",
+      "type": "room",
+      "x": 8.625,
+      "y": 13.2,
+      "room_id": "BE/3/Room_BE302",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Room_BE304",
+      "type": "room",
+      "x": 16.875,
+      "y": 13.2,
+      "room_id": "BE/3/Room_BE304",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/Library_Elem",
+      "type": "room",
+      "x": 25.125,
+      "y": 13.2,
+      "room_id": "BE/3/Library_Elem",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/InternetSection",
+      "type": "room",
+      "x": 33.375,
+      "y": 13.2,
+      "room_id": "BE/3/InternetSection",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "BE/3/StudentLounge",
+      "type": "room",
+      "x": 41.625,
+      "y": 13.2,
+      "room_id": "BE/3/StudentLounge",
+      "building": "BE",
+      "level": 3,
+      "safe_for": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "BE/1/C1_01->BE/1/C1_02",
+      "from": "BE/1/C1_01",
+      "to": "BE/1/C1_02",
+      "type": "corridor",
+      "distance_m": 7.2490000000000006,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/C1_02->BE/1/C1_03",
+      "from": "BE/1/C1_02",
+      "to": "BE/1/C1_03",
+      "type": "corridor",
+      "distance_m": 7.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/C1_03->BE/1/C1_04",
+      "from": "BE/1/C1_03",
+      "to": "BE/1/C1_04",
+      "type": "corridor",
+      "distance_m": 7.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/C1_04->BE/1/C1_05",
+      "from": "BE/1/C1_04",
+      "to": "BE/1/C1_05",
+      "type": "corridor",
+      "distance_m": 7.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/C1_05->BE/1/C1_06",
+      "from": "BE/1/C1_05",
+      "to": "BE/1/C1_06",
+      "type": "corridor",
+      "distance_m": 7.250999999999998,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Stairs_Left_G->BE/1/C1_01",
+      "from": "BE/1/Stairs_Left_G",
+      "to": "BE/1/C1_01",
+      "type": "corridor",
+      "distance_m": 5.8759999999999994,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Stairs_Right_G->BE/1/C1_06",
+      "from": "BE/1/Stairs_Right_G",
+      "to": "BE/1/C1_06",
+      "type": "corridor",
+      "distance_m": 5.874000000000002,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE101->BE/1/C1_01",
+      "from": "BE/1/Room_BE101",
+      "to": "BE/1/C1_01",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE103->BE/1/C1_02",
+      "from": "BE/1/Room_BE103",
+      "to": "BE/1/C1_02",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE105->BE/1/C1_03",
+      "from": "BE/1/Room_BE105",
+      "to": "BE/1/C1_03",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE107->BE/1/C1_04",
+      "from": "BE/1/Room_BE107",
+      "to": "BE/1/C1_04",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Canteen->BE/1/C1_05",
+      "from": "BE/1/Canteen",
+      "to": "BE/1/C1_05",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Exit_South->BE/1/C1_06",
+      "from": "BE/1/Exit_South",
+      "to": "BE/1/C1_06",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE102->BE/1/C1_01",
+      "from": "BE/1/Room_BE102",
+      "to": "BE/1/C1_01",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE104->BE/1/C1_02",
+      "from": "BE/1/Room_BE104",
+      "to": "BE/1/C1_02",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE106->BE/1/C1_03",
+      "from": "BE/1/Room_BE106",
+      "to": "BE/1/C1_03",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Room_BE108->BE/1/C1_04",
+      "from": "BE/1/Room_BE108",
+      "to": "BE/1/C1_04",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Exit_North->BE/1/C1_05",
+      "from": "BE/1/Exit_North",
+      "to": "BE/1/C1_05",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/PumpRoom->BE/1/C1_06",
+      "from": "BE/1/PumpRoom",
+      "to": "BE/1/C1_06",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Exit_South->BE/1/AP_Field",
+      "from": "BE/1/Exit_South",
+      "to": "BE/1/AP_Field",
+      "type": "outdoor",
+      "distance_m": 30,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Exit_North->BE/1/AP_Field",
+      "from": "BE/1/Exit_North",
+      "to": "BE/1/AP_Field",
+      "type": "outdoor",
+      "distance_m": 30,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_01->BE/2/C2_02",
+      "from": "BE/2/C2_01",
+      "to": "BE/2/C2_02",
+      "type": "corridor",
+      "distance_m": 0.3700000000000001,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_02->BE/2/C2_03",
+      "from": "BE/2/C2_02",
+      "to": "BE/2/C2_03",
+      "type": "corridor",
+      "distance_m": 4.786999999999999,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_03->BE/2/C2_04",
+      "from": "BE/2/C2_03",
+      "to": "BE/2/C2_04",
+      "type": "corridor",
+      "distance_m": 1.1059999999999999,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_04->BE/2/C2_05",
+      "from": "BE/2/C2_04",
+      "to": "BE/2/C2_05",
+      "type": "corridor",
+      "distance_m": 4.049999999999999,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_05->BE/2/C2_06",
+      "from": "BE/2/C2_05",
+      "to": "BE/2/C2_06",
+      "type": "corridor",
+      "distance_m": 1.8420000000000023,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_06->BE/2/C2_07",
+      "from": "BE/2/C2_06",
+      "to": "BE/2/C2_07",
+      "type": "corridor",
+      "distance_m": 3.314,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_07->BE/2/C2_08",
+      "from": "BE/2/C2_07",
+      "to": "BE/2/C2_08",
+      "type": "corridor",
+      "distance_m": 2.5790000000000006,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_08->BE/2/C2_09",
+      "from": "BE/2/C2_08",
+      "to": "BE/2/C2_09",
+      "type": "corridor",
+      "distance_m": 2.5779999999999994,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_09->BE/2/C2_10",
+      "from": "BE/2/C2_09",
+      "to": "BE/2/C2_10",
+      "type": "corridor",
+      "distance_m": 3.314,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_10->BE/2/C2_11",
+      "from": "BE/2/C2_10",
+      "to": "BE/2/C2_11",
+      "type": "corridor",
+      "distance_m": 1.8419999999999987,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_11->BE/2/C2_12",
+      "from": "BE/2/C2_11",
+      "to": "BE/2/C2_12",
+      "type": "corridor",
+      "distance_m": 4.052,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_12->BE/2/C2_13",
+      "from": "BE/2/C2_12",
+      "to": "BE/2/C2_13",
+      "type": "corridor",
+      "distance_m": 1.1039999999999992,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_13->BE/2/C2_14",
+      "from": "BE/2/C2_13",
+      "to": "BE/2/C2_14",
+      "type": "corridor",
+      "distance_m": 4.786999999999999,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_14->BE/2/C2_15",
+      "from": "BE/2/C2_14",
+      "to": "BE/2/C2_15",
+      "type": "corridor",
+      "distance_m": 0.3689999999999998,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/C2_15->BE/2/C2_16",
+      "from": "BE/2/C2_15",
+      "to": "BE/2/C2_16",
+      "type": "corridor",
+      "distance_m": 3.703000000000003,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Stairs_Left_2->BE/2/C2_01",
+      "from": "BE/2/Stairs_Left_2",
+      "to": "BE/2/C2_01",
+      "type": "corridor",
+      "distance_m": 4.828,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Stairs_Right_2->BE/2/C2_16",
+      "from": "BE/2/Stairs_Right_2",
+      "to": "BE/2/C2_16",
+      "type": "corridor",
+      "distance_m": 3.375,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Elevator_2->BE/2/C2_16",
+      "from": "BE/2/Elevator_2",
+      "to": "BE/2/C2_16",
+      "type": "corridor",
+      "distance_m": 15,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE201->BE/2/C2_01",
+      "from": "BE/2/Room_BE201",
+      "to": "BE/2/C2_01",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE203->BE/2/C2_03",
+      "from": "BE/2/Room_BE203",
+      "to": "BE/2/C2_03",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE205->BE/2/C2_05",
+      "from": "BE/2/Room_BE205",
+      "to": "BE/2/C2_05",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE207->BE/2/C2_07",
+      "from": "BE/2/Room_BE207",
+      "to": "BE/2/C2_07",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE209->BE/2/C2_09",
+      "from": "BE/2/Room_BE209",
+      "to": "BE/2/C2_09",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE211->BE/2/C2_11",
+      "from": "BE/2/Room_BE211",
+      "to": "BE/2/C2_11",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/UtilityRoom->BE/2/C2_13",
+      "from": "BE/2/UtilityRoom",
+      "to": "BE/2/C2_13",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/GuidanceOffice->BE/2/C2_15",
+      "from": "BE/2/GuidanceOffice",
+      "to": "BE/2/C2_15",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE202->BE/2/C2_02",
+      "from": "BE/2/Room_BE202",
+      "to": "BE/2/C2_02",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE204->BE/2/C2_04",
+      "from": "BE/2/Room_BE204",
+      "to": "BE/2/C2_04",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE206->BE/2/C2_06",
+      "from": "BE/2/Room_BE206",
+      "to": "BE/2/C2_06",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE208->BE/2/C2_08",
+      "from": "BE/2/Room_BE208",
+      "to": "BE/2/C2_08",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE210->BE/2/C2_10",
+      "from": "BE/2/Room_BE210",
+      "to": "BE/2/C2_10",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Room_BE212->BE/2/C2_12",
+      "from": "BE/2/Room_BE212",
+      "to": "BE/2/C2_12",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/ScienceLab_Elem->BE/2/C2_14",
+      "from": "BE/2/ScienceLab_Elem",
+      "to": "BE/2/C2_14",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Stairs_Left_2->BE/1/Stairs_Left_G",
+      "from": "BE/2/Stairs_Left_2",
+      "to": "BE/1/Stairs_Left_G",
+      "type": "stairs",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/2/Stairs_Right_2->BE/1/Stairs_Right_G",
+      "from": "BE/2/Stairs_Right_2",
+      "to": "BE/1/Stairs_Right_G",
+      "type": "stairs",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/C3_01->BE/3/C3_02",
+      "from": "BE/3/C3_01",
+      "to": "BE/3/C3_02",
+      "type": "corridor",
+      "distance_m": 8.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/C3_02->BE/3/C3_03",
+      "from": "BE/3/C3_02",
+      "to": "BE/3/C3_03",
+      "type": "corridor",
+      "distance_m": 8.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/C3_03->BE/3/C3_04",
+      "from": "BE/3/C3_03",
+      "to": "BE/3/C3_04",
+      "type": "corridor",
+      "distance_m": 8.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/C3_04->BE/3/C3_05",
+      "from": "BE/3/C3_04",
+      "to": "BE/3/C3_05",
+      "type": "corridor",
+      "distance_m": 8.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/C3_05->BE/3/C3_06",
+      "from": "BE/3/C3_05",
+      "to": "BE/3/C3_06",
+      "type": "corridor",
+      "distance_m": 5.25,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Stairs_Left_3->BE/3/C3_01",
+      "from": "BE/3/Stairs_Left_3",
+      "to": "BE/3/C3_01",
+      "type": "corridor",
+      "distance_m": 6.375,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Stairs_Right_3->BE/3/C3_06",
+      "from": "BE/3/Stairs_Right_3",
+      "to": "BE/3/C3_06",
+      "type": "corridor",
+      "distance_m": 3.375,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Elevator_3->BE/3/C3_06",
+      "from": "BE/3/Elevator_3",
+      "to": "BE/3/C3_06",
+      "type": "corridor",
+      "distance_m": 15,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Room_BE301->BE/3/C3_01",
+      "from": "BE/3/Room_BE301",
+      "to": "BE/3/C3_01",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Room_BE303->BE/3/C3_02",
+      "from": "BE/3/Room_BE303",
+      "to": "BE/3/C3_02",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/FunctionHall->BE/3/C3_03",
+      "from": "BE/3/FunctionHall",
+      "to": "BE/3/C3_03",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Library_HighSchool->BE/3/C3_04",
+      "from": "BE/3/Library_HighSchool",
+      "to": "BE/3/C3_04",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Faculty_Elem->BE/3/C3_05",
+      "from": "BE/3/Faculty_Elem",
+      "to": "BE/3/C3_05",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Room_BE302->BE/3/C3_01",
+      "from": "BE/3/Room_BE302",
+      "to": "BE/3/C3_01",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Room_BE304->BE/3/C3_02",
+      "from": "BE/3/Room_BE304",
+      "to": "BE/3/C3_02",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Library_Elem->BE/3/C3_03",
+      "from": "BE/3/Library_Elem",
+      "to": "BE/3/C3_03",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/InternetSection->BE/3/C3_04",
+      "from": "BE/3/InternetSection",
+      "to": "BE/3/C3_04",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/StudentLounge->BE/3/C3_05",
+      "from": "BE/3/StudentLounge",
+      "to": "BE/3/C3_05",
+      "type": "door",
+      "distance_m": 1.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Stairs_Left_3->BE/2/Stairs_Left_2",
+      "from": "BE/3/Stairs_Left_3",
+      "to": "BE/2/Stairs_Left_2",
+      "type": "stairs",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Stairs_Right_3->BE/2/Stairs_Right_2",
+      "from": "BE/3/Stairs_Right_3",
+      "to": "BE/2/Stairs_Right_2",
+      "type": "stairs",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "BE/3/Elevator_3->BE/2/Elevator_2",
+      "from": "BE/3/Elevator_3",
+      "to": "BE/2/Elevator_2",
+      "type": "elevator",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    }
+  ],
+  "assemblyPoints": [
+    {
+      "id": "AP_Field",
+      "node_id": "BE/1/AP_Field",
+      "lat": null,
+      "lng": null,
+      "radius_m": 25
+    }
+  ],
+  "hazardRoomIds": [],
+  "weights": {
+    "congested": 2.5,
+    "fullAssemblyPenalty_m": 100,
+    "flags": {
+      "earthquake": {
+        "glass": 3
+      },
+      "fire": {},
+      "flood": {}
+    },
+    "blockFlags": {
+      "earthquake": [],
+      "fire": [
+        "smoke"
+      ],
+      "flood": [
+        "flood_prone"
+      ]
+    }
+  }
+}

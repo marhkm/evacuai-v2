@@ -1,0 +1,360 @@
+{
+  "name": "Demo Campus",
+  "buildings": [
+    {
+      "id": "DEMO",
+      "name": "Demo Building",
+      "origin": null,
+      "rotation_deg": 0,
+      "footprint": [],
+      "floors": [
+        {
+          "level": 1,
+          "name": "Ground",
+          "elevation_m": 0,
+          "height_m": 3.5
+        },
+        {
+          "level": 2,
+          "name": "Second",
+          "elevation_m": 3.5,
+          "height_m": 3.5
+        }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "DEMO/1/R101",
+      "name": "R101",
+      "type": "room",
+      "polygon": [
+        [
+          3,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "building": "DEMO",
+      "level": 1
+    },
+    {
+      "id": "DEMO/2/R201",
+      "name": "R201",
+      "type": "room",
+      "polygon": [
+        [
+          3,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "building": "DEMO",
+      "level": 2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "DEMO/1/R101",
+      "type": "room",
+      "x": 5,
+      "y": 2,
+      "room_id": "DEMO/1/R101",
+      "building": "DEMO",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/1/C1",
+      "type": "hallway",
+      "x": 5,
+      "y": 6,
+      "building": "DEMO",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/1/C2",
+      "type": "hallway",
+      "x": 15,
+      "y": 6,
+      "building": "DEMO",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/1/S1",
+      "type": "stairwell",
+      "x": 20,
+      "y": 6,
+      "building": "DEMO",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/1/E1",
+      "type": "elevator",
+      "x": 10,
+      "y": 8,
+      "building": "DEMO",
+      "level": 1,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/1/X1",
+      "type": "exit",
+      "x": 0,
+      "y": 6,
+      "safe_for": [
+        "earthquake",
+        "fire"
+      ],
+      "building": "DEMO",
+      "level": 1
+    },
+    {
+      "id": "DEMO/1/AP",
+      "type": "assembly_point",
+      "x": -10,
+      "y": 6,
+      "safe_for": [
+        "earthquake",
+        "fire"
+      ],
+      "building": "DEMO",
+      "level": 1
+    },
+    {
+      "id": "DEMO/2/R201",
+      "type": "room",
+      "x": 5,
+      "y": 2,
+      "room_id": "DEMO/2/R201",
+      "building": "DEMO",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/2/C3",
+      "type": "hallway",
+      "x": 5,
+      "y": 6,
+      "building": "DEMO",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/2/C4",
+      "type": "hallway",
+      "x": 15,
+      "y": 6,
+      "safe_for": [
+        "flood"
+      ],
+      "building": "DEMO",
+      "level": 2
+    },
+    {
+      "id": "DEMO/2/S2",
+      "type": "stairwell",
+      "x": 20,
+      "y": 6,
+      "building": "DEMO",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "DEMO/2/E2",
+      "type": "elevator",
+      "x": 10,
+      "y": 8,
+      "building": "DEMO",
+      "level": 2,
+      "safe_for": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "DEMO/1/R101->DEMO/1/C1",
+      "from": "DEMO/1/R101",
+      "to": "DEMO/1/C1",
+      "type": "door",
+      "distance_m": 4,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/1/C1->DEMO/1/C2",
+      "from": "DEMO/1/C1",
+      "to": "DEMO/1/C2",
+      "type": "corridor",
+      "distance_m": 10,
+      "bidirectional": true,
+      "flags": [
+        "glass"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/1/C2->DEMO/1/S1",
+      "from": "DEMO/1/C2",
+      "to": "DEMO/1/S1",
+      "type": "corridor",
+      "distance_m": 5,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/1/C1->DEMO/1/E1",
+      "from": "DEMO/1/C1",
+      "to": "DEMO/1/E1",
+      "type": "corridor",
+      "distance_m": 5.385164807134505,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/1/C1->DEMO/1/X1",
+      "from": "DEMO/1/C1",
+      "to": "DEMO/1/X1",
+      "type": "door",
+      "distance_m": 5,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/1/X1->DEMO/1/AP",
+      "from": "DEMO/1/X1",
+      "to": "DEMO/1/AP",
+      "type": "outdoor",
+      "distance_m": 10,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/2/R201->DEMO/2/C3",
+      "from": "DEMO/2/R201",
+      "to": "DEMO/2/C3",
+      "type": "door",
+      "distance_m": 4,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/2/C3->DEMO/2/C4",
+      "from": "DEMO/2/C3",
+      "to": "DEMO/2/C4",
+      "type": "corridor",
+      "distance_m": 10,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/2/C4->DEMO/2/S2",
+      "from": "DEMO/2/C4",
+      "to": "DEMO/2/S2",
+      "type": "corridor",
+      "distance_m": 5,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/2/C3->DEMO/2/E2",
+      "from": "DEMO/2/C3",
+      "to": "DEMO/2/E2",
+      "type": "corridor",
+      "distance_m": 5.385164807134505,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/2/S2->DEMO/1/S1",
+      "from": "DEMO/2/S2",
+      "to": "DEMO/1/S1",
+      "type": "stairs",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "DEMO/2/E2->DEMO/1/E1",
+      "from": "DEMO/2/E2",
+      "to": "DEMO/1/E1",
+      "type": "elevator",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    }
+  ],
+  "assemblyPoints": [
+    {
+      "id": "AP",
+      "node_id": "DEMO/1/AP",
+      "lat": null,
+      "lng": null,
+      "radius_m": 25
+    }
+  ],
+  "hazardRoomIds": [],
+  "weights": {
+    "congested": 2.5,
+    "fullAssemblyPenalty_m": 100,
+    "flags": {
+      "earthquake": {
+        "glass": 3
+      },
+      "fire": {},
+      "flood": {}
+    },
+    "blockFlags": {
+      "earthquake": [],
+      "fire": [
+        "smoke"
+      ],
+      "flood": [
+        "flood_prone"
+      ]
+    }
+  }
+}
