@@ -390,21 +390,29 @@ it but an officer has not confirmed it yet.</li>
 within 10 minutes, everyone automatically gets an <strong>UNVERIFIED</strong> alert while an officer checks it.</p>
 <p>Do not put people&#39;s names or faces in reports if you can avoid it.</p>
 <h3 id="25-evacuation-route"><a class="anchor" href="#25-evacuation-route" aria-hidden="true">#</a>2.5 Evacuation route</h3>
+<p>You should never have to scan anything in an emergency. In most cases the route is ready the moment the screen opens.</p>
 <ol>
-<li>Tap <strong>Evacuation route</strong>.</li>
-<li><strong>What is happening?</strong> If an alert is active, the app already knows (e.g. &quot;Routing for: fire&quot;). Otherwise choose
-<strong>Earthquake</strong>, <strong>Fire</strong> or <strong>Flood</strong>. Each hazard has its own rules: fire avoids smoky paths, flood leads upstairs,
-and elevators are never used.</li>
-<li><strong>Tell the app where you are</strong>, in any of these ways:<ul>
-<li><strong>Your class now:</strong> if your class schedule is loaded, tap <strong>Yes, I&#39;m in <room></strong>.</li>
-<li><strong>Scan QR sticker</strong> (phone): scan the EvacuAI sticker inside the room door or at a stairwell. This is the most
-accurate.</li>
-<li><strong>Pick my room:</strong> choose the building, floor and room.</li>
-</ul>
+<li><p>Tap <strong>Evacuation route</strong>, or simply tap the alert notification on your phone, which opens this screen directly.</p>
 </li>
-<li>The app shows <strong>&quot;N m to safety&quot;</strong>, numbered steps (e.g. &quot;Exit BE301&quot;, &quot;Take Stairs Left down to Ground&quot;,
+<li><p><strong>What is happening?</strong> If an alert is active, the app already knows (e.g. &quot;Routing for: fire&quot;). Otherwise choose
+<strong>Earthquake</strong>, <strong>Fire</strong> or <strong>Flood</strong>. Each hazard has its own rules: fire avoids smoky paths, flood leads upstairs,
+and elevators are never used.</p>
+</li>
+<li><p><strong>Where you are.</strong> The app works this out by itself when it can, and shows it as &quot;Starting from …&quot;:</p>
+<ul>
+<li><strong>Your class now:</strong> during class time it starts from your classroom (from the class schedule), with no tap.</li>
+<li><strong>Earlier today:</strong> a room you picked or a sticker you scanned earlier today is remembered on your phone (even
+after closing the app) until your next class starts.</li>
+<li><strong>Floor tracking:</strong> if you went up or down the stairs, it starts from that floor&#39;s stair landing.</li>
+</ul>
+<p>If it is wrong, or it does not know yet, tap <strong>Pick my room</strong> and choose the building, floor and room. Scanning
+the QR sticker by the door (<strong>Scan QR sticker instead</strong>) is optional: it is the most exact, and it is best done in
+calm times, for example when you enter a room that has no scheduled class.</p>
+</li>
+<li><p>The app shows <strong>&quot;N m to safety&quot;</strong>, numbered steps (e.g. &quot;Exit BE301&quot;, &quot;Take Stairs Left down to Ground&quot;,
 &quot;Go to Exit North&quot;) and the route drawn on the floor plan, with your position and the destination. Use the floor
-buttons to see each floor of the route.</li>
+buttons to see each floor of the route.</p>
+</li>
 </ol>
 <p>While you follow the route:</p>
 <ul>
@@ -433,8 +441,8 @@ Works on every phone.</li>
 <p>Use SOS when you are hurt, trapped or in danger.</p>
 <ol>
 <li>Tap <strong>SOS</strong>.</li>
-<li>Tell officers where you are: <strong>Scan QR sticker</strong> or <strong>Pick my room</strong>. (If you already did this on the route screen,
-the app remembers it.)</li>
+<li>Check where the app thinks you are (&quot;Your location: …&quot;). If it is missing or wrong, tap <strong>Pick my room</strong> (or,
+optionally, <strong>Scan QR sticker instead</strong>). The app remembers what you set on the route screen.</li>
 <li>Optionally write what happened.</li>
 <li>Tap <strong>Send SOS</strong>.</li>
 </ol>
@@ -562,12 +570,15 @@ The menu badge shows how many paths are blocked.</p>
 <h3 id="39-import-class-schedules"><a class="anchor" href="#39-import-class-schedules" aria-hidden="true">#</a>3.9 Import class schedules</h3>
 <p>Upload a CSV from the registrar with the columns <code>email, subject, room_code, days, time_start, time_end</code>, for example
 <code>juan@uclm.edu.ph, IT 101, BE203, MWF, 08:00, 09:30</code>. Day codes: M, T, W, TH, F, S, SU and combinations like MWF or
-TTH. Each listed student&#39;s previous schedule is replaced; problems are listed by row. The app then offers
-&quot;Yes, I&#39;m in <room>&quot; during class time.</p>
+TTH. Each listed student&#39;s previous schedule is replaced; problems are listed by row. During class time the app then starts the
+evacuation route from the student&#39;s classroom automatically.</p>
 <h3 id="310-qr-stickers"><a class="anchor" href="#310-qr-stickers" aria-hidden="true">#</a>3.10 QR stickers</h3>
 <p>A printable sheet with one QR sticker per room, stair landing, exit and assembly point. Choose a building, then print
 (or save as PDF from the print dialog). Put stickers inside every room door, at each stairwell landing on every floor,
 at exits and at assembly points.</p>
+<p>Scanning is optional for everyone: the app finds people from their class schedule, earlier picks and floor tracking,
+and <strong>Pick my room</strong> always works. The stickers make locations exact when scanned in calm times, and the printed room
+name helps people tell officers where they are.</p>
 <h3 id="311-reports-feedback-and-activity-log"><a class="anchor" href="#311-reports-feedback-and-activity-log" aria-hidden="true">#</a>3.11 Reports: Feedback and Activity log</h3>
 <ul>
 <li><strong>Feedback:</strong> every rating and comment, with the average.</li>

@@ -53,7 +53,7 @@ Mark drills as drills ("This is a drill") so everyone knows it is practice.
    fill in the Cebuano and Filipino boxes; the app shows them under the English message.
 2. **Hazard reports.** Three different verified accounts report the same hazard on the same floor within 10 minutes.
    The dashboard bell shows an **Unverified** alert; confirm or retract it in **Alerts**.
-3. **Evacuation route.** App → **Evacuation route** → **Pick my room** (or **Scan QR sticker** on a phone).
+3. **Evacuation route.** App → **Evacuation route** → **Pick my room** (scanning a sticker is optional).
    The route, steps and distance appear. Dashboard → **Paths**: set a stair on the route to **Blocked**. The app
    re-routes by itself within a few seconds. Set it back to **Open** afterwards.
 4. **SOS.** App → **SOS** → pick your room → **Send SOS**. Dashboard → **SOS** → open it and reply. The app shows the

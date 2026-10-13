@@ -203,15 +203,21 @@ Do not put people's names or faces in reports if you can avoid it.
 
 ### 2.5 Evacuation route
 
-1. Tap **Evacuation route**.
+You should never have to scan anything in an emergency. In most cases the route is ready the moment the screen opens.
+
+1. Tap **Evacuation route**, or simply tap the alert notification on your phone, which opens this screen directly.
 2. **What is happening?** If an alert is active, the app already knows (e.g. "Routing for: fire"). Otherwise choose
    **Earthquake**, **Fire** or **Flood**. Each hazard has its own rules: fire avoids smoky paths, flood leads upstairs,
    and elevators are never used.
-3. **Tell the app where you are**, in any of these ways:
-   - **Your class now:** if your class schedule is loaded, tap **Yes, I'm in <room>**.
-   - **Scan QR sticker** (phone): scan the EvacuAI sticker inside the room door or at a stairwell. This is the most
-     accurate.
-   - **Pick my room:** choose the building, floor and room.
+3. **Where you are.** The app works this out by itself when it can, and shows it as "Starting from …":
+   - **Your class now:** during class time it starts from your classroom (from the class schedule), with no tap.
+   - **Earlier today:** a room you picked or a sticker you scanned earlier today is remembered on your phone (even
+     after closing the app) until your next class starts.
+   - **Floor tracking:** if you went up or down the stairs, it starts from that floor's stair landing.
+
+   If it is wrong, or it does not know yet, tap **Pick my room** and choose the building, floor and room. Scanning
+   the QR sticker by the door (**Scan QR sticker instead**) is optional: it is the most exact, and it is best done in
+   calm times, for example when you enter a room that has no scheduled class.
 4. The app shows **"N m to safety"**, numbered steps (e.g. "Exit BE301", "Take Stairs Left down to Ground",
    "Go to Exit North") and the route drawn on the floor plan, with your position and the destination. Use the floor
    buttons to see each floor of the route.
@@ -245,8 +251,8 @@ Tap **Campus map**. If there are several buildings, choose one at the top. Then 
 Use SOS when you are hurt, trapped or in danger.
 
 1. Tap **SOS**.
-2. Tell officers where you are: **Scan QR sticker** or **Pick my room**. (If you already did this on the route screen,
-   the app remembers it.)
+2. Check where the app thinks you are ("Your location: …"). If it is missing or wrong, tap **Pick my room** (or,
+   optionally, **Scan QR sticker instead**). The app remembers what you set on the route screen.
 3. Optionally write what happened.
 4. Tap **Send SOS**.
 
@@ -390,14 +396,18 @@ The menu badge shows how many paths are blocked.
 
 Upload a CSV from the registrar with the columns `email, subject, room_code, days, time_start, time_end`, for example
 `juan@uclm.edu.ph, IT 101, BE203, MWF, 08:00, 09:30`. Day codes: M, T, W, TH, F, S, SU and combinations like MWF or
-TTH. Each listed student's previous schedule is replaced; problems are listed by row. The app then offers
-"Yes, I'm in <room>" during class time.
+TTH. Each listed student's previous schedule is replaced; problems are listed by row. During class time the app then starts the
+evacuation route from the student's classroom automatically.
 
 ### 3.10 QR stickers
 
 A printable sheet with one QR sticker per room, stair landing, exit and assembly point. Choose a building, then print
 (or save as PDF from the print dialog). Put stickers inside every room door, at each stairwell landing on every floor,
 at exits and at assembly points.
+
+Scanning is optional for everyone: the app finds people from their class schedule, earlier picks and floor tracking,
+and **Pick my room** always works. The stickers make locations exact when scanned in calm times, and the printed room
+name helps people tell officers where they are.
 
 ### 3.11 Reports: Feedback and Activity log
 
