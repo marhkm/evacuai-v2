@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
-import { Button, Message } from '@/components/ui';
+import { Button, Link, Message } from '@/components/ui';
 import { nodeForQr, parseQr } from '@/lib/estimator';
 
-/** "Scan QR sticker" (camera) and, when onRoom is given, "Pick my room" (building → floor → room). */
+/**
+ * "Pick my room" (building → floor → room) as the main action, with scanning a QR sticker as an optional extra:
+ * nobody should have to aim a camera in an emergency. Without onRoom (check-in) the scan is the main action.
+ */
 export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR sticker' }: {
   snapshot: CampusSnapshot | null;
   onNode: (node: CampusNode) => void;
@@ -18,6 +21,11 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
   const [pick, setPick] = useState<{ building?: string; level?: number }>({});
   const [error, setError] = useState<string | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
+
+  async function startScan() {
+    if (!permission?.granted && !(await requestPermission()).granted) return setError('Camera permission is needed to scan stickers. You can pick your room instead.');
+    setMode('scan');
+  }
 
   function onScanned(data: string) {
     if (!snapshot || mode !== 'scan') return;
@@ -35,13 +43,14 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
 
   return (
     <>
-      <View style={styles.row}>
-        <View style={styles.flex}><Button label={scanLabel} variant="secondary" onPress={async () => {
-          if (!permission?.granted && !(await requestPermission()).granted) return setError('Camera permission is needed to scan stickers. You can pick your room instead.');
-          setMode('scan');
-        }} /></View>
-        {onRoom ? <View style={styles.flex}><Button label="Pick my room" variant="secondary" onPress={() => setMode('pick')} /></View> : null}
-      </View>
+      {onRoom ? (
+        <>
+          <Button label="Pick my room" onPress={() => setMode('pick')} />
+          <Link label={`${scanLabel} instead`} onPress={startScan} />
+        </>
+      ) : (
+        <Button label={scanLabel} variant="secondary" onPress={startScan} />
+      )}
       <Message text={error} />
 
       {mode === 'scan' ? (
@@ -76,7 +85,5 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 8 },
-  flex: { flex: 1 },
   camera: { height: 280, borderRadius: 12, overflow: 'hidden', backgroundColor: '#000' },
 });

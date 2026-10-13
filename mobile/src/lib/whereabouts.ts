@@ -1,12 +1,38 @@
 import type { CampusSnapshot } from '@evacuai/routing';
 
 import { api } from '@/lib/api';
-import { applyFloorChange, current, observe, routeOrigin, type Estimate, type Observation } from '@/lib/estimator';
+import { applyFloorChange, current, observe, routeOrigin, startForClass, type ClassNow, type Estimate, type Observation } from '@/lib/estimator';
+import { storage } from '@/lib/storage';
 
-// Last known location, shared by the route, SOS and check-in screens. Memory only: never written to the phone.
+/**
+ * Last known location, shared by the route, SOS and check-in screens. Kept on this phone only (never sent unless an
+ * alert is active) until the end of the day, so a scan or room pick made in calm times is ready when an alarm sounds.
+ * Cleared on sign-out.
+ */
 let last: Estimate | null = null;
+let restored: Promise<void> | null = null;
+const KEY = 'whereabouts';
+const today = (t = Date.now()) => new Date(t).toDateString();
 
 export const lastEstimate = (now = Date.now()) => current(last, now);
+
+/** Loads the location saved earlier today (once per app start); then read it with lastEstimate(). */
+export function restoreWhereabouts(): Promise<void> {
+  restored ??= storage.get(KEY)
+    .then(raw => {
+      const saved = raw ? (JSON.parse(raw) as Estimate) : null;
+      if (!last && saved && today(saved.at) === today()) last = saved;
+    })
+    .catch(() => undefined);
+  return restored;
+}
+
+function save(next: Estimate | null, token: string | null, alertActive: boolean): Estimate | null {
+  last = next;
+  storage.set(KEY, JSON.stringify(next)).catch(() => undefined);
+  if (next) report(next, token, alertActive);
+  return next;
+}
 
 /**
  * Applies a new observation and returns the resulting estimate. While an alert is active the server gets a
@@ -14,10 +40,13 @@ export const lastEstimate = (now = Date.now()) => current(last, now);
  */
 export function updateWhereabouts(obs: Observation, token: string | null, alertActive: boolean): Estimate {
   const next = observe(last, obs, Date.now());
-  if (next === last) return next;
-  last = next;
-  report(next, token, alertActive);
-  return next;
+  return next === last ? next : save(next, token, alertActive)!;
+}
+
+/** Uses the class in session as the starting point, no tap needed (see startForClass). */
+export function applyClass(cls: ClassNow | null, token: string | null, alertActive: boolean): Estimate | null {
+  const next = startForClass(last, cls, Date.now());
+  return next === last ? next : save(next, token, alertActive);
 }
 
 /**
@@ -33,9 +62,7 @@ export function moveFloors(snap: CampusSnapshot, floors: number, token: string |
   const landing = snap.nodes
     .filter(n => n.building === prev.building && n.level === target && n.type === 'stairwell')
     .sort((a, b) => (from ? Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y) : 0))[0];
-  last = { ...applyFloorChange(prev, floors, Date.now()), nodeId: landing?.id, confidence: 'likely' };
-  report(last, token, alertActive);
-  return last;
+  return save({ ...applyFloorChange(prev, floors, Date.now()), nodeId: landing?.id, confidence: 'likely' }, token, alertActive);
 }
 
 function report(e: Estimate, token: string | null, alertActive: boolean) {
@@ -51,4 +78,6 @@ export const lastNode = (snap: CampusSnapshot | null) => (snap ? routeOrigin(sna
 
 export function forgetWhereabouts() {
   last = null;
+  restored = null;
+  storage.remove(KEY).catch(() => undefined);
 }

@@ -33,6 +33,20 @@ export function observe(prev: Estimate | null, obs: Observation, now: number): E
   return next;
 }
 
+export type ClassNow = { roomId: string; building: string; floor: number; startsAt: number /* ms */ };
+
+/**
+ * Starting point when a class is in session, with no tap needed: the class room, unless the user scanned, picked
+ * or climbed stairs since that class started (then they moved and their own reading wins). A reading from before
+ * the class began (e.g. this morning's scan) gives way to the new class.
+ */
+export function startForClass(prev: Estimate | null, cls: ClassNow | null, now: number): Estimate | null {
+  if (!cls) return prev;
+  if (prev && prev.source !== 'schedule' && prev.at >= cls.startsAt) return prev;
+  if (prev?.source === 'schedule' && prev.roomId === cls.roomId) return prev;
+  return { roomId: cls.roomId, building: cls.building, floor: cls.floor, source: 'schedule', confidence: 'likely', at: now };
+}
+
 /** Applies time decay: exact readings become "likely" after 10 minutes. */
 export function current(e: Estimate | null, now: number): Estimate | null {
   if (!e) return null;

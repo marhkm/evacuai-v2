@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { router } from 'expo-router';
 import { AppState } from 'react-native';
 
+import { openRouteOnAlertTap } from '@/lib/alertTap';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { registerForPush } from '@/lib/push';
@@ -71,10 +73,12 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       .then(u => (cancelled ? u() : (unsubscribe = u)))
       .catch(() => undefined); // offline: the foreground refresh catches up
     const sub = AppState.addEventListener('change', s => s === 'active' && refresh());
+    const offTap = openRouteOnAlertTap(() => router.push('/route'));
     return () => {
       cancelled = true;
       unsubscribe?.();
       sub.remove();
+      offTap();
     };
   }, [token, refresh]);
 

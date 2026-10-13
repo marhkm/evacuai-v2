@@ -7,14 +7,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Chips, Section } from '@/components/Chips';
 import { FloorPlan } from '@/components/FloorPlan';
 import { LocationChooser } from '@/components/LocationChooser';
-import { Button, Message, Screen, colors } from '@/components/ui';
+import { Message, Screen, colors } from '@/components/ui';
 import { useAlerts } from '@/lib/alerts';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { current, routeOrigin, type Estimate, type Observation } from '@/lib/estimator';
 import { useCampus } from '@/lib/useCampus';
 import { watchFloorChanges } from '@/lib/barometer';
-import { lastEstimate, moveFloors, updateWhereabouts } from '@/lib/whereabouts';
+import { applyClass, lastEstimate, moveFloors, restoreWhereabouts, updateWhereabouts } from '@/lib/whereabouts';
 
 const HAZARD_CHOICES: { key: Hazard; label: string }[] = [
   { key: 'earthquake', label: 'Earthquake' }, { key: 'fire', label: 'Fire' }, { key: 'flood', label: 'Flood' },
@@ -22,7 +22,15 @@ const HAZARD_CHOICES: { key: Hazard; label: string }[] = [
 // Alert types the router has no special rules for are routed like an earthquake (leave via stairs to an exit).
 const toHazard = (t: string): Hazard => (t === 'fire' || t === 'flood' ? t : 'earthquake');
 
-type ScheduleNow = { subject: string; room_id: string; room_name: string; building: string; level: number } | null;
+type ScheduleNow = { subject: string; room_id: string; room_name: string; building: string; level: number; time_start: string } | null;
+
+/** Class start today, in this phone's clock (campus time). */
+function startsAt(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d.getTime();
+}
 
 export default function RouteScreen() {
   const { state, token } = useAuth();
@@ -30,7 +38,6 @@ export default function RouteScreen() {
   const { snapshot, offline, error } = useCampus();
   const [chosenHazard, setChosenHazard] = useState<Hazard | null>(null);
   const [estimate, setEstimate] = useState<Estimate | null>(() => lastEstimate());
-  const [schedule, setSchedule] = useState<ScheduleNow>(null);
   const [viewLevel, setViewLevel] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now()); // drives the 10-minute confidence decay
 
@@ -39,13 +46,22 @@ export default function RouteScreen() {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    if (!token) return;
-    api<{ class: ScheduleNow }>('/api/me/schedule/now', { token }).then(r => setSchedule(r.class)).catch(() => undefined);
-  }, [token]);
-
   const hazard: Hazard | null = active[0] ? toHazard(active[0].hazard_type) : chosenHazard;
   const alertActive = !!active[0];
+
+  // No tap needed: today's saved location, or the class in session (unless the user located themselves since it began).
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    Promise.all([
+      restoreWhereabouts(),
+      api<{ class: ScheduleNow }>('/api/me/schedule/now', { token }).then(r => r.class).catch(() => null),
+    ]).then(([, cls]) => {
+      if (cancelled) return;
+      setEstimate(applyClass(cls && { roomId: cls.room_id, building: cls.building, floor: cls.level, startsAt: startsAt(cls.time_start) }, token, alertActive));
+    });
+    return () => { cancelled = true; };
+  }, [token, alertActive]);
 
   // Barometer: once we know the building, a stair climb or descent moves the start to the new floor and re-routes.
   const knownBuilding = estimate?.building;
@@ -94,19 +110,14 @@ export default function RouteScreen() {
         </Section>
       )}
 
-      {!live && schedule ? (
-        <View style={styles.card}>
-          <Text style={styles.cardText}>Your class now: {schedule.subject} in {schedule.room_name}.</Text>
-          <Button label={`Yes, I'm in ${schedule.room_name}`} onPress={() =>
-            locate({ source: 'schedule', roomId: schedule.room_id, building: schedule.building, floor: schedule.level })} />
-        </View>
-      ) : null}
-
       {live && originNode ? (
         <Text style={styles.where}>
           Starting from {snapshot?.rooms.find(r => r.id === originNode.room_id)?.name ?? originNode.name ?? originNode.id.split('/').pop()} ({sourceText})
+          {live.source === 'schedule' || live.source === 'barometer' ? '. Not there? Pick your room below.' : ''}
         </Text>
-      ) : null}
+      ) : (
+        <Text style={styles.where}>Where are you? Pick your room (or scan the sticker by the door).</Text>
+      )}
 
       <LocationChooser snapshot={snapshot}
         onNode={n => locate({ source: 'qr', nodeId: n.id, building: n.building, floor: n.level })}
@@ -143,8 +154,6 @@ export default function RouteScreen() {
 
 const styles = StyleSheet.create({
   hazard: { fontSize: 16, fontWeight: '700', color: colors.danger, textTransform: 'capitalize' },
-  card: { backgroundColor: colors.card, borderRadius: 12, padding: 14, gap: 10 },
-  cardText: { fontSize: 16, color: colors.text },
   where: { fontSize: 15, color: colors.muted },
   steps: { gap: 6, backgroundColor: '#eef5fd', borderRadius: 12, padding: 14 },
   distance: { fontSize: 18, fontWeight: '800', color: '#0b6bcb' },

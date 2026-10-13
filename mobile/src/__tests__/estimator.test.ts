@@ -1,5 +1,5 @@
 import { loadDemoSnapshot } from './helpers';
-import { observe, current, routeOrigin, parseQr, nodeForQr, applyFloorChange, type Estimate } from '@/lib/estimator';
+import { observe, current, routeOrigin, parseQr, nodeForQr, applyFloorChange, startForClass, type Estimate } from '@/lib/estimator';
 
 const snap = loadDemoSnapshot();
 const T0 = Date.parse('2026-10-14T08:00:00+08:00');
@@ -51,3 +51,19 @@ test('QR payloads are parsed strictly and resolved through the snapshot', () => 
 test('nothing known means no origin', () => {
   expect(routeOrigin(snap, null as Estimate | null)).toBeNull();
 });
+
+test('the current class is the starting point with no tap, unless the user located themselves since it began', () => {
+  const cls = { roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2, startsAt: T0 };
+  expect(startForClass(null, cls, T0 + min(5))).toMatchObject({ roomId: 'DEMO/2/R201', source: 'schedule', confidence: 'likely' });
+
+  const scanDuringClass: Estimate = { nodeId: 'DEMO/1/S1', building: 'DEMO', floor: 1, source: 'qr', confidence: 'exact', at: T0 + min(10) };
+  expect(startForClass(scanDuringClass, cls, T0 + min(40))).toBe(scanDuringClass); // even after the 10-minute decay
+
+  const scanThisMorning: Estimate = { ...scanDuringClass, at: T0 - min(90) };
+  expect(startForClass(scanThisMorning, cls, T0 + min(5))?.source).toBe('schedule'); // new class started since: they moved
+
+  const already = startForClass(null, cls, T0 + min(5))!;
+  expect(startForClass(already, cls, T0 + min(20))).toBe(already); // stable: no churn every refresh
+  expect(startForClass(scanDuringClass, null, T0)).toBe(scanDuringClass); // no class: keep what we have
+});
+

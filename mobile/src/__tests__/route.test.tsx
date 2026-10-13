@@ -88,19 +88,27 @@ test('without an alert the user chooses the hazard (flood goes upstairs)', async
   expect(screen.getByText('Go to C4')).toBeTruthy();
 });
 
-test('offers the current class as the starting point', async () => {
+test('routes from the current class with no tap, and offers to pick the room instead', async () => {
   alerts = [activeAlert('fire')];
-  scheduleClass = { subject: 'IT 101', room_id: 'DEMO/2/R201', room_name: 'R201', building: 'DEMO', level: 2, time_start: '08:00', time_end: '09:30' };
+  scheduleClass = { subject: 'IT 101', room_id: 'DEMO/2/R201', room_name: 'R201', building: 'DEMO', level: 2, time_start: '00:00', time_end: '23:59' };
   await open();
-  await fireEvent.press(await screen.findByRole('button', { name: "Yes, I'm in R201" }));
-  expect(await screen.findByText('Exit R201')).toBeTruthy();
-  expect(screen.getByText(/from your class schedule/i)).toBeTruthy();
+  expect(await screen.findByText('Exit R201')).toBeTruthy(); // route ready without any tap
+  expect(screen.getByText(/from your class schedule.*Not there\? Pick your room below/i)).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Pick my room' })).toBeTruthy();
+});
+
+test('a room picked earlier today is still the starting point after the app restarts', async () => {
+  alerts = [activeAlert('fire')];
+  mockMem.set('whereabouts', JSON.stringify({ roomId: 'DEMO/1/R101', building: 'DEMO', floor: 1, source: 'manual', confidence: 'exact', at: Date.now() - 3 * 3600_000 }));
+  await open();
+  expect(await screen.findByText('Exit R101')).toBeTruthy();
+  expect(screen.getByText(/you picked it/)).toBeTruthy();
 });
 
 test('a QR scan sets an exact starting point', async () => {
   alerts = [activeAlert('fire')];
   await open();
-  await fireEvent.press(await screen.findByRole('button', { name: 'Scan QR sticker' }));
+  await fireEvent.press(await screen.findByRole('link', { name: 'Scan QR sticker instead' })); // optional, not the main action
   expect(await screen.findByText('Start at S2')).toBeTruthy();
   expect(screen.getByText(/scanned/i)).toBeTruthy();
 });
