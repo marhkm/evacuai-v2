@@ -18,7 +18,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.evacuai.app"
+      "package": "com.evacuai.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -55,11 +61,26 @@
           "photosPermission": "EvacuAI lets you attach a photo of a hazard to your report.",
           "cameraPermission": "EvacuAI uses the camera to scan QR stickers and to photograph hazards you report."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
+    },
+    "owner": "eloimendoza6",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ec0e24e7-5338-465b-b132-5a865c7b3ee6"
+      }
     }
   }
 }
