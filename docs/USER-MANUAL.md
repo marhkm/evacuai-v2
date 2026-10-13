@@ -127,14 +127,35 @@ docker compose -f docker/compose.yml down -v
 
 ### 1.8 Use a real phone (optional)
 
-The web version runs on your PC. To use a phone on the same Wi-Fi:
+The Android app talks to the stack running on your own PC, over your Wi-Fi.
 
-1. Find your PC's local IP address (Windows: run `ipconfig` and look for the IPv4 address, e.g. `192.168.1.5`).
-2. Install the EvacuAI test APK on the phone (when available).
-3. On the sign-in screen, tap **Server: …**, enter `http://<your-PC-IP>:8000`, then tap **Save server**.
+1. **Install the app.** Open the APK download link your teacher shares (or scan its QR code) on the Android phone,
+   download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
+   allow it. You do not need an Expo, Firebase or Google Play account.
+2. **Start the stack on your PC** as in 1.4 (`docker compose -f docker/compose.yml up -d`).
+3. **Put the phone and the PC on the same Wi-Fi.** School or café networks often block devices from reaching each
+   other; a phone hotspot that the PC joins always works.
+4. **Find your PC's address.** Windows: run `ipconfig` and copy the **IPv4 Address** of the Wi-Fi adapter (for
+   example `192.168.1.5`). macOS: System Settings → Wi-Fi → Details.
+5. **Allow the phone through the Windows firewall** (once, in PowerShell **as administrator**):
 
-The phone app adds the camera (QR stickers, hazard photos), the barometer (floor tracking), GPS check-in and push
-notifications. If Windows Firewall asks, allow Docker on private networks.
+   ```powershell
+   New-NetFirewallRule -DisplayName "EvacuAI test stack" -Direction Inbound -Protocol TCP -LocalPort 8000,8080 -Action Allow -Profile Private
+   ```
+
+   Also make sure Windows calls the Wi-Fi a **Private** network (Settings → Network & internet → Wi-Fi → your
+   network).
+6. **Point the app at your PC.** Open EvacuAI, tap **Server: …** under the sign-in button, enter
+   `http://<your-PC-address>:8000` (for example `http://192.168.1.5:8000`), tap **Save server**, then sign in with a
+   demo account or your own.
+
+Check it worked: the phone browser should open `http://<your-PC-address>:8000/up`. If it does not, the phone cannot
+reach the PC (step 3 or 5).
+
+What the phone adds over the web version: scanning QR stickers, photos from the camera, floor tracking with the
+barometer, GPS check-in, and **push notifications** (alerts arrive even when the app is closed; tapping one opens
+the evacuation route). Push needs internet on the PC, because alerts go through Expo's push service; allow
+notifications when the app asks.
 
 ---
 
@@ -491,6 +512,28 @@ banner, the re-route and the dashboards react together.
 ---
 
 ## 6. Optional features
+
+### 6.1 Building the Android app (teacher only)
+
+Students never build the app; they install the APK from a link. The teacher builds it on Expo's servers from the
+`mobile` folder (needs the Expo account that owns the project, already linked in `mobile/app.json`):
+
+```bash
+cd mobile
+```
+
+```bash
+npx eas-cli@latest build --platform android --profile preview
+```
+
+When it finishes (about 15–40 minutes), the build page on expo.dev shows a download link and a QR code: share that
+with students. Build again after app changes; students install the new APK over the old one.
+
+Push notifications are already set up: the Firebase config is stored on Expo as the private variable
+`GOOGLE_SERVICES_JSON`, and the push key (FCM V1) in Expo's Android credentials. Neither file is in the repository.
+
+### 6.2 Other optional features
+
 
 These are off until the instructor sets them in `docker/.env`, then restarts with
 `docker compose -f docker/compose.yml up -d` (add `--build` for the Google and Microsoft buttons).

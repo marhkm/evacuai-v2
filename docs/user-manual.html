@@ -132,6 +132,8 @@
 <a class="toc-3" href="#51-the-sample-drill">5.1 The sample drill</a>
 <a class="toc-3" href="#52-simulation-commands">5.2 Simulation commands</a>
 <a class="toc-2" href="#6-optional-features">6. Optional features</a>
+<a class="toc-3" href="#61-building-the-android-app-teacher-only">6.1 Building the Android app (teacher only)</a>
+<a class="toc-3" href="#62-other-optional-features">6.2 Other optional features</a>
 <a class="toc-2" href="#7-privacy-and-data">7. Privacy and data</a>
 <a class="toc-2" href="#8-troubleshooting">8. Troubleshooting</a>
   </nav>
@@ -174,6 +176,8 @@
 <a class="toc-3" href="#51-the-sample-drill">5.1 The sample drill</a>
 <a class="toc-3" href="#52-simulation-commands">5.2 Simulation commands</a>
 <a class="toc-2" href="#6-optional-features">6. Optional features</a>
+<a class="toc-3" href="#61-building-the-android-app-teacher-only">6.1 Building the Android app (teacher only)</a>
+<a class="toc-3" href="#62-other-optional-features">6.2 Other optional features</a>
 <a class="toc-2" href="#7-privacy-and-data">7. Privacy and data</a>
 <a class="toc-2" href="#8-troubleshooting">8. Troubleshooting</a>
     </details>
@@ -299,14 +303,36 @@ in production.</p>
 <p>Reset everything (deletes the database and uploaded photos, then starts fresh on the next <code>up</code>):</p>
 <div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml down -v</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
 <h3 id="18-use-a-real-phone-optional"><a class="anchor" href="#18-use-a-real-phone-optional" aria-hidden="true">#</a>1.8 Use a real phone (optional)</h3>
-<p>The web version runs on your PC. To use a phone on the same Wi-Fi:</p>
+<p>The Android app talks to the stack running on your own PC, over your Wi-Fi.</p>
 <ol>
-<li>Find your PC&#39;s local IP address (Windows: run <code>ipconfig</code> and look for the IPv4 address, e.g. <code>192.168.1.5</code>).</li>
-<li>Install the EvacuAI test APK on the phone (when available).</li>
-<li>On the sign-in screen, tap <strong>Server: …</strong>, enter <code>http://&lt;your-PC-IP&gt;:8000</code>, then tap <strong>Save server</strong>.</li>
+<li><p><strong>Install the app.</strong> Open the APK download link your teacher shares (or scan its QR code) on the Android phone,
+download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
+allow it. You do not need an Expo, Firebase or Google Play account.</p>
+</li>
+<li><p><strong>Start the stack on your PC</strong> as in 1.4 (<code>docker compose -f docker/compose.yml up -d</code>).</p>
+</li>
+<li><p><strong>Put the phone and the PC on the same Wi-Fi.</strong> School or café networks often block devices from reaching each
+other; a phone hotspot that the PC joins always works.</p>
+</li>
+<li><p><strong>Find your PC&#39;s address.</strong> Windows: run <code>ipconfig</code> and copy the <strong>IPv4 Address</strong> of the Wi-Fi adapter (for
+example <code>192.168.1.5</code>). macOS: System Settings → Wi-Fi → Details.</p>
+</li>
+<li><p><strong>Allow the phone through the Windows firewall</strong> (once, in PowerShell <strong>as administrator</strong>):</p>
+<div class="code"><pre><code data-lang="powershell">New-NetFirewallRule -DisplayName "EvacuAI test stack" -Direction Inbound -Protocol TCP -LocalPort 8000,8080 -Action Allow -Profile Private</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Also make sure Windows calls the Wi-Fi a <strong>Private</strong> network (Settings → Network &amp; internet → Wi-Fi → your
+network).</p>
+</li>
+<li><p><strong>Point the app at your PC.</strong> Open EvacuAI, tap <strong>Server: …</strong> under the sign-in button, enter
+<code>http://&lt;your-PC-address&gt;:8000</code> (for example <code>http://192.168.1.5:8000</code>), tap <strong>Save server</strong>, then sign in with a
+demo account or your own.</p>
+</li>
 </ol>
-<p>The phone app adds the camera (QR stickers, hazard photos), the barometer (floor tracking), GPS check-in and push
-notifications. If Windows Firewall asks, allow Docker on private networks.</p>
+<p>Check it worked: the phone browser should open <code>http://&lt;your-PC-address&gt;:8000/up</code>. If it does not, the phone cannot
+reach the PC (step 3 or 5).</p>
+<p>What the phone adds over the web version: scanning QR stickers, photos from the camera, floor tracking with the
+barometer, GPS check-in, and <strong>push notifications</strong> (alerts arrive even when the app is closed; tapping one opens
+the evacuation route). Push needs internet on the PC, because alerts go through Expo&#39;s push service; allow
+notifications when the app asks.</p>
 <hr>
 <h2 id="2-the-mobile-app"><a class="anchor" href="#2-the-mobile-app" aria-hidden="true">#</a>2. The mobile app</h2>
 <p>Open <a href="http://localhost:8081">http://localhost:8081</a> (or the app on your phone).</p>
@@ -679,6 +705,16 @@ dashboard.</li>
 banner, the re-route and the dashboards react together.</p>
 <hr>
 <h2 id="6-optional-features"><a class="anchor" href="#6-optional-features" aria-hidden="true">#</a>6. Optional features</h2>
+<h3 id="61-building-the-android-app-teacher-only"><a class="anchor" href="#61-building-the-android-app-teacher-only" aria-hidden="true">#</a>6.1 Building the Android app (teacher only)</h3>
+<p>Students never build the app; they install the APK from a link. The teacher builds it on Expo&#39;s servers from the
+<code>mobile</code> folder (needs the Expo account that owns the project, already linked in <code>mobile/app.json</code>):</p>
+<div class="code"><pre><code data-lang="bash">cd mobile</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<div class="code"><pre><code data-lang="bash">npx eas-cli@latest build --platform android --profile preview</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>When it finishes (about 15–40 minutes), the build page on expo.dev shows a download link and a QR code: share that
+with students. Build again after app changes; students install the new APK over the old one.</p>
+<p>Push notifications are already set up: the Firebase config is stored on Expo as the private variable
+<code>GOOGLE_SERVICES_JSON</code>, and the push key (FCM V1) in Expo&#39;s Android credentials. Neither file is in the repository.</p>
+<h3 id="62-other-optional-features"><a class="anchor" href="#62-other-optional-features" aria-hidden="true">#</a>6.2 Other optional features</h3>
 <p>These are off until the instructor sets them in <code>docker/.env</code>, then restarts with
 <code>docker compose -f docker/compose.yml up -d</code> (add <code>--build</code> for the Google and Microsoft buttons).</p>
 <div class="table-wrap"><table>

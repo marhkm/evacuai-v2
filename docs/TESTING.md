@@ -97,8 +97,35 @@ The tests only read data (no alerts, reports or SOS are created), so they are sa
 
 ## Using a real phone
 
-The web build runs on your PC. To use the app on a phone on the same Wi-Fi, install the test APK (when available) and,
-on the sign-in screen, tap **Server** and enter `http://<your-PC-LAN-IP>:8000`.
+The Android app works with the stack on your PC. You need no Expo, Firebase or Play Store account.
+
+1. **Install the app.** Open the APK download link your teacher shares (or scan its QR code) on the Android phone,
+   download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
+   allow it. You do not need an Expo, Firebase or Google Play account.
+2. **Start the stack on your PC** (`docker compose -f docker/compose.yml up -d`).
+3. **Put the phone and the PC on the same Wi-Fi.** School or café networks often block devices from reaching each
+   other; a phone hotspot that the PC joins always works.
+4. **Find your PC's address.** Windows: run `ipconfig` and copy the **IPv4 Address** of the Wi-Fi adapter (for
+   example `192.168.1.5`). macOS: System Settings → Wi-Fi → Details.
+5. **Allow the phone through the Windows firewall** (once, in PowerShell **as administrator**):
+
+   ```powershell
+   New-NetFirewallRule -DisplayName "EvacuAI test stack" -Direction Inbound -Protocol TCP -LocalPort 8000,8080 -Action Allow -Profile Private
+   ```
+
+   Also make sure Windows calls the Wi-Fi a **Private** network (Settings → Network & internet → Wi-Fi → your
+   network).
+6. **Point the app at your PC.** Open EvacuAI, tap **Server: …** under the sign-in button, enter
+   `http://<your-PC-address>:8000` (for example `http://192.168.1.5:8000`), tap **Save server**, then sign in with a
+   demo account or your own.
+
+Check it worked: the phone browser should open `http://<your-PC-address>:8000/up`. If it does not, the phone cannot
+reach the PC (step 3 or 5).
+
+What the phone adds over the web version: scanning QR stickers, photos from the camera, floor tracking with the
+barometer, GPS check-in, and **push notifications** (alerts arrive even when the app is closed; tapping one opens
+the evacuation route). Push needs internet on the PC, because alerts go through Expo's push service; allow
+notifications when the app asks.
 
 ## Google sign-in (optional, instructor setup)
 
