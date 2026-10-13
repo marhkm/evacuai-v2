@@ -99,7 +99,7 @@ The tests only read data (no alerts, reports or SOS are created), so they are sa
 
 The Android app works with the stack on your PC. You need no Expo, Firebase or Play Store account.
 
-1. **Install the app.** Open the APK download link your teacher shares (or scan its QR code) on the Android phone,
+1. **Install the app.** Open the EvacuAI APK download link (or scan its QR code) on the Android phone,
    download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
    allow it. You do not need an Expo, Firebase or Google Play account.
 2. **Start the stack on your PC** (`docker compose -f docker/compose.yml up -d`).
@@ -127,7 +127,7 @@ barometer, GPS check-in, and **push notifications** (alerts arrive even when the
 the evacuation route). Push needs internet on the PC, because alerts go through Expo's push service; allow
 notifications when the app asks.
 
-## Google sign-in (optional, instructor setup)
+## Google sign-in (optional setup)
 
 1. In Google Cloud Console, create an OAuth client of type **Web application**.
 2. Add `http://localhost:8081` to **Authorized JavaScript origins** and **Authorized redirect URIs**.
@@ -138,7 +138,7 @@ notifications when the app asks.
 The **Continue with Google** button only appears when `GOOGLE_CLIENT_ID` is set. Google sign-in on the phone APK comes
 with the APK build.
 
-## Optional extras (instructor setup)
+## Optional extras
 
 All are off until configured in `docker/.env`; restart with `docker compose -f docker/compose.yml up -d` (rebuild with
 `--build` for the Microsoft button).

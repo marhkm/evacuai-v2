@@ -132,7 +132,7 @@
 <a class="toc-3" href="#51-the-sample-drill">5.1 The sample drill</a>
 <a class="toc-3" href="#52-simulation-commands">5.2 Simulation commands</a>
 <a class="toc-2" href="#6-optional-features">6. Optional features</a>
-<a class="toc-3" href="#61-building-the-android-app-teacher-only">6.1 Building the Android app (teacher only)</a>
+<a class="toc-3" href="#61-building-the-android-app">6.1 Building the Android app</a>
 <a class="toc-3" href="#62-other-optional-features">6.2 Other optional features</a>
 <a class="toc-2" href="#7-privacy-and-data">7. Privacy and data</a>
 <a class="toc-2" href="#8-troubleshooting">8. Troubleshooting</a>
@@ -176,7 +176,7 @@
 <a class="toc-3" href="#51-the-sample-drill">5.1 The sample drill</a>
 <a class="toc-3" href="#52-simulation-commands">5.2 Simulation commands</a>
 <a class="toc-2" href="#6-optional-features">6. Optional features</a>
-<a class="toc-3" href="#61-building-the-android-app-teacher-only">6.1 Building the Android app (teacher only)</a>
+<a class="toc-3" href="#61-building-the-android-app">6.1 Building the Android app</a>
 <a class="toc-3" href="#62-other-optional-features">6.2 Other optional features</a>
 <a class="toc-2" href="#7-privacy-and-data">7. Privacy and data</a>
 <a class="toc-2" href="#8-troubleshooting">8. Troubleshooting</a>
@@ -305,7 +305,7 @@ in production.</p>
 <h3 id="18-use-a-real-phone-optional"><a class="anchor" href="#18-use-a-real-phone-optional" aria-hidden="true">#</a>1.8 Use a real phone (optional)</h3>
 <p>The Android app talks to the stack running on your own PC, over your Wi-Fi.</p>
 <ol>
-<li><p><strong>Install the app.</strong> Open the APK download link your teacher shares (or scan its QR code) on the Android phone,
+<li><p><strong>Install the app.</strong> Open the EvacuAI APK download link (or scan its QR code) on the Android phone,
 download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
 allow it. You do not need an Expo, Firebase or Google Play account.</p>
 </li>
@@ -348,7 +348,7 @@ notifications when the app asks.</p>
 <p><strong>Forgot password:</strong> tap <strong>Forgot password?</strong>, enter your email, read the code (Mailpit on a test setup), then set a new
 password.</p>
 <p><strong>Google or Microsoft 365:</strong> the <strong>Continue with Google</strong> and <strong>Continue with Microsoft 365</strong> buttons appear only when
-the instructor has set them up (see <a href="#6-optional-features">6. Optional features</a>).</p>
+they have been set up (see <a href="#6-optional-features">6. Optional features</a>).</p>
 <p><strong>Privacy notice:</strong> the first time you sign in, read the notice and tap <strong>I agree</strong>. The app only uses your location
 during an emergency (route, SOS, check-in).</p>
 <h3 id="22-home-screen"><a class="anchor" href="#22-home-screen" aria-hidden="true">#</a>2.2 Home screen</h3>
@@ -705,17 +705,17 @@ dashboard.</li>
 banner, the re-route and the dashboards react together.</p>
 <hr>
 <h2 id="6-optional-features"><a class="anchor" href="#6-optional-features" aria-hidden="true">#</a>6. Optional features</h2>
-<h3 id="61-building-the-android-app-teacher-only"><a class="anchor" href="#61-building-the-android-app-teacher-only" aria-hidden="true">#</a>6.1 Building the Android app (teacher only)</h3>
-<p>Students never build the app; they install the APK from a link. The teacher builds it on Expo&#39;s servers from the
-<code>mobile</code> folder (needs the Expo account that owns the project, already linked in <code>mobile/app.json</code>):</p>
+<h3 id="61-building-the-android-app"><a class="anchor" href="#61-building-the-android-app" aria-hidden="true">#</a>6.1 Building the Android app</h3>
+<p>Testers install the APK from a link; they never need to build it. The APK is built on Expo&#39;s servers from the
+<code>mobile</code> folder, signed in to the Expo account that owns the project (linked in <code>mobile/app.json</code>):</p>
 <div class="code"><pre><code data-lang="bash">cd mobile</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
 <div class="code"><pre><code data-lang="bash">npx eas-cli@latest build --platform android --profile preview</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
-<p>When it finishes (about 15–40 minutes), the build page on expo.dev shows a download link and a QR code: share that
-with students. Build again after app changes; students install the new APK over the old one.</p>
+<p>When it finishes (about 15–40 minutes), the build page on expo.dev shows a download link and a QR code to share with
+testers. Build again after app changes; the new APK installs over the old one.</p>
 <p>Push notifications are already set up: the Firebase config is stored on Expo as the private variable
 <code>GOOGLE_SERVICES_JSON</code>, and the push key (FCM V1) in Expo&#39;s Android credentials. Neither file is in the repository.</p>
 <h3 id="62-other-optional-features"><a class="anchor" href="#62-other-optional-features" aria-hidden="true">#</a>6.2 Other optional features</h3>
-<p>These are off until the instructor sets them in <code>docker/.env</code>, then restarts with
+<p>These are off until they are set in <code>docker/.env</code>, followed by a restart with
 <code>docker compose -f docker/compose.yml up -d</code> (add <code>--build</code> for the Google and Microsoft buttons).</p>
 <div class="table-wrap"><table>
 <thead>

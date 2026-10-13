@@ -129,7 +129,7 @@ docker compose -f docker/compose.yml down -v
 
 The Android app talks to the stack running on your own PC, over your Wi-Fi.
 
-1. **Install the app.** Open the APK download link your teacher shares (or scan its QR code) on the Android phone,
+1. **Install the app.** Open the EvacuAI APK download link (or scan its QR code) on the Android phone,
    download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
    allow it. You do not need an Expo, Firebase or Google Play account.
 2. **Start the stack on your PC** as in 1.4 (`docker compose -f docker/compose.yml up -d`).
@@ -178,7 +178,7 @@ Open http://localhost:8081 (or the app on your phone).
 password.
 
 **Google or Microsoft 365:** the **Continue with Google** and **Continue with Microsoft 365** buttons appear only when
-the instructor has set them up (see [6. Optional features](#6-optional-features)).
+they have been set up (see [6. Optional features](#6-optional-features)).
 
 **Privacy notice:** the first time you sign in, read the notice and tap **I agree**. The app only uses your location
 during an emergency (route, SOS, check-in).
@@ -513,10 +513,10 @@ banner, the re-route and the dashboards react together.
 
 ## 6. Optional features
 
-### 6.1 Building the Android app (teacher only)
+### 6.1 Building the Android app
 
-Students never build the app; they install the APK from a link. The teacher builds it on Expo's servers from the
-`mobile` folder (needs the Expo account that owns the project, already linked in `mobile/app.json`):
+Testers install the APK from a link; they never need to build it. The APK is built on Expo's servers from the
+`mobile` folder, signed in to the Expo account that owns the project (linked in `mobile/app.json`):
 
 ```bash
 cd mobile
@@ -526,8 +526,8 @@ cd mobile
 npx eas-cli@latest build --platform android --profile preview
 ```
 
-When it finishes (about 15–40 minutes), the build page on expo.dev shows a download link and a QR code: share that
-with students. Build again after app changes; students install the new APK over the old one.
+When it finishes (about 15–40 minutes), the build page on expo.dev shows a download link and a QR code to share with
+testers. Build again after app changes; the new APK installs over the old one.
 
 Push notifications are already set up: the Firebase config is stored on Expo as the private variable
 `GOOGLE_SERVICES_JSON`, and the push key (FCM V1) in Expo's Android credentials. Neither file is in the repository.
@@ -535,7 +535,7 @@ Push notifications are already set up: the Firebase config is stored on Expo as 
 ### 6.2 Other optional features
 
 
-These are off until the instructor sets them in `docker/.env`, then restarts with
+These are off until they are set in `docker/.env`, followed by a restart with
 `docker compose -f docker/compose.yml up -d` (add `--build` for the Google and Microsoft buttons).
 
 | Feature | Settings in `docker/.env` | Notes |
