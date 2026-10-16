@@ -56,7 +56,7 @@ it('sends an SOS, blocks and reopens a stair, and creates feed drafts', function
     expect(EvacEdge::where('status', 'blocked')->count())->toBe(0);
 
     $this->artisan('evacuai:simulate', ['scenario' => 'feed'])->assertSuccessful();
-    expect(Alert::where('status', 'draft')->count())->toBe(2);
+    expect(Alert::where('status', 'draft')->count())->toBe(4); // USGS, PHIVOLCS, Open-Meteo and PAGASA samples
 
     $this->artisan('evacuai:simulate', ['scenario' => 'nope'])->assertFailed();
 });

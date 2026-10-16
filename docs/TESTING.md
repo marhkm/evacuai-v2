@@ -145,8 +145,8 @@ All are off until configured in `docker/.env`; restart with `docker compose -f d
 
 | Extra | Settings | Notes |
 |---|---|---|
-| Hazard feeds (USGS earthquakes, Open-Meteo rain) | `FEEDS_ENABLED=true`, `CAMPUS_LAT`, `CAMPUS_LNG` | Creates **draft** alerts only; an officer publishes or discards them. `FEEDS_FAKE=true` uses built-in sample events (no internet). |
-| AI translation of alerts | `GEMINI_API_KEY` and/or `GROQ_API_KEY` | Adds **Translate with AI** to the alert form. Free tiers may use prompts for training: never type names or phone numbers in alerts. Local model: `docker compose -f docker/compose.yml --profile ai-local up -d`, then `OLLAMA_URL=http://ollama:11434`. |
+| Hazard feeds (PHIVOLCS and USGS earthquakes, Open-Meteo rain, PAGASA wind signals) | `FEEDS_ENABLED=true`, `CAMPUS_LAT`, `CAMPUS_LNG` | Creates **draft** alerts only; an officer publishes or discards them. `FEEDS_FAKE=true` uses built-in sample events (no internet). |
+| AI assist | `GEMINI_API_KEY` and/or `GROQ_API_KEY` | Adds **Translate with AI** to the alert form and **Summarize** to Hazard Reports. Free tiers may use prompts for training: never type names or phone numbers in alerts. Local model: `docker compose -f docker/compose.yml --profile ai-local up -d`, then `OLLAMA_URL=http://ollama:11434`. |
 | Microsoft 365 sign-in | `MICROSOFT_TENANT_ID`, `MICROSOFT_CLIENT_ID` | Entra "Single-page application" registration with redirect `http://localhost:8081`. Only accounts from that tenant can sign in. |
 
 ## Reset everything

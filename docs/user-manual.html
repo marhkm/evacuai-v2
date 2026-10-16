@@ -577,6 +577,9 @@ slowest evacuation time, SOS count and response time) and one row per person. It
 at three reporters.</p>
 <ul>
 <li><strong>View photo:</strong> opens the reporter&#39;s photo (officers only).</li>
+<li><strong>Summarize</strong> (only if AI is configured, and two or more people reported the same floor): a one- or two-sentence AI
+summary of the matching reports, for example where the smoke is and how many people agree. Reporters&#39; names and
+contact details are never sent. Read the reports before acting on it.</li>
 <li><strong>Verify:</strong> confirms the hazard. Verified rooms are avoided by everyone&#39;s evacuation route.</li>
 <li><strong>Dismiss:</strong> not a real hazard.</li>
 <li><strong>Resolve:</strong> the hazard is cleared.</li>
@@ -689,7 +692,7 @@ at.</p>
 </tr>
 <tr>
 <td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate feed</code></td>
-<td>Sample earthquake and heavy-rain events become <strong>draft</strong> alerts.</td>
+<td>Sample earthquake (USGS and PHIVOLCS), heavy-rain and PAGASA wind-signal events become <strong>draft</strong> alerts.</td>
 <td>Alerts → filter <strong>Draft (from feeds)</strong> → Publish or Discard</td>
 </tr>
 </tbody></table>
@@ -738,12 +741,12 @@ testers. Build again after app changes; the new APK installs over the old one.</
 <tr>
 <td>Hazard feeds</td>
 <td><code>FEEDS_ENABLED=true</code>, <code>CAMPUS_LAT</code>, <code>CAMPUS_LNG</code></td>
-<td>Checks USGS earthquakes (magnitude 4.5+ within 100 km) and Open-Meteo rain forecasts (15 mm/h+) every 5 minutes and creates <strong>draft</strong> alerts for officers. <code>FEEDS_FAKE=true</code> uses built-in samples without internet.</td>
+<td>Every 5 minutes, creates <strong>draft</strong> alerts for officers from: earthquakes of magnitude 4.5+ within 100 km (PHIVOLCS and USGS; a quake both list becomes one draft), Open-Meteo rain forecasts of 15 mm/h+, and a PAGASA tropical cyclone wind signal raised over the province (<code>FEEDS_PAGASA_PROVINCE</code>, default <code>Cebu</code>). PHIVOLCS and PAGASA have no public API, so their web pages are read; if a page changes or is down, that source is skipped and the others still work. <code>FEEDS_FAKE=true</code> uses built-in samples without internet.</td>
 </tr>
 <tr>
-<td>AI translation</td>
+<td>AI assist</td>
 <td><code>GEMINI_API_KEY</code> and/or <code>GROQ_API_KEY</code>, or <code>OLLAMA_URL</code></td>
-<td>Adds <strong>Translate with AI</strong> to the alert form. Tries Gemini, then Groq, then a local Ollama model (<code>docker compose -f docker/compose.yml --profile ai-local up -d</code>, then <code>OLLAMA_URL=http://ollama:11434</code>).</td>
+<td>Adds <strong>Translate with AI</strong> to the alert form and <strong>Summarize</strong> to Hazard Reports. Tries Gemini, then Groq, then a local Ollama model (<code>docker compose -f docker/compose.yml --profile ai-local up -d</code>, then <code>OLLAMA_URL=http://ollama:11434</code>).</td>
 </tr>
 <tr>
 <td>SMS alerts</td>

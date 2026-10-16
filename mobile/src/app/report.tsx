@@ -108,7 +108,7 @@ export default function Report() {
         </Section>
       ) : null}
       <Field label="What do you see?" value={description} onChangeText={setDescription} multiline maxLength={500}
-        placeholder="e.g. Smoke coming from the door" autoCapitalize="sentences" error={apiError?.fieldError('description')} />
+        placeholder="e.g. Smoke coming from the door. No names or phone numbers." autoCapitalize="sentences" error={apiError?.fieldError('description')} />
       <Section label="Photo (optional)">
         {photo ? (
           <View style={styles.photoRow}>

@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\HazardReports\Tables;
 
 use App\Models\HazardReport;
+use App\Support\Llm;
 use App\Support\ReportClusters;
+use App\Support\ReportSummary;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -42,6 +45,17 @@ class HazardReportsTable
                 ]),
             ])
             ->recordActions([
+                Action::make('summarize')->label('Summarize')->icon('heroicon-o-sparkles')->color('gray')
+                    ->tooltip('AI summary of the matching reports on this floor (no names are sent)')
+                    ->visible(fn (HazardReport $record) => $open($record) && Llm::enabled()
+                        && ReportClusters::reporterCount($record->hazard_type, $record->building_id, $record->level) >= 2)
+                    ->action(function (HazardReport $record) {
+                        $summary = ReportSummary::for($record);
+                        $note = Notification::make()->persistent();
+                        $summary
+                            ? $note->info()->title('Matching reports (AI summary, check before acting)')->body("{$summary['text']} ({$summary['provider']})")->send()
+                            : $note->warning()->title('No AI provider answered')->body('Read the reports below instead.')->send();
+                    }),
                 Action::make('verify')->label('Verify')->icon('heroicon-o-check-badge')->color('danger')
                     ->visible(fn (HazardReport $record) => $record->status === 'pending')
                     ->action(fn (HazardReport $record) => $record->update(['status' => 'verified', 'verified_by' => auth()->id()])),

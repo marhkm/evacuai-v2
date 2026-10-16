@@ -33,7 +33,11 @@ class ReportClusters
             ->count('hazard_reports.reported_by');
     }
 
-    /** Recent qualifying reports for an admin alert (any floor; campus-wide when $buildingId is null). */
+    /**
+     * Recent qualifying reports for an admin alert (any floor; campus-wide when $buildingId is null).
+     *
+     * @return Builder<HazardReport>
+     */
     public static function recentReports(string $hazard, ?string $buildingId): Builder
     {
         return HazardReport::query()

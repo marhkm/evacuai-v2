@@ -37,6 +37,8 @@ return [
         'quake_min_magnitude' => (float) env('FEEDS_QUAKE_MIN_MAGNITUDE', 4.5),
         'quake_radius_km' => (int) env('FEEDS_QUAKE_RADIUS_KM', 100),
         'rain_mm_per_hour' => (float) env('FEEDS_RAIN_MM_PER_HOUR', 15), // PAGASA orange rainfall warning starts at 15 mm/h
+        'phivolcs' => (bool) env('FEEDS_PHIVOLCS', true), // PHIVOLCS latest-earthquakes page (scraped)
+        'pagasa_province' => env('FEEDS_PAGASA_PROVINCE', 'Cebu'), // PAGASA wind signals for this province; empty = off
     ],
 
     // Comma-separated; empty = allow any domain (local testing).

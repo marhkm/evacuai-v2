@@ -395,6 +395,9 @@ Reports from the app, newest first, refreshing every 5 seconds. The **Same-floor
 at three reporters.
 
 - **View photo:** opens the reporter's photo (officers only).
+- **Summarize** (only if AI is configured, and two or more people reported the same floor): a one- or two-sentence AI
+  summary of the matching reports, for example where the smoke is and how many people agree. Reporters' names and
+  contact details are never sent. Read the reports before acting on it.
 - **Verify:** confirms the hazard. Verified rooms are avoided by everyone's evacuation route.
 - **Dismiss:** not a real hazard.
 - **Resolve:** the hazard is cleared.
@@ -495,7 +498,7 @@ at.
 | `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate sos` | A sample student sends an SOS from a room. | SOS desk, bell (reply in the chat) |
 | `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate block` | The first open stair is blocked. | Your open evacuation route re-routes; Paths; Campus 3D |
 | `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reopen` | Every blocked or congested path is opened again. | Paths, Campus 3D |
-| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate feed` | Sample earthquake and heavy-rain events become **draft** alerts. | Alerts → filter **Draft (from feeds)** → Publish or Discard |
+| `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate feed` | Sample earthquake (USGS and PHIVOLCS), heavy-rain and PAGASA wind-signal events become **draft** alerts. | Alerts → filter **Draft (from feeds)** → Publish or Discard |
 
 Options for `drill`:
 
@@ -542,8 +545,8 @@ These are off until they are set in `docker/.env`, followed by a restart with
 |---|---|---|
 | Google sign-in | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google Cloud OAuth client of type Web application; add `http://localhost:8081` as an authorized origin and redirect URI. While in Testing mode, add each student's Google email as a test user. |
 | Microsoft 365 sign-in | `MICROSOFT_TENANT_ID`, `MICROSOFT_CLIENT_ID` | Entra ID "Single-page application" registration with redirect `http://localhost:8081`. Only accounts from that school tenant can sign in. |
-| Hazard feeds | `FEEDS_ENABLED=true`, `CAMPUS_LAT`, `CAMPUS_LNG` | Checks USGS earthquakes (magnitude 4.5+ within 100 km) and Open-Meteo rain forecasts (15 mm/h+) every 5 minutes and creates **draft** alerts for officers. `FEEDS_FAKE=true` uses built-in samples without internet. |
-| AI translation | `GEMINI_API_KEY` and/or `GROQ_API_KEY`, or `OLLAMA_URL` | Adds **Translate with AI** to the alert form. Tries Gemini, then Groq, then a local Ollama model (`docker compose -f docker/compose.yml --profile ai-local up -d`, then `OLLAMA_URL=http://ollama:11434`). |
+| Hazard feeds | `FEEDS_ENABLED=true`, `CAMPUS_LAT`, `CAMPUS_LNG` | Every 5 minutes, creates **draft** alerts for officers from: earthquakes of magnitude 4.5+ within 100 km (PHIVOLCS and USGS; a quake both list becomes one draft), Open-Meteo rain forecasts of 15 mm/h+, and a PAGASA tropical cyclone wind signal raised over the province (`FEEDS_PAGASA_PROVINCE`, default `Cebu`). PHIVOLCS and PAGASA have no public API, so their web pages are read; if a page changes or is down, that source is skipped and the others still work. `FEEDS_FAKE=true` uses built-in samples without internet. |
+| AI assist | `GEMINI_API_KEY` and/or `GROQ_API_KEY`, or `OLLAMA_URL` | Adds **Translate with AI** to the alert form and **Summarize** to Hazard Reports. Tries Gemini, then Groq, then a local Ollama model (`docker compose -f docker/compose.yml --profile ai-local up -d`, then `OLLAMA_URL=http://ollama:11434`). |
 | SMS alerts | `SEMAPHORE_API_KEY` | Sends alerts by SMS (Semaphore, paid per message) to users with a mobile number. |
 
 ---
