@@ -46,7 +46,8 @@ class ImportSchedules extends Page
         }
 
         $users = DB::table('users')->pluck('id', 'email')->mapWithKeys(fn ($id, $e) => [strtolower($e) => $id]);
-        $rooms = DB::table('rooms')->whereNotNull('code')->pluck('id', 'code')->mapWithKeys(fn ($id, $c) => [strtoupper($c) => $id]);
+        $key = fn (string $code) => strtoupper(str_replace([' ', '-'], '', $code)); // "A-61", "a 61" and "A61" are one room
+        $rooms = DB::table('rooms')->whereNotNull('code')->pluck('id', 'code')->mapWithKeys(fn ($id, $c) => [$key($c) => $id]);
         $records = [];
         $this->problems = [];
 
@@ -54,7 +55,7 @@ class ImportSchedules extends Page
             $line = $i + 2;
             $r = array_combine($header, array_pad(array_map('trim', $row), count($header), ''));
             $userId = $users[strtolower($r['email'])] ?? null;
-            $roomId = $rooms[strtoupper(str_replace(' ', '', $r['room_code']))] ?? null;
+            $roomId = $rooms[$key($r['room_code'])] ?? null;
             $start = $this->time($r['time_start']);
             $end = $this->time($r['time_end']);
             $error = match (true) {

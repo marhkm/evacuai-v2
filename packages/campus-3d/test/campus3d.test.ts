@@ -90,7 +90,8 @@ describe('poster walls and route arrows', () => {
     const r = findRoute(uclm, 'A1/4/R_A_31', 'fire');
     if (!r.ok) throw new Error('expected a route');
     showRoute(c, r.route);
-    const nodes = r.route.nodeIds.map(id => uclm.nodes.find(n => n.id === id)!);
+    const all = r.route.nodeIds.map(id => uclm.nodes.find(n => n.id === id)!);
+    const nodes = all.slice(0, all.findIndex(n => n.type === 'exit') + 1); // drawn up to the building exit
     let expected = 0;
     let run: [number, number][] = [];
     nodes.forEach((n, i) => {
@@ -115,5 +116,28 @@ describe('poster walls and route arrows', () => {
     expect(c.nodePos.get('A1/7/S1')!.y).toBeGreaterThan(17.5 + top.position.y - 0.01);
     explode(c, 0);
     expect(top.position.y).toBe(0);
+  });
+});
+
+describe('route end and shared shapes', () => {
+  const uclm = load('uclm');
+  const c = buildScene(uclm);
+  const r = findRoute(uclm, 'A1/7/R_A_67', 'fire');
+  if (!r.ok) throw new Error('expected a route');
+
+  it('stops the route at the building exit instead of running to the off-campus assembly area', () => {
+    showRoute(c, r.route);
+    const exit = r.route.nodeIds.find(id => uclm.nodes.find(n => n.id === id)!.type === 'exit')!;
+    const pos = (c.overlay.route.getObjectByName('route') as THREE.Mesh<THREE.TubeGeometry>).geometry.parameters.path.getPoint(1);
+    expect(pos.distanceTo(c.nodePos.get(exit)!)).toBeLessThan(0.01);
+  });
+
+  it('keeps the shared arrow shape when the route is cleared', () => {
+    showRoute(c, r.route);
+    const geo = ((c.overlay.route.getObjectByName('arrows')!.children[0]) as THREE.Mesh).geometry;
+    let disposed = false;
+    geo.addEventListener('dispose', () => { disposed = true; });
+    showRoute(c, null);
+    expect(disposed).toBe(false);
   });
 });

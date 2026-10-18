@@ -31,3 +31,9 @@ it('serves floor plans in the campus snapshot, within the size budget', function
         ->and($buildings['BE']['floors'][0])->not->toHaveKey('plan')
         ->and(strlen($res->getContent()))->toBeLessThan(1_500_000);
 });
+
+it('gives imported classrooms, labs and offices a registrar code, so schedules can match them', function () {
+    expect(DB::table('rooms')->where('id', 'A1/7/A_61')->value('code'))->toBe('A61')
+        ->and(DB::table('rooms')->where('id', 'like', 'A1/_/CONSULTATION_ROOM')->whereNotNull('code')->count())->toBe(0) // name on two floors
+        ->and(DB::table('rooms')->where('type', 'stairwell')->whereNotNull('code')->count())->toBe(0);
+});

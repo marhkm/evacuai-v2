@@ -48,6 +48,32 @@
     "y": 8.6,
     "note": "unlabelled on the Second floor poster; its arrows lead here as on the floors above"
    }
+  ],
+  "2": [
+   {
+    "text": "TO OUTSIDE STAIRS",
+    "x": 46.3,
+    "y": 8.6,
+    "note": "Mezzanine: the poster arrow leads to the outside stair at the corner (doorway in the slanted wall at 45.6, 9.0)"
+   }
   ]
- }
+ },
+ "via": {
+  "1": [
+   [
+    15.3,
+    23.8
+   ]
+  ]
+ },
+ "via_note": "Ground: the canteen wing opens onto the corridor between the Property Custodian wall and the courtyard wall.",
+ "connect": {
+  "2": [
+   [
+    "C11",
+    "C12"
+   ]
+  ]
+ },
+ "connect_note": "Mezzanine: doorway in the slanted outer wall (45.6, 9.0) to the outside stair the poster arrow points at."
 }

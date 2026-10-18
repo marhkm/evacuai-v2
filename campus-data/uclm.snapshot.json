@@ -49176,6 +49176,15 @@
       "safe_for": []
     },
     {
+      "id": "A1/1/V1",
+      "type": "hallway",
+      "x": 15.3,
+      "y": 23.8,
+      "building": "A1",
+      "level": 1,
+      "safe_for": []
+    },
+    {
       "id": "A1/1/S1",
       "type": "stairwell",
       "x": 7.17,
@@ -49263,7 +49272,8 @@
       "name": "Off-campus assembly area",
       "safe_for": [
         "earthquake",
-        "fire"
+        "fire",
+        "flood"
       ],
       "building": "A1",
       "level": 1
@@ -49449,6 +49459,24 @@
       "safe_for": []
     },
     {
+      "id": "A1/2/J1",
+      "type": "hallway",
+      "x": 39.66,
+      "y": 10.19,
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "A1/2/J2",
+      "type": "hallway",
+      "x": 39.66,
+      "y": 26.36,
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
       "id": "A1/2/S1",
       "type": "stairwell",
       "x": 7.17,
@@ -49509,11 +49537,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/2/D_MA_4",
+      "type": "hallway",
+      "x": 26.07,
+      "y": 27.71,
+      "name": "MA-4 door",
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
       "id": "A1/2/R_MA_3",
       "type": "room",
       "x": 36.5,
       "y": 30.95,
       "room_id": "A1/2/MA_3",
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "A1/2/D_MA_3",
+      "type": "hallway",
+      "x": 33.25,
+      "y": 27.71,
+      "name": "MA-3 door",
       "building": "A1",
       "level": 2,
       "safe_for": []
@@ -49529,6 +49577,16 @@
       "safe_for": []
     },
     {
+      "id": "A1/2/D_MA_5",
+      "type": "hallway",
+      "x": 26.07,
+      "y": 27.71,
+      "name": "MA-5 door",
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
       "id": "A1/2/R_MA_6",
       "type": "room",
       "x": 14.62,
@@ -49539,11 +49597,41 @@
       "safe_for": []
     },
     {
+      "id": "A1/2/D_MA_6",
+      "type": "hallway",
+      "x": 18.81,
+      "y": 27.71,
+      "name": "MA-6 door",
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
       "id": "A1/2/R_SAO_CONFERENCE_ROOM",
       "type": "room",
       "x": 43.75,
       "y": 31.14,
       "room_id": "A1/2/SAO_CONFERENCE_ROOM",
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "A1/2/D_SAO_CONFERENCE_ROOM",
+      "type": "hallway",
+      "x": 40.43,
+      "y": 27.71,
+      "name": "SAO CONFERENCE ROOM door",
+      "building": "A1",
+      "level": 2,
+      "safe_for": []
+    },
+    {
+      "id": "A1/2/LINK1",
+      "type": "exit",
+      "x": 46.3,
+      "y": 8.6,
+      "name": "To Outside Stairs",
       "building": "A1",
       "level": 2,
       "safe_for": []
@@ -49733,6 +49821,16 @@
       "safe_for": []
     },
     {
+      "id": "A1/3/D_STORAGE_ROOM",
+      "type": "hallway",
+      "x": 10.08,
+      "y": 5.21,
+      "name": "STORAGE ROOM door",
+      "building": "A1",
+      "level": 3,
+      "safe_for": []
+    },
+    {
       "id": "A1/3/R_CRIME_LAB",
       "type": "room",
       "x": 7.14,
@@ -49753,11 +49851,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/3/D_CONSULTATION_ROOM",
+      "type": "hallway",
+      "x": 42.41,
+      "y": 15.36,
+      "name": "CONSULTATION ROOM door",
+      "building": "A1",
+      "level": 3,
+      "safe_for": []
+    },
+    {
       "id": "A1/3/R_FACULTY_ROOM",
       "type": "room",
       "x": 45.77,
       "y": 19.41,
       "room_id": "A1/3/FACULTY_ROOM",
+      "building": "A1",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "A1/3/D_FACULTY_ROOM",
+      "type": "hallway",
+      "x": 45.75,
+      "y": 23.61,
+      "name": "FACULTY ROOM door",
       "building": "A1",
       "level": 3,
       "safe_for": []
@@ -49783,6 +49901,16 @@
       "safe_for": []
     },
     {
+      "id": "A1/3/D_MOOT_COURT",
+      "type": "hallway",
+      "x": 45.75,
+      "y": 23.61,
+      "name": "MOOT COURT door",
+      "building": "A1",
+      "level": 3,
+      "safe_for": []
+    },
+    {
       "id": "A1/3/R_AUDIO_VISUAL_ROOM_AVR",
       "type": "room",
       "x": 35.03,
@@ -49793,11 +49921,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/3/D_AUDIO_VISUAL_ROOM_AVR",
+      "type": "hallway",
+      "x": 21.26,
+      "y": 26.78,
+      "name": "AUDIO VISUAL ROOM (AVR) door",
+      "building": "A1",
+      "level": 3,
+      "safe_for": []
+    },
+    {
       "id": "A1/3/R_A_24",
       "type": "room",
       "x": 16.31,
       "y": 32.11,
       "room_id": "A1/3/A_24",
+      "building": "A1",
+      "level": 3,
+      "safe_for": []
+    },
+    {
+      "id": "A1/3/D_A_24",
+      "type": "hallway",
+      "x": 13.25,
+      "y": 28.74,
+      "name": "A-24 door",
       "building": "A1",
       "level": 3,
       "safe_for": []
@@ -49932,6 +50080,15 @@
     {
       "id": "A1/4/J1",
       "type": "hallway",
+      "x": 15.77,
+      "y": 28.09,
+      "building": "A1",
+      "level": 4,
+      "safe_for": []
+    },
+    {
+      "id": "A1/4/J2",
+      "type": "hallway",
       "x": 41.94,
       "y": 28.09,
       "building": "A1",
@@ -49956,6 +50113,16 @@
       "x": 6.59,
       "y": 11.24,
       "room_id": "A1/4/GEN_ED_OFFICE",
+      "building": "A1",
+      "level": 4,
+      "safe_for": []
+    },
+    {
+      "id": "A1/4/D_GEN_ED_OFFICE",
+      "type": "hallway",
+      "x": 13.26,
+      "y": 18.26,
+      "name": "GEN. ED OFFICE door",
       "building": "A1",
       "level": 4,
       "safe_for": []
@@ -49991,11 +50158,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/4/D_CCS_FACULTY",
+      "type": "hallway",
+      "x": 42.12,
+      "y": 29.37,
+      "name": "CCS FACULTY door",
+      "building": "A1",
+      "level": 4,
+      "safe_for": []
+    },
+    {
       "id": "A1/4/R_A_32",
       "type": "room",
       "x": 25.53,
       "y": 32.87,
       "room_id": "A1/4/A_32",
+      "building": "A1",
+      "level": 4,
+      "safe_for": []
+    },
+    {
+      "id": "A1/4/D_A_32",
+      "type": "hallway",
+      "x": 30.54,
+      "y": 29.37,
+      "name": "A-32 door",
       "building": "A1",
       "level": 4,
       "safe_for": []
@@ -50016,6 +50203,16 @@
       "x": 16.58,
       "y": 33.12,
       "room_id": "A1/4/A_31",
+      "building": "A1",
+      "level": 4,
+      "safe_for": []
+    },
+    {
+      "id": "A1/4/D_A_31",
+      "type": "hallway",
+      "x": 20.98,
+      "y": 29.37,
+      "name": "A-31 door",
       "building": "A1",
       "level": 4,
       "safe_for": []
@@ -50175,6 +50372,15 @@
       "safe_for": []
     },
     {
+      "id": "A1/6/J1",
+      "type": "hallway",
+      "x": 40.67,
+      "y": 27.17,
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
       "id": "A1/6/S1",
       "type": "stairwell",
       "x": 7.57,
@@ -50207,11 +50413,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/6/D_GENERAL_STORE_ROOM",
+      "type": "hallway",
+      "x": 12.2,
+      "y": 15.12,
+      "name": "GENERAL STORE ROOM door",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
       "id": "A1/6/R_A_53",
       "type": "room",
       "x": 9.01,
       "y": 19.66,
       "room_id": "A1/6/A_53",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
+      "id": "A1/6/D_A_53",
+      "type": "hallway",
+      "x": 14.07,
+      "y": 23.1,
+      "name": "A-53 door",
       "building": "A1",
       "level": 6,
       "safe_for": []
@@ -50227,11 +50453,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/6/D_A_58",
+      "type": "hallway",
+      "x": 41.9,
+      "y": 25.27,
+      "name": "A-58 door",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
       "id": "A1/6/R_A_57",
       "type": "room",
       "x": 44.35,
       "y": 32,
       "room_id": "A1/6/A_57",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
+      "id": "A1/6/D_A_57",
+      "type": "hallway",
+      "x": 40.01,
+      "y": 28.49,
+      "name": "A-57 door",
       "building": "A1",
       "level": 6,
       "safe_for": []
@@ -50247,6 +50493,16 @@
       "safe_for": []
     },
     {
+      "id": "A1/6/D_A_56",
+      "type": "hallway",
+      "x": 38.91,
+      "y": 28.5,
+      "name": "A-56 door",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
       "id": "A1/6/R_A_55",
       "type": "room",
       "x": 25.29,
@@ -50257,11 +50513,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/6/D_A_55",
+      "type": "hallway",
+      "x": 30.55,
+      "y": 28.49,
+      "name": "A-55 door",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
       "id": "A1/6/R_A_54",
       "type": "room",
       "x": 16.12,
       "y": 32.32,
       "room_id": "A1/6/A_54",
+      "building": "A1",
+      "level": 6,
+      "safe_for": []
+    },
+    {
+      "id": "A1/6/D_A_54",
+      "type": "hallway",
+      "x": 12.38,
+      "y": 28.49,
+      "name": "A-54 door",
       "building": "A1",
       "level": 6,
       "safe_for": []
@@ -50412,6 +50688,15 @@
       "safe_for": []
     },
     {
+      "id": "A1/7/J1",
+      "type": "hallway",
+      "x": 39.36,
+      "y": 26.42,
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
       "id": "A1/7/S1",
       "type": "stairwell",
       "x": 7.42,
@@ -50446,11 +50731,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/7/D_A_61",
+      "type": "hallway",
+      "x": 11.86,
+      "y": 14.74,
+      "name": "A-61 door",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
       "id": "A1/7/R_A_62",
       "type": "room",
       "x": 9.36,
       "y": 19.28,
       "room_id": "A1/7/A_62",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
+      "id": "A1/7/D_A_62",
+      "type": "hallway",
+      "x": 11.86,
+      "y": 14.74,
+      "name": "A-62 door",
       "building": "A1",
       "level": 7,
       "safe_for": []
@@ -50466,11 +50771,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/7/D_A_67",
+      "type": "hallway",
+      "x": 40.65,
+      "y": 24.53,
+      "name": "A-67 door",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
       "id": "A1/7/R_A_63",
       "type": "room",
       "x": 15.71,
       "y": 30.86,
       "room_id": "A1/7/A_63",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
+      "id": "A1/7/D_A_63",
+      "type": "hallway",
+      "x": 20.76,
+      "y": 27.65,
+      "name": "A-63 door",
       "building": "A1",
       "level": 7,
       "safe_for": []
@@ -50486,6 +50811,16 @@
       "safe_for": []
     },
     {
+      "id": "A1/7/D_A_65",
+      "type": "hallway",
+      "x": 29.65,
+      "y": 27.65,
+      "name": "A-65 door",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
       "id": "A1/7/R_A_66",
       "type": "room",
       "x": 42.78,
@@ -50496,11 +50831,31 @@
       "safe_for": []
     },
     {
+      "id": "A1/7/D_A_66",
+      "type": "hallway",
+      "x": 38.82,
+      "y": 27.65,
+      "name": "A-66 door",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
       "id": "A1/7/R_A_64",
       "type": "room",
       "x": 24.94,
       "y": 31.06,
       "room_id": "A1/7/A_64",
+      "building": "A1",
+      "level": 7,
+      "safe_for": []
+    },
+    {
+      "id": "A1/7/D_A_64",
+      "type": "hallway",
+      "x": 20.76,
+      "y": 27.65,
+      "name": "A-64 door",
       "building": "A1",
       "level": 7,
       "safe_for": []
@@ -51388,6 +51743,36 @@
       "status": "open"
     },
     {
+      "id": "A1/1/V1->A1/1/C1",
+      "from": "A1/1/V1",
+      "to": "A1/1/C1",
+      "type": "corridor",
+      "distance_m": 3.34551939166402,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/1/V1->A1/1/C11",
+      "from": "A1/1/V1",
+      "to": "A1/1/C11",
+      "type": "corridor",
+      "distance_m": 9.82670850285079,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/1/V1->A1/1/C12",
+      "from": "A1/1/V1",
+      "to": "A1/1/C12",
+      "type": "corridor",
+      "distance_m": 8.028181612295526,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
       "id": "A1/1/C1->A1/1/S1",
       "from": "A1/1/C1",
       "to": "A1/1/S1",
@@ -51473,9 +51858,10 @@
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
       "distance_m": 80,
-      "bidirectional": true,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },
@@ -51485,9 +51871,10 @@
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
       "distance_m": 80,
-      "bidirectional": true,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },
@@ -51497,9 +51884,10 @@
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
       "distance_m": 80,
-      "bidirectional": true,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },
@@ -51554,11 +51942,11 @@
       "status": "open"
     },
     {
-      "id": "A1/2/C6->A1/2/C8",
+      "id": "A1/2/C6->A1/2/C7",
       "from": "A1/2/C6",
-      "to": "A1/2/C8",
+      "to": "A1/2/C7",
       "type": "corridor",
-      "distance_m": 4.7621528744885975,
+      "distance_m": 5.549999999999997,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -51589,26 +51977,6 @@
       "to": "A1/2/C10",
       "type": "corridor",
       "distance_m": 5.5600000000000005,
-      "bidirectional": true,
-      "flags": [],
-      "status": "open"
-    },
-    {
-      "id": "A1/2/C10->A1/2/C11",
-      "from": "A1/2/C10",
-      "to": "A1/2/C11",
-      "type": "corridor",
-      "distance_m": 4.576505216865817,
-      "bidirectional": true,
-      "flags": [],
-      "status": "open"
-    },
-    {
-      "id": "A1/2/C11->A1/2/C12",
-      "from": "A1/2/C11",
-      "to": "A1/2/C12",
-      "type": "corridor",
-      "distance_m": 3.721034802309703,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -51684,11 +52052,41 @@
       "status": "open"
     },
     {
-      "id": "A1/2/C6->A1/2/C7",
-      "from": "A1/2/C6",
-      "to": "A1/2/C7",
+      "id": "A1/2/C10->A1/2/J1",
+      "from": "A1/2/C10",
+      "to": "A1/2/J1",
       "type": "corridor",
-      "distance_m": 5.549999999999997,
+      "distance_m": 2.8000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/J1->A1/2/C11",
+      "from": "A1/2/J1",
+      "to": "A1/2/C11",
+      "type": "corridor",
+      "distance_m": 3.6200000000000045,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/C6->A1/2/J2",
+      "from": "A1/2/C6",
+      "to": "A1/2/J2",
+      "type": "corridor",
+      "distance_m": 2.6600000000000037,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/J2->A1/2/C8",
+      "from": "A1/2/J2",
+      "to": "A1/2/C8",
+      "type": "corridor",
+      "distance_m": 3.9499999999999993,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -51744,53 +52142,136 @@
       "status": "open"
     },
     {
-      "id": "A1/2/R_MA_4->A1/2/C4",
+      "id": "A1/2/R_MA_4->A1/2/D_MA_4",
       "from": "A1/2/R_MA_4",
-      "to": "A1/2/C4",
+      "to": "A1/2/D_MA_4",
       "type": "door",
-      "distance_m": 5.075874308924522,
+      "distance_m": 4.462118331017231,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/2/R_MA_3->A1/2/C7",
+      "id": "A1/2/D_MA_4->A1/2/C5",
+      "from": "A1/2/D_MA_4",
+      "to": "A1/2/C5",
+      "type": "corridor",
+      "distance_m": 1.3594484175576518,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/R_MA_3->A1/2/D_MA_3",
       "from": "A1/2/R_MA_3",
-      "to": "A1/2/C7",
+      "to": "A1/2/D_MA_3",
       "type": "door",
-      "distance_m": 4.597934318800128,
+      "distance_m": 4.589128457561412,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/2/R_MA_5->A1/2/C1",
+      "id": "A1/2/D_MA_3->A1/2/C4",
+      "from": "A1/2/D_MA_3",
+      "to": "A1/2/C4",
+      "type": "corridor",
+      "distance_m": 2.2420080285315667,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/R_MA_5->A1/2/D_MA_5",
       "from": "A1/2/R_MA_5",
-      "to": "A1/2/C1",
+      "to": "A1/2/D_MA_5",
       "type": "door",
-      "distance_m": 4.853308150117816,
+      "distance_m": 5.247513696980696,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/2/R_MA_6->A1/2/C2",
+      "id": "A1/2/D_MA_5->A1/2/C5",
+      "from": "A1/2/D_MA_5",
+      "to": "A1/2/C5",
+      "type": "corridor",
+      "distance_m": 1.3594484175576518,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/R_MA_6->A1/2/D_MA_6",
       "from": "A1/2/R_MA_6",
-      "to": "A1/2/C2",
+      "to": "A1/2/D_MA_6",
       "type": "door",
-      "distance_m": 4.790250515369733,
+      "distance_m": 5.408558033339384,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/2/R_SAO_CONFERENCE_ROOM->A1/2/C6",
-      "from": "A1/2/R_SAO_CONFERENCE_ROOM",
-      "to": "A1/2/C6",
-      "type": "door",
-      "distance_m": 4.989318590749644,
+      "id": "A1/2/D_MA_6->A1/2/C1",
+      "from": "A1/2/D_MA_6",
+      "to": "A1/2/C1",
+      "type": "corridor",
+      "distance_m": 2.2420080285315693,
       "bidirectional": true,
       "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/R_SAO_CONFERENCE_ROOM->A1/2/D_SAO_CONFERENCE_ROOM",
+      "from": "A1/2/R_SAO_CONFERENCE_ROOM",
+      "to": "A1/2/D_SAO_CONFERENCE_ROOM",
+      "type": "door",
+      "distance_m": 4.773604508125909,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/D_SAO_CONFERENCE_ROOM->A1/2/C6",
+      "from": "A1/2/D_SAO_CONFERENCE_ROOM",
+      "to": "A1/2/C6",
+      "type": "corridor",
+      "distance_m": 2.3226278221015106,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/C11->A1/2/LINK1",
+      "from": "A1/2/C11",
+      "to": "A1/2/LINK1",
+      "type": "door",
+      "distance_m": 3.412989891576003,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/C11->A1/2/C12",
+      "from": "A1/2/C11",
+      "to": "A1/2/C12",
+      "type": "door",
+      "distance_m": 3.721034802309703,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/2/LINK1->A1/1/AP_Outside",
+      "from": "A1/2/LINK1",
+      "to": "A1/1/AP_Outside",
+      "type": "outdoor",
+      "distance_m": 132,
+      "bidirectional": false,
+      "flags": [
+        "estimated",
+        "flood_prone"
+      ],
       "status": "open"
     },
     {
@@ -51984,11 +52465,21 @@
       "status": "open"
     },
     {
-      "id": "A1/3/R_STORAGE_ROOM->A1/3/C4",
+      "id": "A1/3/R_STORAGE_ROOM->A1/3/D_STORAGE_ROOM",
       "from": "A1/3/R_STORAGE_ROOM",
-      "to": "A1/3/C4",
+      "to": "A1/3/D_STORAGE_ROOM",
       "type": "door",
-      "distance_m": 5.494014925352861,
+      "distance_m": 4.951009997970111,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/3/D_STORAGE_ROOM->A1/3/C4",
+      "from": "A1/3/D_STORAGE_ROOM",
+      "to": "A1/3/C4",
+      "type": "corridor",
+      "distance_m": 2.086552180032889,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52004,21 +52495,41 @@
       "status": "open"
     },
     {
-      "id": "A1/3/R_CONSULTATION_ROOM->A1/3/C3",
+      "id": "A1/3/R_CONSULTATION_ROOM->A1/3/D_CONSULTATION_ROOM",
       "from": "A1/3/R_CONSULTATION_ROOM",
-      "to": "A1/3/C3",
+      "to": "A1/3/D_CONSULTATION_ROOM",
       "type": "door",
-      "distance_m": 4.755933136619986,
+      "distance_m": 4.591666364186319,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/3/R_FACULTY_ROOM->A1/3/C2",
+      "id": "A1/3/D_CONSULTATION_ROOM->A1/3/C3",
+      "from": "A1/3/D_CONSULTATION_ROOM",
+      "to": "A1/3/C3",
+      "type": "corridor",
+      "distance_m": 2.454648651029306,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/3/R_FACULTY_ROOM->A1/3/D_FACULTY_ROOM",
       "from": "A1/3/R_FACULTY_ROOM",
-      "to": "A1/3/C2",
+      "to": "A1/3/D_FACULTY_ROOM",
       "type": "door",
-      "distance_m": 4.568435180671828,
+      "distance_m": 4.200047618777672,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/3/D_FACULTY_ROOM->A1/3/C15",
+      "from": "A1/3/D_FACULTY_ROOM",
+      "to": "A1/3/C15",
+      "type": "corridor",
+      "distance_m": 1.9722322378462418,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52034,31 +52545,61 @@
       "status": "open"
     },
     {
-      "id": "A1/3/R_MOOT_COURT->A1/3/C15",
+      "id": "A1/3/R_MOOT_COURT->A1/3/D_MOOT_COURT",
       "from": "A1/3/R_MOOT_COURT",
+      "to": "A1/3/D_MOOT_COURT",
+      "type": "door",
+      "distance_m": 2.339081016125776,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/3/D_MOOT_COURT->A1/3/C15",
+      "from": "A1/3/D_MOOT_COURT",
       "to": "A1/3/C15",
-      "type": "door",
-      "distance_m": 3.84421643511392,
+      "type": "corridor",
+      "distance_m": 1.9722322378462418,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/3/R_AUDIO_VISUAL_ROOM_AVR->A1/3/C13",
+      "id": "A1/3/R_AUDIO_VISUAL_ROOM_AVR->A1/3/D_AUDIO_VISUAL_ROOM_AVR",
       "from": "A1/3/R_AUDIO_VISUAL_ROOM_AVR",
-      "to": "A1/3/C13",
+      "to": "A1/3/D_AUDIO_VISUAL_ROOM_AVR",
       "type": "door",
-      "distance_m": 7.023795270364877,
+      "distance_m": 14.455894991317557,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/3/R_A_24->A1/3/C12",
-      "from": "A1/3/R_A_24",
+      "id": "A1/3/D_AUDIO_VISUAL_ROOM_AVR->A1/3/C12",
+      "from": "A1/3/D_AUDIO_VISUAL_ROOM_AVR",
       "to": "A1/3/C12",
+      "type": "corridor",
+      "distance_m": 5.583341293526666,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/3/R_A_24->A1/3/D_A_24",
+      "from": "A1/3/R_A_24",
+      "to": "A1/3/D_A_24",
       "type": "door",
-      "distance_m": 4.858446253690577,
+      "distance_m": 4.5519775922119825,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/3/D_A_24->A1/3/C1",
+      "from": "A1/3/D_A_24",
+      "to": "A1/3/C1",
+      "type": "corridor",
+      "distance_m": 3.3324165405903265,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52078,10 +52619,11 @@
       "from": "A1/3/LINK1",
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
-      "distance_m": 124,
-      "bidirectional": true,
+      "distance_m": 139,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },
@@ -52196,19 +52738,29 @@
       "status": "open"
     },
     {
-      "id": "A1/4/C12->A1/4/C5",
-      "from": "A1/4/C12",
-      "to": "A1/4/C5",
+      "id": "A1/4/C5->A1/4/J1",
+      "from": "A1/4/C5",
+      "to": "A1/4/J1",
       "type": "corridor",
-      "distance_m": 6.702842680534879,
+      "distance_m": 2.799999999999999,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/4/C1->A1/4/J1",
+      "id": "A1/4/J1->A1/4/C12",
+      "from": "A1/4/J1",
+      "to": "A1/4/C12",
+      "type": "corridor",
+      "distance_m": 6.09,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/4/C1->A1/4/J2",
       "from": "A1/4/C1",
-      "to": "A1/4/J1",
+      "to": "A1/4/J2",
       "type": "corridor",
       "distance_m": 5.489999999999995,
       "bidirectional": true,
@@ -52216,8 +52768,8 @@
       "status": "open"
     },
     {
-      "id": "A1/4/J1->A1/4/C8",
-      "from": "A1/4/J1",
+      "id": "A1/4/J2->A1/4/C8",
+      "from": "A1/4/J2",
       "to": "A1/4/C8",
       "type": "corridor",
       "distance_m": 4.710000000000001,
@@ -52236,11 +52788,21 @@
       "status": "open"
     },
     {
-      "id": "A1/4/R_GEN_ED_OFFICE->A1/4/C10",
+      "id": "A1/4/R_GEN_ED_OFFICE->A1/4/D_GEN_ED_OFFICE",
       "from": "A1/4/R_GEN_ED_OFFICE",
-      "to": "A1/4/C10",
+      "to": "A1/4/D_GEN_ED_OFFICE",
       "type": "door",
-      "distance_m": 6.201693317151373,
+      "distance_m": 9.683454961944111,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/4/D_GEN_ED_OFFICE->A1/4/C11",
+      "from": "A1/4/D_GEN_ED_OFFICE",
+      "to": "A1/4/C11",
+      "type": "corridor",
+      "distance_m": 2.5205753311496175,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52266,21 +52828,41 @@
       "status": "open"
     },
     {
-      "id": "A1/4/R_CCS_FACULTY->A1/4/C8",
+      "id": "A1/4/R_CCS_FACULTY->A1/4/D_CCS_FACULTY",
       "from": "A1/4/R_CCS_FACULTY",
-      "to": "A1/4/C8",
+      "to": "A1/4/D_CCS_FACULTY",
       "type": "door",
-      "distance_m": 9.877130149998026,
+      "distance_m": 4.6388145037282955,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/4/R_A_32->A1/4/C3",
+      "id": "A1/4/D_CCS_FACULTY->A1/4/C1",
+      "from": "A1/4/D_CCS_FACULTY",
+      "to": "A1/4/C1",
+      "type": "corridor",
+      "distance_m": 5.812684405676945,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/4/R_A_32->A1/4/D_A_32",
       "from": "A1/4/R_A_32",
-      "to": "A1/4/C3",
+      "to": "A1/4/D_A_32",
       "type": "door",
-      "distance_m": 4.849824739101402,
+      "distance_m": 6.111472817578424,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/4/D_A_32->A1/4/C2",
+      "from": "A1/4/D_A_32",
+      "to": "A1/4/C2",
+      "type": "corridor",
+      "distance_m": 1.280624847486571,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52296,11 +52878,21 @@
       "status": "open"
     },
     {
-      "id": "A1/4/R_A_31->A1/4/C4",
+      "id": "A1/4/R_A_31->A1/4/D_A_31",
       "from": "A1/4/R_A_31",
-      "to": "A1/4/C4",
+      "to": "A1/4/D_A_31",
       "type": "door",
-      "distance_m": 5.518496171965692,
+      "distance_m": 5.781219594514638,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/4/D_A_31->A1/4/C4",
+      "from": "A1/4/D_A_31",
+      "to": "A1/4/C4",
+      "type": "corridor",
+      "distance_m": 2.48501509049744,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52320,10 +52912,11 @@
       "from": "A1/4/LINK1",
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
-      "distance_m": 131,
-      "bidirectional": true,
+      "distance_m": 146,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },
@@ -52348,11 +52941,11 @@
       "status": "open"
     },
     {
-      "id": "A1/6/C2->A1/6/C8",
+      "id": "A1/6/C2->A1/6/C3",
       "from": "A1/6/C2",
-      "to": "A1/6/C8",
+      "to": "A1/6/C3",
       "type": "corridor",
-      "distance_m": 4.037734513313128,
+      "distance_m": 5.700000000000003,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52478,11 +53071,21 @@
       "status": "open"
     },
     {
-      "id": "A1/6/C2->A1/6/C3",
+      "id": "A1/6/C2->A1/6/J1",
       "from": "A1/6/C2",
-      "to": "A1/6/C3",
+      "to": "A1/6/J1",
       "type": "corridor",
-      "distance_m": 5.700000000000003,
+      "distance_m": 2.8299999999999983,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/J1->A1/6/C8",
+      "from": "A1/6/J1",
+      "to": "A1/6/C8",
+      "type": "corridor",
+      "distance_m": 2.8800000000000026,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52508,71 +53111,141 @@
       "status": "open"
     },
     {
-      "id": "A1/6/R_GENERAL_STORE_ROOM->A1/6/C13",
+      "id": "A1/6/R_GENERAL_STORE_ROOM->A1/6/D_GENERAL_STORE_ROOM",
       "from": "A1/6/R_GENERAL_STORE_ROOM",
-      "to": "A1/6/C13",
+      "to": "A1/6/D_GENERAL_STORE_ROOM",
       "type": "door",
-      "distance_m": 5.9284061939108055,
+      "distance_m": 6.7628470336094395,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/6/R_A_53->A1/6/C14",
-      "from": "A1/6/R_A_53",
+      "id": "A1/6/D_GENERAL_STORE_ROOM->A1/6/C14",
+      "from": "A1/6/D_GENERAL_STORE_ROOM",
       "to": "A1/6/C14",
-      "type": "door",
-      "distance_m": 6.121609265544478,
+      "type": "corridor",
+      "distance_m": 2.150813799472192,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/6/R_A_58->A1/6/C9",
+      "id": "A1/6/R_A_53->A1/6/D_A_53",
+      "from": "A1/6/R_A_53",
+      "to": "A1/6/D_A_53",
+      "type": "door",
+      "distance_m": 6.118594609875704,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/D_A_53->A1/6/C15",
+      "from": "A1/6/D_A_53",
+      "to": "A1/6/C15",
+      "type": "corridor",
+      "distance_m": 1.520131573252789,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/R_A_58->A1/6/D_A_58",
       "from": "A1/6/R_A_58",
-      "to": "A1/6/C9",
+      "to": "A1/6/D_A_58",
       "type": "door",
-      "distance_m": 4.3560073461829685,
+      "distance_m": 5.774400401773332,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/6/R_A_57->A1/6/C2",
+      "id": "A1/6/D_A_58->A1/6/C8",
+      "from": "A1/6/D_A_58",
+      "to": "A1/6/C8",
+      "type": "corridor",
+      "distance_m": 1.5726728839780997,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/R_A_57->A1/6/D_A_57",
       "from": "A1/6/R_A_57",
+      "to": "A1/6/D_A_57",
+      "type": "door",
+      "distance_m": 5.5817291227719075,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/D_A_57->A1/6/C2",
+      "from": "A1/6/D_A_57",
       "to": "A1/6/C2",
-      "type": "door",
-      "distance_m": 4.904222670311778,
+      "type": "corridor",
+      "distance_m": 3.731286641361128,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/6/R_A_56->A1/6/C4",
+      "id": "A1/6/R_A_56->A1/6/D_A_56",
       "from": "A1/6/R_A_56",
-      "to": "A1/6/C4",
+      "to": "A1/6/D_A_56",
       "type": "door",
-      "distance_m": 5.568383966645977,
+      "distance_m": 5.416788716573681,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/6/R_A_55->A1/6/C5",
+      "id": "A1/6/D_A_56->A1/6/C3",
+      "from": "A1/6/D_A_56",
+      "to": "A1/6/C3",
+      "type": "corridor",
+      "distance_m": 1.732339458651218,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/R_A_55->A1/6/D_A_55",
       "from": "A1/6/R_A_55",
-      "to": "A1/6/C5",
+      "to": "A1/6/D_A_55",
       "type": "door",
-      "distance_m": 5.016622369682614,
+      "distance_m": 6.357082664241519,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/6/R_A_54->A1/6/C7",
+      "id": "A1/6/D_A_55->A1/6/C4",
+      "from": "A1/6/D_A_55",
+      "to": "A1/6/C4",
+      "type": "corridor",
+      "distance_m": 2.043526363911165,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/R_A_54->A1/6/D_A_54",
       "from": "A1/6/R_A_54",
-      "to": "A1/6/C7",
+      "to": "A1/6/D_A_54",
       "type": "door",
-      "distance_m": 5.264085865561085,
+      "distance_m": 5.353176627013163,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/6/D_A_54->A1/6/C7",
+      "from": "A1/6/D_A_54",
+      "to": "A1/6/C7",
+      "type": "corridor",
+      "distance_m": 2.9605573799539813,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52592,10 +53265,11 @@
       "from": "A1/6/LINK1",
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
-      "distance_m": 138,
-      "bidirectional": true,
+      "distance_m": 153,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },
@@ -52650,11 +53324,11 @@
       "status": "open"
     },
     {
-      "id": "A1/7/C5->A1/7/C13",
+      "id": "A1/7/C5->A1/7/C6",
       "from": "A1/7/C5",
-      "to": "A1/7/C13",
+      "to": "A1/7/C6",
       "type": "corridor",
-      "distance_m": 4.032679010285845,
+      "distance_m": 5.530000000000001,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52740,11 +53414,21 @@
       "status": "open"
     },
     {
-      "id": "A1/7/C5->A1/7/C6",
+      "id": "A1/7/C5->A1/7/J1",
       "from": "A1/7/C5",
-      "to": "A1/7/C6",
+      "to": "A1/7/J1",
       "type": "corridor",
-      "distance_m": 5.530000000000001,
+      "distance_m": 2.3599999999999994,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/J1->A1/7/C13",
+      "from": "A1/7/J1",
+      "to": "A1/7/C13",
+      "type": "corridor",
+      "distance_m": 3.270000000000003,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52770,71 +53454,141 @@
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_61->A1/7/C2",
+      "id": "A1/7/R_A_61->A1/7/D_A_61",
       "from": "A1/7/R_A_61",
-      "to": "A1/7/C2",
+      "to": "A1/7/D_A_61",
       "type": "door",
-      "distance_m": 4.8197614048830255,
+      "distance_m": 6.076257071586093,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_62->A1/7/C4",
+      "id": "A1/7/D_A_61->A1/7/C3",
+      "from": "A1/7/D_A_61",
+      "to": "A1/7/C3",
+      "type": "corridor",
+      "distance_m": 1.4135416513141734,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/R_A_62->A1/7/D_A_62",
       "from": "A1/7/R_A_62",
-      "to": "A1/7/C4",
+      "to": "A1/7/D_A_62",
       "type": "door",
-      "distance_m": 5.503253583108814,
+      "distance_m": 5.182817766427834,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_67->A1/7/C14",
+      "id": "A1/7/D_A_62->A1/7/C3",
+      "from": "A1/7/D_A_62",
+      "to": "A1/7/C3",
+      "type": "corridor",
+      "distance_m": 1.4135416513141734,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/R_A_67->A1/7/D_A_67",
       "from": "A1/7/R_A_67",
-      "to": "A1/7/C14",
+      "to": "A1/7/D_A_67",
       "type": "door",
-      "distance_m": 4.959697571425098,
+      "distance_m": 5.23206460204765,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_63->A1/7/C10",
+      "id": "A1/7/D_A_67->A1/7/C13",
+      "from": "A1/7/D_A_67",
+      "to": "A1/7/C13",
+      "type": "corridor",
+      "distance_m": 1.889047378971741,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/R_A_63->A1/7/D_A_63",
       "from": "A1/7/R_A_63",
-      "to": "A1/7/C10",
+      "to": "A1/7/D_A_63",
       "type": "door",
-      "distance_m": 4.440101350194608,
+      "distance_m": 5.983861629416243,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_65->A1/7/C7",
+      "id": "A1/7/D_A_63->A1/7/C9",
+      "from": "A1/7/D_A_63",
+      "to": "A1/7/C9",
+      "type": "corridor",
+      "distance_m": 1.2306502346320796,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/R_A_65->A1/7/D_A_65",
       "from": "A1/7/R_A_65",
+      "to": "A1/7/D_A_65",
+      "type": "door",
+      "distance_m": 5.183560552361669,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/D_A_65->A1/7/C7",
+      "from": "A1/7/D_A_65",
       "to": "A1/7/C7",
-      "type": "door",
-      "distance_m": 5.178967078481962,
+      "type": "corridor",
+      "distance_m": 1.99444227793135,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_66->A1/7/C5",
+      "id": "A1/7/R_A_66->A1/7/D_A_66",
       "from": "A1/7/R_A_66",
-      "to": "A1/7/C5",
+      "to": "A1/7/D_A_66",
       "type": "door",
-      "distance_m": 4.730295973826585,
+      "distance_m": 5.206342286096835,
       "bidirectional": true,
       "flags": [],
       "status": "open"
     },
     {
-      "id": "A1/7/R_A_64->A1/7/C8",
+      "id": "A1/7/D_A_66->A1/7/C5",
+      "from": "A1/7/D_A_66",
+      "to": "A1/7/C5",
+      "type": "corridor",
+      "distance_m": 3.150063491423623,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/R_A_64->A1/7/D_A_64",
       "from": "A1/7/R_A_64",
-      "to": "A1/7/C8",
+      "to": "A1/7/D_A_64",
       "type": "door",
-      "distance_m": 4.701829431189521,
+      "distance_m": 5.394487927505261,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/7/D_A_64->A1/7/C9",
+      "from": "A1/7/D_A_64",
+      "to": "A1/7/C9",
+      "type": "corridor",
+      "distance_m": 1.2306502346320796,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -52854,10 +53608,11 @@
       "from": "A1/7/LINK1",
       "to": "A1/1/AP_Outside",
       "type": "outdoor",
-      "distance_m": 145,
-      "bidirectional": true,
+      "distance_m": 160,
+      "bidirectional": false,
       "flags": [
-        "estimated"
+        "estimated",
+        "flood_prone"
       ],
       "status": "open"
     },

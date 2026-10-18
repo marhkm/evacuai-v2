@@ -375,6 +375,12 @@
    "y": 17.41
   },
   {
+   "id": "V1",
+   "type": "hallway",
+   "x": 15.3,
+   "y": 23.8
+  },
+  {
    "id": "S1",
    "type": "stairwell",
    "x": 7.17,
@@ -438,7 +444,8 @@
    "name": "Off-campus assembly area",
    "safe_for": [
     "earthquake",
-    "fire"
+    "fire",
+    "flood"
    ]
   }
  ],
@@ -494,6 +501,21 @@
    "type": "corridor"
   },
   {
+   "from": "V1",
+   "to": "C1",
+   "type": "corridor"
+  },
+  {
+   "from": "V1",
+   "to": "C11",
+   "type": "corridor"
+  },
+  {
+   "from": "V1",
+   "to": "C12",
+   "type": "corridor"
+  },
+  {
    "from": "C1",
    "to": "S1",
    "type": "corridor"
@@ -537,27 +559,33 @@
    "from": "EXIT1",
    "to": "AP_Outside",
    "type": "outdoor",
+   "bidirectional": false,
    "distance_m": 80,
    "flags": [
-    "estimated"
+    "estimated",
+    "flood_prone"
    ]
   },
   {
    "from": "EXIT2",
    "to": "AP_Outside",
    "type": "outdoor",
+   "bidirectional": false,
    "distance_m": 80,
    "flags": [
-    "estimated"
+    "estimated",
+    "flood_prone"
    ]
   },
   {
    "from": "EXIT3",
    "to": "AP_Outside",
    "type": "outdoor",
+   "bidirectional": false,
    "distance_m": 80,
    "flags": [
-    "estimated"
+    "estimated",
+    "flood_prone"
    ]
   }
  ],

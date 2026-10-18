@@ -22,6 +22,7 @@ export interface Campus3D {
   /** Unexploded node positions and each node's floor key, for explode(). */
   basePos: Map<string, THREE.Vector3>;
   nodeFloor: Map<string, string>;
+  exits: Set<string>;
 }
 
 export interface LiveState {
@@ -105,6 +106,7 @@ export function buildScene(snap: CampusSnapshot): Campus3D {
   const nodePos = new Map<string, THREE.Vector3>();
   const basePos = new Map<string, THREE.Vector3>();
   const nodeFloor = new Map<string, string>();
+  const exits = new Set(snap.nodes.filter(n => n.type === 'exit').map(n => n.id));
   const elevation = (n: CampusNode) => snap.buildings.find(b => b.id === n.building)?.floors.find(f => f.level === n.level)?.elevation_m ?? 0;
   for (const n of snap.nodes) {
     const p = new THREE.Vector3(n.x + (offsets.get(n.building) ?? 0), elevation(n) + 0.4, n.y);
@@ -117,7 +119,7 @@ export function buildScene(snap: CampusSnapshot): Campus3D {
   for (const g of Object.values(overlay)) g.renderOrder = 10; // after the translucent rooms
   scene.add(overlay.edges, overlay.route, overlay.pins);
 
-  const campus: Campus3D = { scene, floors, rooms, nodePos, overlay, bounds: new THREE.Box3().setFromObject(scene), offsets, basePos, nodeFloor };
+  const campus: Campus3D = { scene, floors, rooms, nodePos, overlay, bounds: new THREE.Box3().setFromObject(scene), offsets, basePos, nodeFloor, exits };
   applyStatus(campus, snap, {});
   return campus;
 }
@@ -127,7 +129,7 @@ function clear(group: THREE.Group) {
     group.remove(child);
     child.traverse(o => {
       const geo = (o as THREE.Mesh).geometry;
-      if (geo && geo !== pinGeometry) geo.dispose(); // pins share one geometry
+      if (geo && geo !== pinGeometry && geo !== arrowGeometry) geo.dispose(); // pins and arrows share one geometry each
     });
   }
 }
@@ -179,7 +181,9 @@ export function applyStatus(c: Campus3D, snap: CampusSnapshot, live: LiveState):
  */
 export function showRoute(c: Campus3D, route: Route | null): void {
   clear(c.overlay.route);
-  const ids = route?.nodeIds.filter(id => c.nodePos.has(id)) ?? [];
+  const known = route?.nodeIds.filter(id => c.nodePos.has(id)) ?? [];
+  const exit = known.findIndex(id => c.exits.has(id));
+  const ids = exit < 0 ? known : known.slice(0, exit + 1); // the assembly area is off the model
   const points = ids.map(id => c.nodePos.get(id)!);
   if (points.length < 2) return;
   const path = new THREE.CurvePath<THREE.Vector3>();

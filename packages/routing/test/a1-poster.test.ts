@@ -42,3 +42,35 @@ describe.each(a1.floors.map(f => [f.name, f.level] as const))('Annex 1 %s', (_na
   });
 });
 
+
+test('Annex 1: the assembly area is only ever an end point, never a shortcut between floors', () => {
+  // With the only stair chain blocked at the bottom, a flood route must not go outside and back in.
+  const blocked = { ...snap, edges: snap.edges.map(e => (e.id === 'A1/2/S1->A1/1/S1' ? { ...e, status: 'blocked' as const } : e)) };
+  for (const s of [snap, blocked]) {
+    for (const n of s.nodes.filter(x => x.building === 'A1' && x.type === 'room')) {
+      for (const hazard of ['earthquake', 'fire', 'flood'] as const) {
+        const r = findRoute(s, n.id, hazard);
+        if (!r.ok) continue;
+        const middle = r.route.nodeIds.slice(0, -1).map(id => s.nodes.find(x => x.id === id)!);
+        expect(middle.some(x => x.type === 'assembly_point'), `${n.id} ${hazard}`).toBe(false);
+      }
+    }
+  }
+});
+
+test('Annex 1: corridor hops never pass through a wall', () => {
+  const crosses = (p1: number[], p2: number[], q1: number[], q2: number[]) => {
+    const o = (a: number[], b: number[], c: number[]) => Math.sign((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]));
+    return o(p1, p2, q1) * o(p1, p2, q2) < 0 && o(q1, q2, p1) * o(q1, q2, p2) < 0;
+  };
+  for (const f of a1.floors) {
+    const walls = f.plan!.walls.filter(w => Math.hypot(w[1][0] - w[0][0], w[1][1] - w[0][1]) >= 1);
+    for (const e of snap.edges) {
+      const a = snap.nodes.find(n => n.id === e.from)!;
+      const b = snap.nodes.find(n => n.id === e.to)!;
+      if (e.type !== 'corridor' || a.building !== 'A1' || a.level !== f.level || b.level !== f.level) continue;
+      const hit = walls.find(w => crosses([a.x, a.y], [b.x, b.y], w[0], w[1]));
+      expect(hit, `${e.id} crosses a wall`).toBeUndefined();
+    }
+  }
+});

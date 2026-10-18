@@ -66,6 +66,14 @@ export function routeOverlay(snap: CampusSnapshot, route: Route): RouteOverlay {
   return out;
 }
 
+/** An exit that leads to another floor (a cross-over such as "To Old Building"): "Cross to the Old Building". */
+function crossing(snap: CampusSnapshot, route: Route, id: string): string | null {
+  const n = snap.nodes.find(x => x.id === id);
+  const next = snap.nodes.find(x => x.id === route.nodeIds[route.nodeIds.indexOf(id) + 1]);
+  if (n?.type !== 'exit' || !next || next.level === n.level) return null;
+  return `Cross ${displayName(snap, id).replace(/^to\s+/i, 'to the ')}`;
+}
+
 export function routeSteps(snap: CampusSnapshot, route: Route): string[] {
   const origin = route.nodeIds[0];
   const name = displayName(snap, origin);
@@ -75,7 +83,9 @@ export function routeSteps(snap: CampusSnapshot, route: Route): string[] {
   for (const t of routeOverlay(snap, route).transitions) {
     const nextId = route.nodeIds[route.nodeIds.indexOf(t.atNodeId) + 1];
     const next = snap.nodes.find(n => n.id === nextId)!;
-    steps.push(`Take ${displayName(snap, t.atNodeId)} ${t.direction} to ${floorName(snap, next.building, t.toLevel)}`);
+    const cross = crossing(snap, route, t.atNodeId);
+    const floor = floorName(snap, next.building, t.toLevel);
+    steps.push(cross ? `${cross}, then go ${t.direction} to ${floor}` : `Take ${displayName(snap, t.atNodeId)} ${t.direction} to ${floor}`);
   }
   steps.push(`Go to ${displayName(snap, route.destinationId)}`);
   return steps;
@@ -170,5 +180,6 @@ export function exitBadge(snap: CampusSnapshot, route: Route, buildingId: string
     const n = snap.nodes.find(x => x.id === id);
     return n?.type === 'exit' && n.building === buildingId && n.level === level;
   });
-  return exit ? `Exit to ${displayName(snap, route.destinationId)}` : null;
+  if (!exit) return null;
+  return crossing(snap, route, exit) ?? `Exit to ${displayName(snap, route.destinationId)}`;
 }

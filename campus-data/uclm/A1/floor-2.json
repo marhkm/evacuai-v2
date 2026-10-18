@@ -411,6 +411,18 @@
    "y": 29.91
   },
   {
+   "id": "J1",
+   "type": "hallway",
+   "x": 39.66,
+   "y": 10.19
+  },
+  {
+   "id": "J2",
+   "type": "hallway",
+   "x": 39.66,
+   "y": 26.36
+  },
+  {
    "id": "S1",
    "type": "stairwell",
    "x": 7.17,
@@ -453,11 +465,25 @@
    "room_id": "MA_4"
   },
   {
+   "id": "D_MA_4",
+   "type": "hallway",
+   "x": 26.07,
+   "y": 27.71,
+   "name": "MA-4 door"
+  },
+  {
    "id": "R_MA_3",
    "type": "room",
    "x": 36.5,
    "y": 30.95,
    "room_id": "MA_3"
+  },
+  {
+   "id": "D_MA_3",
+   "type": "hallway",
+   "x": 33.25,
+   "y": 27.71,
+   "name": "MA-3 door"
   },
   {
    "id": "R_MA_5",
@@ -467,6 +493,13 @@
    "room_id": "MA_5"
   },
   {
+   "id": "D_MA_5",
+   "type": "hallway",
+   "x": 26.07,
+   "y": 27.71,
+   "name": "MA-5 door"
+  },
+  {
    "id": "R_MA_6",
    "type": "room",
    "x": 14.62,
@@ -474,11 +507,32 @@
    "room_id": "MA_6"
   },
   {
+   "id": "D_MA_6",
+   "type": "hallway",
+   "x": 18.81,
+   "y": 27.71,
+   "name": "MA-6 door"
+  },
+  {
    "id": "R_SAO_CONFERENCE_ROOM",
    "type": "room",
    "x": 43.75,
    "y": 31.14,
    "room_id": "SAO_CONFERENCE_ROOM"
+  },
+  {
+   "id": "D_SAO_CONFERENCE_ROOM",
+   "type": "hallway",
+   "x": 40.43,
+   "y": 27.71,
+   "name": "SAO CONFERENCE ROOM door"
+  },
+  {
+   "id": "LINK1",
+   "type": "exit",
+   "x": 46.3,
+   "y": 8.6,
+   "name": "To Outside Stairs"
   }
  ],
  "edges": [
@@ -509,7 +563,7 @@
   },
   {
    "from": "C6",
-   "to": "C8",
+   "to": "C7",
    "type": "corridor"
   },
   {
@@ -525,16 +579,6 @@
   {
    "from": "C9",
    "to": "C10",
-   "type": "corridor"
-  },
-  {
-   "from": "C10",
-   "to": "C11",
-   "type": "corridor"
-  },
-  {
-   "from": "C11",
-   "to": "C12",
    "type": "corridor"
   },
   {
@@ -573,8 +617,23 @@
    "type": "corridor"
   },
   {
+   "from": "C10",
+   "to": "J1",
+   "type": "corridor"
+  },
+  {
+   "from": "J1",
+   "to": "C11",
+   "type": "corridor"
+  },
+  {
    "from": "C6",
-   "to": "C7",
+   "to": "J2",
+   "type": "corridor"
+  },
+  {
+   "from": "J2",
+   "to": "C8",
    "type": "corridor"
   },
   {
@@ -604,28 +663,74 @@
   },
   {
    "from": "R_MA_4",
-   "to": "C4",
+   "to": "D_MA_4",
    "type": "door"
+  },
+  {
+   "from": "D_MA_4",
+   "to": "C5",
+   "type": "corridor"
   },
   {
    "from": "R_MA_3",
-   "to": "C7",
+   "to": "D_MA_3",
    "type": "door"
+  },
+  {
+   "from": "D_MA_3",
+   "to": "C4",
+   "type": "corridor"
   },
   {
    "from": "R_MA_5",
-   "to": "C1",
+   "to": "D_MA_5",
    "type": "door"
+  },
+  {
+   "from": "D_MA_5",
+   "to": "C5",
+   "type": "corridor"
   },
   {
    "from": "R_MA_6",
-   "to": "C2",
+   "to": "D_MA_6",
    "type": "door"
   },
   {
+   "from": "D_MA_6",
+   "to": "C1",
+   "type": "corridor"
+  },
+  {
    "from": "R_SAO_CONFERENCE_ROOM",
-   "to": "C6",
+   "to": "D_SAO_CONFERENCE_ROOM",
    "type": "door"
+  },
+  {
+   "from": "D_SAO_CONFERENCE_ROOM",
+   "to": "C6",
+   "type": "corridor"
+  },
+  {
+   "from": "C11",
+   "to": "LINK1",
+   "type": "door"
+  },
+  {
+   "from": "C11",
+   "to": "C12",
+   "type": "door"
+  },
+  {
+   "from": "LINK1",
+   "to": "A1/1/AP_Outside",
+   "type": "outdoor",
+   "bidirectional": false,
+   "distance_m": 132,
+   "flags": [
+    "estimated",
+    "flood_prone"
+   ]
   },
   {
    "from": "S1",

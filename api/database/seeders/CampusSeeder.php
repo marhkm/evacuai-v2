@@ -85,9 +85,16 @@ class CampusSeeder extends Seeder
                 ], $chunk), ['id'], ['from_node_id', 'to_node_id', 'type', 'distance_m', 'bidirectional', 'flags', 'updated_at']);
             }
 
-            // Default registrar code = room name without spaces ("BE 203" -> "BE203"); admin edits are kept.
-            DB::table('rooms')->whereNull('code')->where('type', 'room')
-                ->update(['code' => DB::raw("UPPER(REPLACE(name, ' ', ''))")]);
+            // Default registrar code = room name without spaces or hyphens ("BE 203" -> "BE203", "A-61" -> "A61"); admin edits are kept.
+            // A name shared by two rooms ("Consultation Room" on two floors) gets no default: an admin sets those by hand.
+            $codes = DB::table('rooms')->whereNull('code')->whereIn('type', ['room', 'classroom', 'lab', 'office'])->pluck('name', 'id')
+                ->map(fn ($name) => strtoupper(str_replace([' ', '-'], '', $name)));
+            $uses = array_count_values([...$codes->values(), ...DB::table('rooms')->whereNotNull('code')->pluck('code')]);
+            foreach ($codes as $id => $code) {
+                if ($uses[$code] === 1) {
+                    DB::table('rooms')->where('id', $id)->update(['code' => $code]);
+                }
+            }
 
             DB::table('assembly_points')->upsert(array_map(fn ($a) => [
                 'id' => $a['id'],

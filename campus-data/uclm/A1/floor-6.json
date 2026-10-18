@@ -383,6 +383,12 @@
    "y": 30.68
   },
   {
+   "id": "J1",
+   "type": "hallway",
+   "x": 40.67,
+   "y": 27.17
+  },
+  {
    "id": "S1",
    "type": "stairwell",
    "x": 7.57,
@@ -407,11 +413,25 @@
    "room_id": "GENERAL_STORE_ROOM"
   },
   {
+   "id": "D_GENERAL_STORE_ROOM",
+   "type": "hallway",
+   "x": 12.2,
+   "y": 15.12,
+   "name": "GENERAL STORE ROOM door"
+  },
+  {
    "id": "R_A_53",
    "type": "room",
    "x": 9.01,
    "y": 19.66,
    "room_id": "A_53"
+  },
+  {
+   "id": "D_A_53",
+   "type": "hallway",
+   "x": 14.07,
+   "y": 23.1,
+   "name": "A-53 door"
   },
   {
    "id": "R_A_58",
@@ -421,11 +441,25 @@
    "room_id": "A_58"
   },
   {
+   "id": "D_A_58",
+   "type": "hallway",
+   "x": 41.9,
+   "y": 25.27,
+   "name": "A-58 door"
+  },
+  {
    "id": "R_A_57",
    "type": "room",
    "x": 44.35,
    "y": 32.0,
    "room_id": "A_57"
+  },
+  {
+   "id": "D_A_57",
+   "type": "hallway",
+   "x": 40.01,
+   "y": 28.49,
+   "name": "A-57 door"
   },
   {
    "id": "R_A_56",
@@ -435,6 +469,13 @@
    "room_id": "A_56"
   },
   {
+   "id": "D_A_56",
+   "type": "hallway",
+   "x": 38.91,
+   "y": 28.5,
+   "name": "A-56 door"
+  },
+  {
    "id": "R_A_55",
    "type": "room",
    "x": 25.29,
@@ -442,11 +483,25 @@
    "room_id": "A_55"
   },
   {
+   "id": "D_A_55",
+   "type": "hallway",
+   "x": 30.55,
+   "y": 28.49,
+   "name": "A-55 door"
+  },
+  {
    "id": "R_A_54",
    "type": "room",
    "x": 16.12,
    "y": 32.32,
    "room_id": "A_54"
+  },
+  {
+   "id": "D_A_54",
+   "type": "hallway",
+   "x": 12.38,
+   "y": 28.49,
+   "name": "A-54 door"
   },
   {
    "id": "LINK1",
@@ -464,7 +519,7 @@
   },
   {
    "from": "C2",
-   "to": "C8",
+   "to": "C3",
    "type": "corridor"
   },
   {
@@ -529,7 +584,12 @@
   },
   {
    "from": "C2",
-   "to": "C3",
+   "to": "J1",
+   "type": "corridor"
+  },
+  {
+   "from": "J1",
+   "to": "C8",
    "type": "corridor"
   },
   {
@@ -544,38 +604,73 @@
   },
   {
    "from": "R_GENERAL_STORE_ROOM",
-   "to": "C13",
+   "to": "D_GENERAL_STORE_ROOM",
    "type": "door"
+  },
+  {
+   "from": "D_GENERAL_STORE_ROOM",
+   "to": "C14",
+   "type": "corridor"
   },
   {
    "from": "R_A_53",
-   "to": "C14",
+   "to": "D_A_53",
    "type": "door"
+  },
+  {
+   "from": "D_A_53",
+   "to": "C15",
+   "type": "corridor"
   },
   {
    "from": "R_A_58",
-   "to": "C9",
+   "to": "D_A_58",
    "type": "door"
+  },
+  {
+   "from": "D_A_58",
+   "to": "C8",
+   "type": "corridor"
   },
   {
    "from": "R_A_57",
-   "to": "C2",
+   "to": "D_A_57",
    "type": "door"
+  },
+  {
+   "from": "D_A_57",
+   "to": "C2",
+   "type": "corridor"
   },
   {
    "from": "R_A_56",
-   "to": "C4",
+   "to": "D_A_56",
    "type": "door"
+  },
+  {
+   "from": "D_A_56",
+   "to": "C3",
+   "type": "corridor"
   },
   {
    "from": "R_A_55",
-   "to": "C5",
+   "to": "D_A_55",
    "type": "door"
   },
   {
+   "from": "D_A_55",
+   "to": "C4",
+   "type": "corridor"
+  },
+  {
    "from": "R_A_54",
-   "to": "C7",
+   "to": "D_A_54",
    "type": "door"
+  },
+  {
+   "from": "D_A_54",
+   "to": "C7",
+   "type": "corridor"
   },
   {
    "from": "C10",
@@ -586,9 +681,11 @@
    "from": "LINK1",
    "to": "A1/1/AP_Outside",
    "type": "outdoor",
-   "distance_m": 138,
+   "bidirectional": false,
+   "distance_m": 153,
    "flags": [
-    "estimated"
+    "estimated",
+    "flood_prone"
    ]
   },
   {

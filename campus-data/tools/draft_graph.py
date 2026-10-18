@@ -24,11 +24,22 @@ def crosses(p1, p2, q1, q2) -> bool:
     return orient(p1, p2, q1) * orient(p1, p2, q2) < 0 and orient(q1, q2, p1) * orient(q1, q2, p2) < 0
 
 
+def edge_distance(p, poly) -> float:
+    """Distance from point p to the outline of polygon poly."""
+    best = float('inf')
+    for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+        dx, dy = x2 - x1, y2 - y1
+        t = max(0.0, min(1.0, ((p[0] - x1) * dx + (p[1] - y1) * dy) / (dx * dx + dy * dy or 1e-9)))
+        best = min(best, math.hypot(p[0] - (x1 + t * dx), p[1] - (y1 + t * dy)))
+    return best
+
+
 def centroid(poly):
     return sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly)
 
 
-def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembly: dict | None, extra_links: list | None = None):
+def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembly: dict | None, extra_links: list | None = None,
+                via: list | None = None):
     plan = dict(floor['plan'], labels=floor['plan']['labels'] + (extra_links or []))
     nodes, edges = [], []
     corridor = []
@@ -37,7 +48,11 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
         nodes.append({'id': nid, 'type': 'hallway', 'x': a['x'], 'y': a['y']})
         corridor.append((nid, a))
 
-    # Chain each arrow to the nearest arrow ahead of it (within 70° of its direction, 12 m).
+    # Wall pieces under 1 m are thresholds and symbols, not barriers.
+    walls = [(w[0], w[-1]) for w in plan['walls'] if math.dist(w[0], w[-1]) >= 1.0]
+    clear = lambda p, q: not any(crosses(p, q, w0, w1) for w0, w1 in walls)
+
+    # Chain each arrow to the nearest arrow ahead of it (within 70° of its direction, 12 m, no wall in between).
     for nid, a in corridor:
         best, best_d = None, 12.0
         for oid, o in corridor:
@@ -46,14 +61,12 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
             dx, dy = o['x'] - a['x'], o['y'] - a['y']
             d = math.hypot(dx, dy)
             off = abs((math.degrees(math.atan2(dy, dx)) - a['deg'] + 180) % 360 - 180)
-            if d < best_d and off <= 70:
+            if d < best_d and off <= 70 and clear((a['x'], a['y']), (o['x'], o['y'])):
                 best, best_d = oid, d
         if best and not any({e['from'], e['to']} == {nid, best} for e in edges):
             edges.append({'from': nid, 'to': best, 'type': 'corridor'})
 
     # Join the arrow chains into one corridor network: shortest links that do not cross a wall (spanning tree).
-    # Wall pieces under 1 m are thresholds and symbols, not barriers.
-    walls = [(w[0], w[-1]) for w in plan['walls'] if math.dist(w[0], w[-1]) >= 1.0]
     parent = {nid: nid for nid, _ in corridor}
 
     def find(n):
@@ -69,13 +82,12 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
     for d, na, nb, a, b in pairs:
         if d > 25 or find(na) == find(nb):
             continue
-        if any(crosses((a['x'], a['y']), (b['x'], b['y']), w0, w1) for w0, w1 in walls):
+        if not clear((a['x'], a['y']), (b['x'], b['y'])):
             continue
         parent[find(na)] = find(nb)
         edges.append({'from': na, 'to': nb, 'type': 'corridor'})
 
     # Pieces that still cannot see each other (an opening between two walls): join with one bend at a junction node.
-    clear = lambda p, q: not any(crosses(p, q, w0, w1) for w0, w1 in walls)
     junctions = 0
     for d, na, nb, a, b in pairs:
         if d > 25 or find(na) == find(nb):
@@ -89,6 +101,15 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
                 edges += [{'from': na, 'to': jid, 'type': 'corridor'}, {'from': jid, 'to': nb, 'type': 'corridor'}]
                 parent[find(na)] = find(nb)
                 break
+
+    # Hand-placed passage points (import.json "via") for openings too irregular for the automatic links:
+    # each joins every corridor point it can see within 12 m.
+    for k, (vx, vy) in enumerate(via or [], 1):
+        vid = f'V{k}'
+        nodes.append({'id': vid, 'type': 'hallway', 'x': vx, 'y': vy})
+        for cid, c in corridor:
+            if math.hypot(c['x'] - vx, c['y'] - vy) <= 12 and clear((vx, vy), (c['x'], c['y'])):
+                edges.append({'from': vid, 'to': cid, 'type': 'corridor'})
 
     stairs = []
     for i, poly in enumerate(plan['stairs'], 1):
@@ -108,8 +129,19 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
         x, y = (lab['x'], lab['y']) if lab else centroid(room['polygon'])
         rid = f"R_{room['id']}"
         nodes.append({'id': rid, 'type': 'room', 'x': round(x, 2), 'y': round(y, 2), 'room_id': room['id']})
-        near = min(corridor + [(s['id'], s) for s in stairs], key=lambda c: math.hypot(c[1]['x'] - x, c[1]['y'] - y), default=None)
-        if near:
+        targets = corridor + [(s['id'], s) for s in stairs]
+        doors = [d for d in plan['doors'] if edge_distance(d['hinge'], room['polygon']) <= 1.0]
+        if doors and targets:
+            # The door whose doorway sees a corridor point best (nearest clear corridor point).
+            def reach(d):
+                seen = [t for t in targets if clear(tuple(d['hinge']), (t[1]['x'], t[1]['y']))]
+                return min(seen or targets, key=lambda t: math.hypot(t[1]['x'] - d['hinge'][0], t[1]['y'] - d['hinge'][1]))
+            door = min(doors, key=lambda d: math.dist(d['hinge'], (reach(d)[1]['x'], reach(d)[1]['y'])))
+            did = f"D_{room['id']}"
+            nodes.append({'id': did, 'type': 'hallway', 'x': door['hinge'][0], 'y': door['hinge'][1], 'name': f"{room['name']} door"})
+            edges += [{'from': rid, 'to': did, 'type': 'door'}, {'from': did, 'to': reach(door)[0], 'type': 'corridor'}]
+        elif targets:
+            near = min(targets, key=lambda c: math.hypot(c[1]['x'] - x, c[1]['y'] - y))
             edges.append({'from': rid, 'to': near[0], 'type': 'door'})
 
     # Links drawn on the poster ("TO OLD BUILDING", "TO ANNEX 2"): the escape continues through the next building.
@@ -149,12 +181,13 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
             near = min(corridor, key=lambda c: math.hypot(c[1]['x'] - g['x'], c[1]['y'] - g['y']))
             edges.append({'from': near[0], 'to': f'EXIT{n}', 'type': 'door'})
         ap = {'id': assembly['id'], 'type': 'assembly_point', 'x': assembly['x'], 'y': assembly['y'],
-              'name': assembly['name'], 'safe_for': ['earthquake', 'fire']}
+              'name': assembly['name'], 'safe_for': ['earthquake', 'fire', 'flood']}  # off campus: safe ground
         nodes.append(ap)
         for node in nodes:
             if node['type'] == 'exit':
-                edges.append({'from': node['id'], 'to': ap['id'], 'type': 'outdoor',
-                              'distance_m': assembly['distance_m'], 'flags': ['estimated']})
+                # In a flood the way out is underwater: flood routes go up the stairs instead (flood_prone blocks them).
+                edges.append({'from': node['id'], 'to': ap['id'], 'type': 'outdoor', 'bidirectional': False,
+                              'distance_m': assembly['distance_m'], 'flags': ['estimated', 'flood_prone']})
     return nodes, edges, links
 
 
@@ -172,13 +205,16 @@ def main(argv):
         if f['nodes'] and not force:
             continue
         f['nodes'], f['edges'], links = draft_floor(f, lv, lv == levels[0], lv >= flood_from, cfg.get('assembly'),
-                                                    cfg.get('links', {}).get(str(lv)))
+                                                    cfg.get('links', {}).get(str(lv)), cfg.get('via', {}).get(str(lv)))
         drafted[lv] = True
+        # Hand-confirmed doorways the wall check cannot see (double-line walls): import.json "connect" [[from, to], ...].
+        for a, b in cfg.get('connect', {}).get(str(lv), []):
+            f['edges'].append({'from': a, 'to': b, 'type': 'door'})
         ap = cfg.get('assembly')
         for lid in links:  # through the neighbouring building and down to the assembly area (estimate)
-            dist = ap["distance_m"] + 7 * levels.index(lv) + 30  # cross-over walk + its stairs, estimated
+            dist = ap["distance_m"] + 7 * levels.index(lv) + 45  # cross-over walk, its corridors and stairs, estimated
             target = ap['id'] if lv == levels[0] else f"{building}/{levels[0]}/{ap['id']}"
-            f['edges'].append({'from': lid, 'to': target, 'type': 'outdoor', 'distance_m': dist, 'flags': ['estimated']})
+            f['edges'].append({'from': lid, 'to': target, 'type': 'outdoor', 'bidirectional': False, 'distance_m': dist, 'flags': ['estimated', 'flood_prone']})
     # Stairs: each floor links its stairwells down to the nearest stairwell on the floor below (within 3 m).
     for below, lv in zip(levels, levels[1:]):
         if lv not in drafted:

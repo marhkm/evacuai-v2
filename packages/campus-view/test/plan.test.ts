@@ -1,6 +1,6 @@
 import { findRoute, type CampusSnapshot, type Route } from '@evacuai/routing';
 import { loadCampus } from '@evacuai/routing/src/load';
-import { exitBadge, floorRoutePoints, routeChevrons, toPlanShapes } from '../src/index';
+import { exitBadge, floorRoutePoints, routeChevrons, routeSteps, toPlanShapes } from '../src/index';
 
 const uclm = loadCampus('campus-data/uclm');
 const routeOf = (s: CampusSnapshot, origin: string): Route => {
@@ -51,4 +51,14 @@ test('exitBadge names the destination when the route leaves this floor plan', ()
   expect(exitBadge(uclm, route, 'A1', 1)).toBe('Exit to Off-campus assembly area');
   const upstairs = routeOf(uclm, 'A1/4/R_A_31');
   expect(exitBadge(uclm, upstairs, 'A1', 4)).toBeNull(); // continues down the stairs, still inside
+});
+
+test('crossing to the Old Building is described as a crossing, not an exit or a staircase', () => {
+  const route = routeOf(uclm, 'A1/7/R_A_67');
+  const link = uclm.nodes.find(n => route.nodeIds.includes(n.id) && n.type === 'exit' && n.level === 7);
+  if (!link) return; // this room's route uses the stairs
+  expect(exitBadge(uclm, route, 'A1', 7)).toBe('Cross to the Old Building');
+  const steps = routeSteps(uclm, route);
+  expect(steps.join(' | ')).toContain('Cross to the Old Building, then go down to Ground');
+  expect(steps.join(' | ')).not.toMatch(/Take To Old Building/);
 });

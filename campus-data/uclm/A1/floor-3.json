@@ -456,6 +456,13 @@
    "room_id": "STORAGE_ROOM"
   },
   {
+   "id": "D_STORAGE_ROOM",
+   "type": "hallway",
+   "x": 10.08,
+   "y": 5.21,
+   "name": "STORAGE ROOM door"
+  },
+  {
    "id": "R_CRIME_LAB",
    "type": "room",
    "x": 7.14,
@@ -470,11 +477,25 @@
    "room_id": "CONSULTATION_ROOM"
   },
   {
+   "id": "D_CONSULTATION_ROOM",
+   "type": "hallway",
+   "x": 42.41,
+   "y": 15.36,
+   "name": "CONSULTATION ROOM door"
+  },
+  {
    "id": "R_FACULTY_ROOM",
    "type": "room",
    "x": 45.77,
    "y": 19.41,
    "room_id": "FACULTY_ROOM"
+  },
+  {
+   "id": "D_FACULTY_ROOM",
+   "type": "hallway",
+   "x": 45.75,
+   "y": 23.61,
+   "name": "FACULTY ROOM door"
   },
   {
    "id": "R_A_23",
@@ -491,6 +512,13 @@
    "room_id": "MOOT_COURT"
   },
   {
+   "id": "D_MOOT_COURT",
+   "type": "hallway",
+   "x": 45.75,
+   "y": 23.61,
+   "name": "MOOT COURT door"
+  },
+  {
    "id": "R_AUDIO_VISUAL_ROOM_AVR",
    "type": "room",
    "x": 35.03,
@@ -498,11 +526,25 @@
    "room_id": "AUDIO_VISUAL_ROOM_AVR"
   },
   {
+   "id": "D_AUDIO_VISUAL_ROOM_AVR",
+   "type": "hallway",
+   "x": 21.26,
+   "y": 26.78,
+   "name": "AUDIO VISUAL ROOM (AVR) door"
+  },
+  {
    "id": "R_A_24",
    "type": "room",
    "x": 16.31,
    "y": 32.11,
    "room_id": "A_24"
+  },
+  {
+   "id": "D_A_24",
+   "type": "hallway",
+   "x": 13.25,
+   "y": 28.74,
+   "name": "A-24 door"
   },
   {
    "id": "LINK1",
@@ -605,8 +647,13 @@
   },
   {
    "from": "R_STORAGE_ROOM",
-   "to": "C4",
+   "to": "D_STORAGE_ROOM",
    "type": "door"
+  },
+  {
+   "from": "D_STORAGE_ROOM",
+   "to": "C4",
+   "type": "corridor"
   },
   {
    "from": "R_CRIME_LAB",
@@ -615,13 +662,23 @@
   },
   {
    "from": "R_CONSULTATION_ROOM",
-   "to": "C3",
+   "to": "D_CONSULTATION_ROOM",
    "type": "door"
   },
   {
+   "from": "D_CONSULTATION_ROOM",
+   "to": "C3",
+   "type": "corridor"
+  },
+  {
    "from": "R_FACULTY_ROOM",
-   "to": "C2",
+   "to": "D_FACULTY_ROOM",
    "type": "door"
+  },
+  {
+   "from": "D_FACULTY_ROOM",
+   "to": "C15",
+   "type": "corridor"
   },
   {
    "from": "R_A_23",
@@ -630,18 +687,33 @@
   },
   {
    "from": "R_MOOT_COURT",
-   "to": "C15",
+   "to": "D_MOOT_COURT",
    "type": "door"
+  },
+  {
+   "from": "D_MOOT_COURT",
+   "to": "C15",
+   "type": "corridor"
   },
   {
    "from": "R_AUDIO_VISUAL_ROOM_AVR",
-   "to": "C13",
+   "to": "D_AUDIO_VISUAL_ROOM_AVR",
    "type": "door"
   },
   {
-   "from": "R_A_24",
+   "from": "D_AUDIO_VISUAL_ROOM_AVR",
    "to": "C12",
+   "type": "corridor"
+  },
+  {
+   "from": "R_A_24",
+   "to": "D_A_24",
    "type": "door"
+  },
+  {
+   "from": "D_A_24",
+   "to": "C1",
+   "type": "corridor"
   },
   {
    "from": "C3",
@@ -652,9 +724,11 @@
    "from": "LINK1",
    "to": "A1/1/AP_Outside",
    "type": "outdoor",
-   "distance_m": 124,
+   "bidirectional": false,
+   "distance_m": 139,
    "flags": [
-    "estimated"
+    "estimated",
+    "flood_prone"
    ]
   },
   {

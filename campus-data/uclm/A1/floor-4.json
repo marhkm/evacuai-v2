@@ -332,6 +332,12 @@
   {
    "id": "J1",
    "type": "hallway",
+   "x": 15.77,
+   "y": 28.09
+  },
+  {
+   "id": "J2",
+   "type": "hallway",
    "x": 41.94,
    "y": 28.09
   },
@@ -351,6 +357,13 @@
    "x": 6.59,
    "y": 11.24,
    "room_id": "GEN_ED_OFFICE"
+  },
+  {
+   "id": "D_GEN_ED_OFFICE",
+   "type": "hallway",
+   "x": 13.26,
+   "y": 18.26,
+   "name": "GEN. ED OFFICE door"
   },
   {
    "id": "R_A_35",
@@ -374,11 +387,25 @@
    "room_id": "CCS_FACULTY"
   },
   {
+   "id": "D_CCS_FACULTY",
+   "type": "hallway",
+   "x": 42.12,
+   "y": 29.37,
+   "name": "CCS FACULTY door"
+  },
+  {
    "id": "R_A_32",
    "type": "room",
    "x": 25.53,
    "y": 32.87,
    "room_id": "A_32"
+  },
+  {
+   "id": "D_A_32",
+   "type": "hallway",
+   "x": 30.54,
+   "y": 29.37,
+   "name": "A-32 door"
   },
   {
    "id": "R_CCS_DEAN_S_OFFICE",
@@ -393,6 +420,13 @@
    "x": 16.58,
    "y": 33.12,
    "room_id": "A_31"
+  },
+  {
+   "id": "D_A_31",
+   "type": "hallway",
+   "x": 20.98,
+   "y": 29.37,
+   "name": "A-31 door"
   },
   {
    "id": "LINK1",
@@ -454,17 +488,22 @@
    "type": "corridor"
   },
   {
-   "from": "C12",
-   "to": "C5",
-   "type": "corridor"
-  },
-  {
-   "from": "C1",
+   "from": "C5",
    "to": "J1",
    "type": "corridor"
   },
   {
    "from": "J1",
+   "to": "C12",
+   "type": "corridor"
+  },
+  {
+   "from": "C1",
+   "to": "J2",
+   "type": "corridor"
+  },
+  {
+   "from": "J2",
    "to": "C8",
    "type": "corridor"
   },
@@ -475,8 +514,13 @@
   },
   {
    "from": "R_GEN_ED_OFFICE",
-   "to": "C10",
+   "to": "D_GEN_ED_OFFICE",
    "type": "door"
+  },
+  {
+   "from": "D_GEN_ED_OFFICE",
+   "to": "C11",
+   "type": "corridor"
   },
   {
    "from": "R_A_35",
@@ -490,13 +534,23 @@
   },
   {
    "from": "R_CCS_FACULTY",
-   "to": "C8",
+   "to": "D_CCS_FACULTY",
    "type": "door"
   },
   {
+   "from": "D_CCS_FACULTY",
+   "to": "C1",
+   "type": "corridor"
+  },
+  {
    "from": "R_A_32",
-   "to": "C3",
+   "to": "D_A_32",
    "type": "door"
+  },
+  {
+   "from": "D_A_32",
+   "to": "C2",
+   "type": "corridor"
   },
   {
    "from": "R_CCS_DEAN_S_OFFICE",
@@ -505,8 +559,13 @@
   },
   {
    "from": "R_A_31",
-   "to": "C4",
+   "to": "D_A_31",
    "type": "door"
+  },
+  {
+   "from": "D_A_31",
+   "to": "C4",
+   "type": "corridor"
   },
   {
    "from": "C7",
@@ -517,9 +576,11 @@
    "from": "LINK1",
    "to": "A1/1/AP_Outside",
    "type": "outdoor",
-   "distance_m": 131,
+   "bidirectional": false,
+   "distance_m": 146,
    "flags": [
-    "estimated"
+    "estimated",
+    "flood_prone"
    ]
   },
   {
