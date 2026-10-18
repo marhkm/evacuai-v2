@@ -1,0 +1,53 @@
+{
+ "about": "Annex 1 evacuation posters (source/*.pdf, gitignored). Level 5 (Fourth) has no poster yet, so it is absent.",
+ "files": [
+  {
+   "pdf": "plan-ground.pdf",
+   "level": 1,
+   "name": "Ground"
+  },
+  {
+   "pdf": "plan-mezzanine.pdf",
+   "level": 2,
+   "name": "Mezzanine"
+  },
+  {
+   "pdf": "plan-floor-2.pdf",
+   "level": 3,
+   "name": "Second"
+  },
+  {
+   "pdf": "plan-floor-3.pdf",
+   "level": 4,
+   "name": "Third"
+  },
+  {
+   "pdf": "plan-floor-5.pdf",
+   "level": 6,
+   "name": "Fifth"
+  },
+  {
+   "pdf": "plan-floor-6.pdf",
+   "level": 7,
+   "name": "Sixth"
+  }
+ ],
+ "flood_safe_from_level": 3,
+ "assembly": {
+  "id": "AP_Outside",
+  "name": "Off-campus assembly area",
+  "x": 60,
+  "y": 30,
+  "distance_m": 80
+ },
+ "links": {
+  "3": [
+   {
+    "text": "TO OLD BUILDING",
+    "x": 41.2,
+    "y": 8.6,
+    "note": "unlabelled on the Second floor poster; its arrows lead here as on the floors above"
+   }
+  ]
+ }
+}

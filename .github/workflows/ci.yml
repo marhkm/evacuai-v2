@@ -17,6 +17,11 @@ jobs:
       - run: npm run snapshots && git diff --exit-code campus-data/*.snapshot.json
       - run: npm run build:3d && git diff --exit-code api/public/js/campus-3d.js
       - run: npm run manual && git diff --exit-code docs/user-manual.html
+      # Floor-plan importer self-test on a synthetic poster (the real PDFs are never in the repository).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pymupdf==1.26.4 && python -I campus-data/tools/test_import_pdf_plan.py
 
   api:
     runs-on: ubuntu-latest

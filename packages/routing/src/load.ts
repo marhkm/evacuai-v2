@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import {
   DEFAULT_WEIGHTS,
   type AssemblyPoint, type Building, type CampusNode, type CampusSnapshot, type Edge,
-  type EdgeType, type Floor, type Hazard, type NodeType, type Point, type Room,
+  type EdgeType, type Floor, type FloorPlan, type Hazard, type NodeType, type Point, type Room,
 } from './types';
 
 interface RawCampus { name: string; buildings: string[]; assembly_points: AssemblyPoint[] }
@@ -15,6 +15,7 @@ interface RawFloor {
     safe_for?: Hazard[]; qr_id?: string; capacity?: number; occupancy?: number;
   }[];
   edges: { from: string; to: string; type: EdgeType; distance_m?: number; bidirectional?: boolean; flags?: string[] }[];
+  plan?: FloorPlan;
 }
 
 function readJson<T>(path: string): T {
@@ -31,7 +32,8 @@ const KEYS = {
   assemblyPoint: ['id', 'node_id', 'lat', 'lng', 'radius_m'],
   building: ['id', 'name', 'origin', 'rotation_deg', 'footprint', 'floors'],
   floorDef: ['level', 'name', 'elevation_m', 'height_m'],
-  floor: ['rooms', 'nodes', 'edges'],
+  floor: ['rooms', 'nodes', 'edges', 'plan'],
+  plan: ['walls', 'doors', 'stairs', 'labels', 'arrows'],
   room: ['id', 'name', 'type', 'polygon'],
   node: ['id', 'type', 'x', 'y', 'name', 'room_id', 'safe_for', 'qr_id', 'capacity', 'occupancy'],
   edge: ['from', 'to', 'type', 'distance_m', 'bidirectional', 'flags'],
@@ -73,6 +75,10 @@ export function loadCampus(dir: string): CampusSnapshot {
       checkList(fPath, 'rooms', data.rooms, KEYS.room);
       checkList(fPath, 'nodes', data.nodes, KEYS.node);
       checkList(fPath, 'edges', data.edges, KEYS.edge);
+      if (data.plan) {
+        checkKeys(fPath, 'plan', data.plan, KEYS.plan, KEYS.plan);
+        floor.plan = data.plan;
+      }
       for (const r of data.rooms) rooms.push({ ...r, id: g(r.id), building: bId, level: floor.level });
       for (const n of data.nodes) {
         nodes.push({

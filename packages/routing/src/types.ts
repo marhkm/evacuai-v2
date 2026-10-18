@@ -6,7 +6,16 @@ export type EdgeStatus = 'open' | 'blocked' | 'congested';
 export type NodeType = 'room' | 'hallway' | 'stairwell' | 'exit' | 'assembly_point' | 'elevator';
 export type EdgeType = 'corridor' | 'stairs' | 'ramp' | 'door' | 'outdoor' | 'elevator';
 
-export interface Floor { level: number; name: string; elevation_m: number; height_m: number }
+/** Drawing of one floor traced from the official evacuation poster, in metres (same axes as rooms and nodes). */
+export interface FloorPlan {
+  walls: Point[][];
+  doors: { hinge: Point; r: number; from: number; to: number }[]; // swing arc, degrees
+  stairs: Point[][];
+  labels: { text: string; x: number; y: number }[];
+  arrows: { x: number; y: number; deg: number }[]; // the poster's fire-escape arrows (reference, not drawn)
+}
+
+export interface Floor { level: number; name: string; elevation_m: number; height_m: number; plan?: FloorPlan }
 
 export interface Building {
   id: string;

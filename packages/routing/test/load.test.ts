@@ -61,3 +61,22 @@ test('I1: CLI reports load errors without a stack trace', () => {
 test('snapshot is JSON-safe (it is the API/seed contract)', () => {
   expect(JSON.parse(JSON.stringify(snap))).toEqual(snap);
 });
+
+// ── Phase 2: floor plans imported from the evacuation posters ──
+const plan = {
+  walls: [[[0, 0], [10, 0]], [[10, 0], [10, 5]]],
+  doors: [{ hinge: [2, 0], r: 0.9, from: 0, to: 90 }],
+  stairs: [[[8, 1], [9, 1], [9, 3], [8, 3]]],
+  labels: [{ text: 'A-31', x: 5, y: 2 }],
+  arrows: [{ x: 3, y: 4, deg: 180 }],
+};
+
+test('loads a floor plan onto its floor', () => {
+  const s = loadCampus(campusWith({ ...floorOk, plan }));
+  expect(s.buildings[0].floors[0].plan?.walls).toHaveLength(2);
+  expect(s.buildings[0].floors[0].plan?.labels[0].text).toBe('A-31');
+});
+
+test('rejects unknown plan keys', () => {
+  expect(() => loadCampus(campusWith({ ...floorOk, plan: { ...plan, wals: [] } }))).toThrow(/unknown key "wals"/);
+});

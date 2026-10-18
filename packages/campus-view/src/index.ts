@@ -80,3 +80,95 @@ export function routeSteps(snap: CampusSnapshot, route: Route): string[] {
   steps.push(`Go to ${displayName(snap, route.destinationId)}`);
   return steps;
 }
+
+// ── Poster-style floor drawing (Phase 2) ──
+
+export interface PlanShapes {
+  walls: Point[][];
+  doors: string[]; // SVG path data: leaf line + swing arc
+  stairs: Point[][];
+  labels: { text: string; x: number; y: number }[];
+  bounds: { minX: number; minY: number; w: number; h: number };
+}
+
+const centroid = (poly: Point[]): Point => {
+  const ring = poly.length > 1 && poly[0][0] === poly.at(-1)![0] && poly[0][1] === poly.at(-1)![1] ? poly.slice(0, -1) : poly;
+  return [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
+};
+
+/** The floor as the evacuation poster draws it; room outlines stand in for walls on floors without a traced plan. */
+export function toPlanShapes(snap: CampusSnapshot, buildingId: string, level: number): PlanShapes {
+  const plan = snap.buildings.find(b => b.id === buildingId)?.floors.find(f => f.level === level)?.plan;
+  const rooms = snap.rooms.filter(r => r.building === buildingId && r.level === level);
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const shapes = plan
+    ? {
+      walls: plan.walls,
+      doors: plan.doors.map(d => {
+        const [hx, hy] = d.hinge;
+        const a = [hx + d.r * Math.cos(rad(d.from)), hy + d.r * Math.sin(rad(d.from))];
+        const b = [hx + d.r * Math.cos(rad(d.to)), hy + d.r * Math.sin(rad(d.to))];
+        const sweep = ((d.to - d.from + 540) % 360) - 180 > 0 ? 1 : 0;
+        return `M${hx} ${hy}L${a[0]} ${a[1]}A${d.r} ${d.r} 0 0 ${sweep} ${b[0]} ${b[1]}`;
+      }),
+      stairs: plan.stairs,
+      labels: plan.labels,
+    }
+    : {
+      walls: rooms.map(r => r.polygon),
+      doors: [],
+      stairs: [],
+      labels: rooms.filter(r => r.type !== 'corridor').map(r => {
+        const [x, y] = centroid(r.polygon);
+        return { text: r.name, x, y };
+      }),
+    };
+  const pts = [...shapes.walls.flat(), ...shapes.labels.map(l => [l.x, l.y] as Point)];
+  const xs = pts.map(p => p[0]);
+  const ys = pts.map(p => p[1]);
+  const pad = 1.5;
+  const minX = Math.min(...xs) - pad;
+  const minY = Math.min(...ys) - pad;
+  return { ...shapes, bounds: { minX, minY, w: Math.max(...xs) + pad - minX, h: Math.max(...ys) + pad - minY } };
+}
+
+/** Poster-style direction chevrons every `spacing` metres along a polyline (first one half a step in). */
+export function routeChevrons(points: Point[], spacing = 1.5): { x: number; y: number; deg: number }[] {
+  const out: { x: number; y: number; deg: number }[] = [];
+  let next = spacing / 2;
+  let walked = 0;
+  for (let i = 1; i < points.length; i++) {
+    const [ax, ay] = points[i - 1];
+    const [bx, by] = points[i];
+    const len = Math.hypot(bx - ax, by - ay);
+    const deg = Math.round((Math.atan2(by - ay, bx - ax) * 180) / Math.PI * 10) / 10 + 0; // +0 turns -0 into 0
+    while (next <= walked + len + 1e-9) {
+      const t = (next - walked) / len;
+      out.push({ x: Math.round((ax + (bx - ax) * t) * 100) / 100, y: Math.round((ay + (by - ay) * t) * 100) / 100, deg });
+      next += spacing;
+    }
+    walked += len;
+  }
+  return out;
+}
+
+/** This floor's part of the route, cut at the building exit so it never runs off the drawing. */
+export function floorRoutePoints(snap: CampusSnapshot, route: Route, buildingId: string, level: number): Point[] {
+  const pts: Point[] = [];
+  for (const id of route.nodeIds) {
+    const n = snap.nodes.find(x => x.id === id);
+    if (!n || n.building !== buildingId || n.level !== level) continue;
+    pts.push([n.x, n.y]);
+    if (n.type === 'exit') break;
+  }
+  return pts;
+}
+
+/** "Exit to <destination>" when the route leaves the building through an exit on this floor. */
+export function exitBadge(snap: CampusSnapshot, route: Route, buildingId: string, level: number): string | null {
+  const exit = route.nodeIds.slice(0, -1).find(id => {
+    const n = snap.nodes.find(x => x.id === id);
+    return n?.type === 'exit' && n.building === buildingId && n.level === level;
+  });
+  return exit ? `Exit to ${displayName(snap, route.destinationId)}` : null;
+}

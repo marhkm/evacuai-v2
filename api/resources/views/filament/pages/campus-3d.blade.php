@@ -7,6 +7,9 @@
                     <option value="">All floors</option>
                 </select>
             </label>
+            <label>Explode floors
+                <input id="c3d-explode" type="range" min="0" max="4" step="0.5" value="0" style="vertical-align:middle;margin-left:.25rem">
+            </label>
             <label>Replay
                 <select id="c3d-replay" style="margin-left:.25rem;border-radius:.4rem;padding:.2rem .4rem;color:inherit;background:transparent">
                     <option value="">Live (now)</option>
@@ -116,6 +119,7 @@
                 snap.buildings.forEach((b) => b.floors.forEach((f) => floors.has(f.level) || floors.set(f.level, f.name)));
                 [...floors].sort((a, b) => a[0] - b[0]).forEach(([level, name]) => $('c3d-peel').add(new Option(`Up to ${name}`, level)));
                 $('c3d-peel').addEventListener('change', (ev) => viewer.peel(ev.target.value === '' ? null : Number(ev.target.value)));
+                $('c3d-explode').addEventListener('input', (ev) => viewer.explode(Number(ev.target.value)));
                 window.campus3d = viewer; // for debugging and browser tests
                 poll();
                 setInterval(poll, 2000);

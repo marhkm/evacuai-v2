@@ -65,3 +65,55 @@ describe('live overlays', () => {
     expect(c.overlay.route.children).toHaveLength(0);
   });
 });
+
+// ── Phase 2: real walls from the evacuation posters ──
+import { routeChevrons } from '@evacuai/campus-view';
+import { explode } from '../src/index';
+
+describe('poster walls and route arrows', () => {
+  const uclm = load('uclm');
+  const c = buildScene(uclm);
+  const walls = (key: string) => c.floors.get(key)!.getObjectByName('walls') as THREE.Mesh | undefined;
+
+  it('raises the traced walls for Annex 1 and room outlines for floors without a plan', () => {
+    const a1 = walls('A1/4')!;
+    const plan = uclm.buildings.find(b => b.id === 'A1')!.floors.find(f => f.level === 4)!.plan!;
+    expect(a1.geometry.attributes.position.count).toBe(plan.walls.reduce((n, w) => n + (w.length - 1) * 6, 0)); // 2 triangles per wall piece
+    expect(walls('BE/1')).toBeTruthy();
+  });
+
+  it('keeps the whole campus under the triangle budget', () => {
+    expect(triangleCount(c)).toBeLessThan(50_000);
+  });
+
+  it('draws the route as red arrows on the floor, one per chevron', () => {
+    const r = findRoute(uclm, 'A1/4/R_A_31', 'fire');
+    if (!r.ok) throw new Error('expected a route');
+    showRoute(c, r.route);
+    const nodes = r.route.nodeIds.map(id => uclm.nodes.find(n => n.id === id)!);
+    let expected = 0;
+    let run: [number, number][] = [];
+    nodes.forEach((n, i) => {
+      run.push([n.x, n.y]);
+      const next = nodes[i + 1];
+      if (!next || next.building !== n.building || next.level !== n.level) {
+        expected += routeChevrons(run).length;
+        run = [];
+      }
+    });
+    const arrows = c.overlay.route.getObjectByName('arrows')!;
+    expect(arrows.children.length).toBe(expected);
+    expect(((arrows.children[0] as THREE.Mesh).material as THREE.MeshBasicMaterial).color.getHex()).toBe(COLORS.route);
+    showRoute(c, null);
+    expect(c.overlay.route.children).toHaveLength(0);
+  });
+
+  it('explodes floors apart and back', () => {
+    const top = c.floors.get('A1/7')!;
+    explode(c, 2);
+    expect(top.position.y).toBeGreaterThan(0);
+    expect(c.nodePos.get('A1/7/S1')!.y).toBeGreaterThan(17.5 + top.position.y - 0.01);
+    explode(c, 0);
+    expect(top.position.y).toBe(0);
+  });
+});

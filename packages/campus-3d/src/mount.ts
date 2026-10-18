@@ -2,7 +2,7 @@ import type { CampusSnapshot, Route } from '@evacuai/routing';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { applyStatus, buildScene, showRoute, type Campus3D, type LiveState } from './index';
+import { applyStatus, buildScene, explode, showRoute, type Campus3D, type LiveState } from './index';
 
 export interface Viewer {
   campus: Campus3D;
@@ -10,6 +10,8 @@ export interface Viewer {
   route(route: Route | null): void;
   /** Show only floors at or below this level of each building (null = all). */
   peel(level: number | null): void;
+  /** Spread the floors apart (0 = real heights); the route and pins follow. */
+  explode(factor: number): void;
   dispose(): void;
 }
 
@@ -74,10 +76,18 @@ export function mount(el: HTMLElement, snap: CampusSnapshot, opts: { onPick?: (i
   renderer.domElement.addEventListener('pointerdown', onDown);
   renderer.domElement.addEventListener('pointerup', onUp);
 
+  let lastLive: LiveState = {};
+  let lastRoute: Route | null = null;
   return {
     campus,
-    update(live) { applyStatus(campus, snap, live); render(); },
-    route(route) { showRoute(campus, route); render(); },
+    update(live) { lastLive = live; applyStatus(campus, snap, live); render(); },
+    route(route) { lastRoute = route; showRoute(campus, route); render(); },
+    explode(factor) {
+      explode(campus, factor);
+      applyStatus(campus, snap, lastLive);
+      showRoute(campus, lastRoute);
+      render();
+    },
     peel(level) {
       for (const g of campus.floors.values()) g.visible = level === null || g.userData.level <= level;
       render();

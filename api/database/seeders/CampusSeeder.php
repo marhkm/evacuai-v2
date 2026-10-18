@@ -44,7 +44,8 @@ class CampusSeeder extends Seeder
                     'name' => $f['name'],
                     'elevation_m' => $f['elevation_m'],
                     'height_m' => $f['height_m'],
-                ], $b['floors']), ['building_id', 'level'], ['name', 'elevation_m', 'height_m']);
+                    'plan' => isset($f['plan']) ? json_encode($f['plan']) : null,
+                ], $b['floors']), ['building_id', 'level'], ['name', 'elevation_m', 'height_m', 'plan']);
             }
 
             DB::table('rooms')->upsert(array_map(fn ($r) => [

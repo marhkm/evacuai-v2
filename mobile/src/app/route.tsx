@@ -1,4 +1,4 @@
-import { routeOverlay, routeSteps, toFloorShapes } from '@evacuai/campus-view';
+import { exitBadge, floorRoutePoints, routeSteps } from '@evacuai/campus-view';
 import { findRoute, type Hazard } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -81,14 +81,11 @@ export default function RouteScreen() {
   if (state.status === 'signedOut') return <Redirect href="/login" />;
 
   const route = result?.ok ? result.route : null;
-  const overlay = snapshot && route ? routeOverlay(snapshot, route) : null;
   const originNode = snapshot?.nodes.find(n => n.id === origin);
   const building = snapshot?.buildings.find(b => b.id === originNode?.building) ?? snapshot?.buildings[0];
   const level = viewLevel ?? originNode?.level ?? building?.floors[0]?.level;
-  const shapes = snapshot && building && level !== undefined ? toFloorShapes(snapshot, building.id, level) : null;
-  const segment = overlay?.segments.find(s => s.building === building?.id && s.level === level);
-  // Explicit null check: React Compiler mis-tracks "route && snapshot?.nodes" as a dependency on snapshot.nodes.
-  const goal = route && snapshot ? snapshot.nodes.find(n => n.id === route.destinationId) : undefined;
+  const floorRoute = snapshot && route && building && level !== undefined ? floorRoutePoints(snapshot, route, building.id, level) : undefined;
+  const badge = snapshot && route && building && level !== undefined ? exitBadge(snapshot, route, building.id, level) : null;
 
   function locate(obs: Observation) {
     setViewLevel(null);
@@ -143,10 +140,9 @@ export default function RouteScreen() {
         <Chips items={building.floors.map(f => ({ key: String(f.level), label: f.name }))} active={level !== undefined ? String(level) : null}
           onSelect={l => setViewLevel(Number(l))} />
       ) : null}
-      {shapes && route ? (
-        <FloorPlan shapes={shapes} route={segment?.points}
-          you={originNode && originNode.level === level ? [originNode.x, originNode.y] : undefined}
-          goal={goal && goal.level === level && goal.building === building?.id ? [goal.x, goal.y] : undefined} />
+      {snapshot && building && level !== undefined && route ? (
+        <FloorPlan snapshot={snapshot} building={building.id} level={level} route={floorRoute} badge={badge}
+          you={originNode && originNode.level === level && originNode.building === building.id ? [originNode.x, originNode.y] : undefined} />
       ) : null}
     </Screen>
   );

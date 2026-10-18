@@ -43,7 +43,7 @@ class CampusSnapshotController extends Controller
                     'name' => $f->name,
                     'elevation_m' => self::num($f->elevation_m),
                     'height_m' => self::num($f->height_m),
-                ])->values(),
+                ] + ($f->plan === null ? [] : ['plan' => json_decode($f->plan)]))->values(),
             ]),
             'rooms' => DB::table('rooms')->orderBy('id')->get()->map(fn ($r) => [
                 'id' => $r->id, 'building' => $r->building_id, 'level' => $r->level,

@@ -240,8 +240,10 @@ You should never have to scan anything in an emergency. In most cases the route 
    the QR sticker by the door (**Scan QR sticker instead**) is optional: it is the most exact, and it is best done in
    calm times, for example when you enter a room that has no scheduled class.
 4. The app shows **"N m to safety"**, numbered steps (e.g. "Exit BE301", "Take Stairs Left down to Ground",
-   "Go to Exit North") and the route drawn on the floor plan, with your position and the destination. Use the floor
-   buttons to see each floor of the route.
+   "Go to Exit North") and the route drawn on the floor plan, in the style of the evacuation posters on the walls: red
+   arrows show the way and a green figure shows where you are. When the route leaves the building, a green
+   **"Exit to …"** badge names the destination (for Annex 1, the off-campus assembly area). Use the floor buttons to
+   see each floor of the route.
 
 While you follow the route:
 
@@ -259,12 +261,16 @@ While you follow the route:
 
 Tap **Campus map**. If there are several buildings, choose one at the top. Then choose a view:
 
-- **Floor plan:** one floor at a time (choose the floor). Blocked paths are red and dashed; congested paths are orange;
-  rooms with a reported hazard are red. Exits and assembly points are green dots; stairs are blue dots. The text below
-  says how many paths are blocked on that floor.
+- **Floor plan:** one floor at a time (choose the floor), drawn like UCLM's evacuation posters: walls, door swings,
+  stairs (orange hatch) and room names in blue. Annex 1 is traced from its official posters; Basic Ed uses its room
+  outlines until its posters are added. Blocked paths are a dark dashed bar with a ✕; congested paths are amber;
+  rooms with a reported hazard are tinted red. Red is kept for the escape route. Tap **Legend** for the key. The text
+  below says how many paths are blocked on that floor.
 - **All floors:** every floor stacked, ground floor at the bottom, with hazard and blocked-path counts per floor.
   Works on every phone.
-- **3D:** drag to turn, pinch or scroll to zoom, tap a room to see its name. Shown only on phones with enough memory
+- **3D:** the real walls raised on stacked floors, with the route as red arrows on the floor. Drag to turn, pinch or
+  scroll to zoom, tap a room to see its name. On the dashboard's Campus 3D page, **Explode floors** spreads the floors
+  apart to see inside lower floors. Shown only on phones with enough memory
   (3 GB or more) and on computers. When a new alert starts, the map switches back to the plain floor plan.
 
 ### 2.7 SOS

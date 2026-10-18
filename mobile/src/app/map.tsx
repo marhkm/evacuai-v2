@@ -59,10 +59,9 @@ export default function MapScreen() {
           </Suspense>
         </View>
       ) : null}
-      {mode === 'plan' && shapes ? <FloorPlan shapes={shapes} /> : null}
+      {mode === 'plan' && snapshot && building && floor ? <FloorPlan snapshot={snapshot} building={building.id} level={floor.level} /> : null}
       {mode === 'plan' && shapes ? (
         <View style={styles.legend}>
-          <Text style={styles.legendText}>● Exit / assembly point (green) · ● Stairs (blue)</Text>
           <Text style={[styles.legendText, blocked ? styles.blocked : null]}>
             {blocked === 0 ? 'No blocked paths on this floor' : `${blocked} blocked path${blocked === 1 ? '' : 's'} on this floor`}
           </Text>

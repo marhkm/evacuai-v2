@@ -1,0 +1,15 @@
+{
+  "id": "A1",
+  "name": "Annex 1",
+  "origin": null,
+  "rotation_deg": 0,
+  "footprint": [],
+  "floors": [
+    { "level": 1, "name": "Ground", "elevation_m": 0, "height_m": 3.5 },
+    { "level": 2, "name": "Mezzanine", "elevation_m": 1.75, "height_m": 3.5 },
+    { "level": 3, "name": "Second", "elevation_m": 3.5, "height_m": 3.5 },
+    { "level": 4, "name": "Third", "elevation_m": 7, "height_m": 3.5 },
+    { "level": 6, "name": "Fifth", "elevation_m": 14, "height_m": 3.5 },
+    { "level": 7, "name": "Sixth", "elevation_m": 17.5, "height_m": 3.5 }
+  ]
+}

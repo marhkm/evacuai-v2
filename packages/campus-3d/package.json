@@ -5,6 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
+    "@evacuai/campus-view": "*",
     "@evacuai/routing": "*",
     "three": "^0.181.0"
   },
