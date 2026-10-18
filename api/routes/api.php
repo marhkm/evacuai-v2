@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\SafetyController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\SosController;
+use App\Http\Controllers\Officer;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok']);
@@ -50,5 +51,36 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('consent', [MeController::class, 'consent']);
         Route::put('password', [MeController::class, 'password']);
         Route::get('schedule/now', [ScheduleController::class, 'now']);
+    });
+});
+
+// Safety officers and admins (Command Center and the app's Responder mode). Everyone else gets 404.
+Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(function () {
+    Route::get('overview', Officer\OverviewController::class);
+
+    Route::get('alerts', [Officer\AlertController::class, 'index']);
+    Route::get('alerts/{alert}/report.csv', [Officer\AlertController::class, 'report']);
+    Route::get('reports', [Officer\ReportController::class, 'index']);
+    Route::get('reports/{report}/photo', [Officer\ReportController::class, 'photo']);
+    Route::get('paths', [Officer\PathController::class, 'index']);
+    Route::get('safety', Officer\SafetyController::class);
+    Route::get('live', [Officer\Campus3dController::class, 'live']);
+    Route::get('replay', [Officer\Campus3dController::class, 'replay']);
+    Route::get('feedback', Officer\FeedbackController::class);
+    Route::get('sos', [Officer\SosController::class, 'index']);
+    Route::get('sos/{sos}', [Officer\SosController::class, 'show']);
+    Route::post('sos/{sos}/messages', [Officer\SosController::class, 'message'])->middleware('throttle:30,1,sos-chat');
+    Route::middleware('throttle:60,1,officer')->group(function () {
+        Route::post('alerts', [Officer\AlertController::class, 'store']);
+        Route::post('alerts/translate', [Officer\AlertController::class, 'translate']);
+        foreach (['publish', 'discard', 'confirm', 'resolve', 'retract'] as $action) {
+            Route::post("alerts/{alert}/{$action}", [Officer\AlertController::class, $action]);
+        }
+        Route::patch('paths/{edge}', [Officer\PathController::class, 'update'])->where('edge', '.+'); // ids contain "/" and "->"
+        Route::post('sos/{sos}/acknowledge', [Officer\SosController::class, 'acknowledge']);
+        Route::post('sos/{sos}/resolve', [Officer\SosController::class, 'resolve']);
+        foreach (['verify', 'dismiss', 'resolve', 'summary'] as $action) {
+            Route::post("reports/{report}/{$action}", [Officer\ReportController::class, $action]);
+        }
     });
 });

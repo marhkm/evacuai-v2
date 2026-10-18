@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ReportSubmitted;
 use App\Http\Controllers\Controller;
 use App\Models\HazardReport;
 use App\Support\Activity;
@@ -48,6 +49,7 @@ class HazardReportController extends Controller
         $report = HazardReport::create($data + ['reported_by' => $request->user()->id]);
         Activity::log('report_submitted', ['report_id' => $report->id, 'hazard' => $report->hazard_type]);
         ReportClusters::evaluate($report);
+        rescue(fn () => event(new ReportSubmitted($report))); // officers' live feed only; never fail the report
 
         return response()->json(['report' => self::payload($report->fresh())], 201);
     }

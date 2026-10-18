@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\DB;
-
 /** Human-readable campus places for officers, e.g. "Basic Ed · Third · BE301". */
 class Places
 {
@@ -20,16 +18,17 @@ class Places
         if (! $buildingId && ! $nodeId && ! $roomId) {
             return null;
         }
-        $node = $nodeId ? DB::table('evac_nodes')->where('id', $nodeId)->first() : null;
+        $places = app(PlaceDirectory::class);
+        $node = $nodeId ? $places->node($nodeId) : null;
         $buildingId ??= $node?->building_id;
         $level ??= $node?->level;
         $roomId ??= $node?->room_id;
 
-        $spot = $node->name ?? ($roomId ? DB::table('rooms')->where('id', $roomId)->value('name') : null) ?? ($nodeId ? self::humanize($nodeId) : null);
+        $spot = $node->name ?? ($roomId ? $places->room($roomId) : null) ?? ($nodeId ? self::humanize($nodeId) : null);
 
         return implode(' · ', array_filter([
-            DB::table('buildings')->where('id', $buildingId)->value('name') ?? $buildingId,
-            $level === null ? null : DB::table('floors')->where(['building_id' => $buildingId, 'level' => $level])->value('name') ?? "Level {$level}",
+            $buildingId ? ($places->building($buildingId) ?? $buildingId) : null,
+            $level === null || ! $buildingId ? null : $places->floor($buildingId, (int) $level) ?? "Level {$level}",
             $spot,
         ]));
     }

@@ -12,3 +12,6 @@ coverage/
 # Firebase config for Android push: kept out of the public repo, given to EAS builds as a file variable (GOOGLE_SERVICES_JSON)
 mobile/google-services.json
 *firebase-adminsdk*.json
+
+# graphify knowledge graph (local)
+/graphify-out/

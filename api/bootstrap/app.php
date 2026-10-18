@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureOfficer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     // Private channels (SOS chat) are authorized with the app's Sanctum token at POST /api/broadcasting/auth.
     ->withBroadcasting(__DIR__.'/../routes/channels.php', ['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']])
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias(['officer' => EnsureOfficer::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

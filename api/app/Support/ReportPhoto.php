@@ -2,10 +2,12 @@
 
 namespace App\Support;
 
+use App\Models\HazardReport;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Hazard report photos. Re-encoded with GD, which drops all metadata (EXIF GPS position, phone model, time), and
@@ -16,6 +18,17 @@ class ReportPhoto
     public const MAX_PX = 1600;
 
     public const MAX_SOURCE_PIXELS = 40_000_000; // GD needs ~4 bytes per pixel to decode; 40 MP ≈ 160 MB
+
+    /** Streams a report's photo (officers only; the caller authorizes). 404 when there is no photo. */
+    public static function response(HazardReport $report): StreamedResponse
+    {
+        abort_unless($report->photo_path && Storage::disk('local')->exists($report->photo_path), 404);
+
+        return Storage::disk('local')->response($report->photo_path, "report-{$report->id}.jpg", [
+            'Content-Type' => 'image/jpeg',
+            'Cache-Control' => 'private, max-age=600',
+        ]);
+    }
 
     /** @return string path on the local (private) disk */
     public static function store(UploadedFile $file): string

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\Role;
+use App\Jobs\SendOfficerPush;
 use App\Models\Alert;
 use App\Models\EvacEdge;
 use App\Models\HazardReport;
@@ -154,6 +155,7 @@ class Simulate extends Command
             ?? SosAlert::create(['user_id' => $person->id, 'alert_id' => Alert::current()?->id, 'node_id' => $room?->id,
                 'building_id' => $room?->building_id, 'level' => $room?->level, 'message' => 'Simulated SOS: I am stuck behind a jammed door.']);
         User::whereIn('role', [Role::Admin, Role::SafetyOfficer])->where('is_active', true)->get()->each->notify(new SosRaised($sos));
+        SendOfficerPush::forSos($sos);
         $this->info("SOS #{$sos->id} from {$person->name}. Open Dashboard → SOS, acknowledge it and reply in the chat.");
 
         return self::SUCCESS;
@@ -226,5 +228,6 @@ class Simulate extends Command
         $sos = SosAlert::create(['user_id' => $person->id, 'alert_id' => $alert->id, 'node_id' => $roomNode, 'building_id' => $node?->building_id,
             'level' => $node?->level, 'message' => 'Simulated: I hurt my leg and cannot use the stairs.']);
         User::whereIn('role', [Role::Admin, Role::SafetyOfficer])->where('is_active', true)->get()->each->notify(new SosRaised($sos));
+        SendOfficerPush::forSos($sos);
     }
 }

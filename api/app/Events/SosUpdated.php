@@ -6,7 +6,7 @@ use App\Models\SosAlert;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-/** Status change or new chat message on an SOS. Private: only the sender and officers may listen; the app refetches. */
+/** Status change or new chat message on an SOS. Private: only the sender and officers may listen (also on the officers channel); clients refetch. */
 class SosUpdated implements ShouldBroadcastNow
 {
     public function __construct(public SosAlert $sos) {}
@@ -14,7 +14,7 @@ class SosUpdated implements ShouldBroadcastNow
     /** @return list<PrivateChannel> */
     public function broadcastOn(): array
     {
-        return [new PrivateChannel("sos.{$this->sos->id}")];
+        return [new PrivateChannel("sos.{$this->sos->id}"), new PrivateChannel('officers')];
     }
 
     public function broadcastAs(): string

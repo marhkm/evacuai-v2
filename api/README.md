@@ -1,58 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EvacuAI API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+The Laravel 13 backend for EvacuAI. It provides:
 
-## About Laravel
+- the REST API for the mobile app (`/api/*`);
+- the officer API used by the Command Center and the app's Responder mode (`/api/officer/*`);
+- the admin panel (Filament, `/admin`);
+- realtime events (Reverb), queued push and SMS, and scheduled hazard feeds.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Students run everything with Docker; see the repository README. Developers run the tests locally:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+```bash
+vendor/bin/phpstan analyse --memory-limit=1G
+```
 
-## Contributing
+```bash
+vendor/bin/pint --test
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The tests use PostgreSQL (`evacuai_test` on `127.0.0.1:5432`). Start it with `docker compose -f docker/compose.yml up -d postgres`.
 
-## Code of Conduct
+## Officer API
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Access:** Sanctum token or session. Only active safety officers and admins can use these routes; everyone else gets 404.
 
-## Security Vulnerabilities
+**Errors:**
+- validation: 422 with field errors;
+- an action that doesn't fit the current status: 422 `{message}`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Rate limits:** mutating routes allow 60 requests per minute; SOS chat allows 30 per minute.
 
-## License
+**Pagination:** the report and SOS lists return 50 items per page (`?page=`), with a `meta` block giving `current_page`, `last_page`, `per_page` and `total`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Method and path | Purpose |
+|---|---|
+| `GET /api/officer/overview` | Dashboard numbers and the active alert |
+| `GET /api/officer/alerts?status=` | Alerts, including drafts from hazard feeds |
+| `POST /api/officer/alerts` | Broadcast. Fewer than 3 matching reports (not a drill) returns `needs_confirmation` until `confirm: true` is sent |
+| `POST /api/officer/alerts/{id}/publish` | Publish a feed draft `{message}` |
+| `POST /api/officer/alerts/{id}/discard\|confirm\|resolve\|retract` | Change an alert's status |
+| `POST /api/officer/alerts/translate` | AI translation `{message}` → `{ceb, fil, provider}` (404 without an LLM, 503 if every provider fails) |
+| `GET /api/officer/alerts/{id}/report.csv` | Drill report (CSV) |
+| `GET /api/officer/reports?status=` | Hazard reports, with same-floor reporter counts |
+| `POST /api/officer/reports/{id}/verify\|dismiss\|resolve` | Review a report |
+| `POST /api/officer/reports/{id}/summary` | AI summary of the matching reports |
+| `GET /api/officer/reports/{id}/photo` | Report photo (private) |
+| `GET /api/officer/paths?building=&level=` | Path segments and their status |
+| `PATCH /api/officer/paths/{id}` | `{status: open\|congested\|blocked}` (URL-encode the id) |
+| `GET /api/officer/sos?open=1` | SOS requests |
+| `GET /api/officer/sos/{id}` | One SOS with its chat |
+| `POST /api/officer/sos/{id}/acknowledge\|resolve` | Respond to an SOS |
+| `POST /api/officer/sos/{id}/messages` | Chat `{body}` |
+| `GET /api/officer/safety?alert=` | Safe / needs help / unknown per alert, people, and assembly-point counts |
+| `GET /api/officer/feedback` | Feedback and average rating |
+| `GET /api/officer/live?alert=` / `GET /api/officer/replay?alert=` | 3D live overlay and drill replay |
+
+**Realtime:**
+- **Private channel `officers`** (active officers and admins only) carries `.sos.updated`, `.report.submitted` and `.checkin.updated`.
+- **Public channel `alerts`** carries `.alert.updated`.
+- **Public channel `campus`** carries path changes.
+
+**Push:** officers' phones get a push for every new SOS and for every unverified alert raised by reports.

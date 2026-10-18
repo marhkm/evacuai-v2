@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /*
@@ -47,4 +50,14 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/** An account with the given role for officer API tests (RefreshDatabase is used by each officer test file). */
+function officerUser(Role $role = Role::SafetyOfficer, bool $active = true): User
+{
+    return User::forceCreate([
+        'name' => ucfirst(str_replace('_', ' ', $role->value)).' '.Str::random(4),
+        'email' => Str::lower(Str::random(10)).'@example.test',
+        'role' => $role, 'is_active' => $active, 'email_verified_at' => now(),
+    ]);
 }

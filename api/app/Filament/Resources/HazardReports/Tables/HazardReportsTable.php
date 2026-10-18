@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\HazardReports\Tables;
 
 use App\Models\HazardReport;
+use App\Models\User;
 use App\Support\Llm;
+use App\Support\ReportActions;
 use App\Support\ReportClusters;
 use App\Support\ReportSummary;
 use Filament\Actions\Action;
@@ -58,13 +60,19 @@ class HazardReportsTable
                     }),
                 Action::make('verify')->label('Verify')->icon('heroicon-o-check-badge')->color('danger')
                     ->visible(fn (HazardReport $record) => $record->status === 'pending')
-                    ->action(fn (HazardReport $record) => $record->update(['status' => 'verified', 'verified_by' => auth()->id()])),
+                    ->action(fn (HazardReport $record) => ReportActions::verify($record, self::user())),
                 Action::make('dismiss')->label('Dismiss')->icon('heroicon-o-x-mark')->color('gray')
                     ->visible($open)->requiresConfirmation()
-                    ->action(fn (HazardReport $record) => $record->update(['status' => 'dismissed', 'verified_by' => auth()->id()])),
+                    ->action(fn (HazardReport $record) => ReportActions::dismiss($record, self::user())),
                 Action::make('resolve')->label('Resolve')->icon('heroicon-o-check-circle')->color('success')
                     ->visible(fn (HazardReport $record) => $record->status === 'verified')
-                    ->action(fn (HazardReport $record) => $record->update(['status' => 'resolved', 'resolved_at' => now()])),
+                    ->action(fn (HazardReport $record) => ReportActions::resolve($record)),
             ]);
+    }
+
+    private static function user(): User
+    {
+        /** @var User */
+        return auth()->user();
     }
 }

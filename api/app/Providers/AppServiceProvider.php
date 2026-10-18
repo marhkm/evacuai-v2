@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Support\Activity;
+use App\Support\PlaceDirectory;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
@@ -15,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->scoped(PlaceDirectory::class); // campus names cached per request / queued job
     }
 
     /**

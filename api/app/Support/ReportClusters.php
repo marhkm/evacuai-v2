@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enums\Role;
+use App\Jobs\SendOfficerPush;
 use App\Models\Alert;
 use App\Models\HazardReport;
 use App\Models\User;
@@ -17,6 +18,25 @@ use Illuminate\Support\Facades\Notification;
  */
 class ReportClusters
 {
+    /**
+     * reporterCount() for every hazard/building/floor at once, keyed "hazard|building|level" (one query for a list).
+     *
+     * @return array<string, int>
+     */
+    public static function reporterCounts(): array
+    {
+        return HazardReport::query()
+            ->join('users', 'users.id', '=', 'hazard_reports.reported_by')
+            ->whereIn('hazard_reports.status', ['pending', 'verified'])
+            ->where('hazard_reports.created_at', '>=', now()->subMinutes(config('evacuai.report_cluster_minutes')))
+            ->whereNotNull('users.email_verified_at')
+            ->where('users.is_active', true)
+            ->groupBy('hazard_reports.hazard_type', 'hazard_reports.building_id', 'hazard_reports.level')
+            ->selectRaw('hazard_reports.hazard_type, hazard_reports.building_id, hazard_reports.level, count(distinct hazard_reports.reported_by) as n')
+            ->toBase()->get()
+            ->mapWithKeys(fn ($r) => ["{$r->hazard_type}|{$r->building_id}|{$r->level}" => (int) $r->n])->all();
+    }
+
     /** Distinct qualifying reporters for this hazard/building/floor in the current window. */
     public static function reporterCount(string $hazard, string $buildingId, int $level): int
     {
@@ -98,6 +118,7 @@ class ReportClusters
             User::whereIn('role', [Role::Admin, Role::SafetyOfficer])->where('is_active', true)->get(),
             new UnverifiedAlertRaised($alert),
         );
+        SendOfficerPush::forUnverifiedAlert($alert);
 
         return $alert;
     }

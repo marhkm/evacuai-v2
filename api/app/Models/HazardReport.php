@@ -27,16 +27,19 @@ class HazardReport extends Model
         return ['resolved_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function reporter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reported_by');
     }
 
+    /** @return BelongsTo<Building, $this> */
     public function building(): BelongsTo
     {
         return $this->belongsTo(Building::class);
     }
 
+    /** @return BelongsTo<Alert, $this> */
     public function alert(): BelongsTo
     {
         return $this->belongsTo(Alert::class);

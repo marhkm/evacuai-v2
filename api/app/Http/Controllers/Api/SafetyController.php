@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\CheckInUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\EvacuationLog;
@@ -42,6 +43,7 @@ class SafetyController extends Controller
         );
 
         Activity::log('checked_in', ['alert_id' => $alert->id, 'status' => $log->status]);
+        rescue(fn () => event(new CheckInUpdated($alert->id))); // officers' live feed only; never fail the check-in
 
         return response()->json(['check_in' => self::payload($alert, $log)]);
     }

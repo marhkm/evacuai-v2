@@ -6,11 +6,11 @@ use App\Events\SosUpdated;
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
 use App\Filament\Resources\Feedback\Pages\ListFeedback;
 use App\Filament\Widgets\CampusOverview;
-use App\Http\Controllers\Admin\DrillReportController;
 use App\Models\Alert;
 use App\Models\Feedback;
 use App\Models\SosAlert;
 use App\Models\User;
+use App\Support\DrillReport;
 use App\Support\DrillStats;
 use Database\Seeders\CampusSeeder;
 use Filament\Auth\Pages\Login;
@@ -83,7 +83,7 @@ it('exports a CSV drill report for officers only, safe against spreadsheet formu
         ->toContain("'=Ana,student,CCS,safe,\"Demo Building · Ground · AP\"")
         ->toContain('Di,student,CCS,unknown')
         ->not->toContain('Officer');
-    expect(DrillReportController::cell('-5'))->toBe('-5')->and(DrillReportController::cell('@SUM(A1)'))->toBe("'@SUM(A1)");
+    expect(DrillReport::cell('-5'))->toBe('-5')->and(DrillReport::cell('@SUM(A1)'))->toBe("'@SUM(A1)");
 });
 
 it('accepts feedback from the app and lists it for officers with the average', function () {

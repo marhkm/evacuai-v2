@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendOfficerPush;
 use App\Models\Alert;
 use App\Models\SosAlert;
 use App\Models\User;
@@ -52,6 +53,7 @@ class SosController extends Controller
 
         User::whereIn('role', [Role::Admin, Role::SafetyOfficer])->where('is_active', true)->get()
             ->each(fn (User $officer) => $officer->notify(new SosRaised($sos)));
+        SendOfficerPush::forSos($sos);
 
         return response()->json(['sos' => self::payload($sos, $user)], 201);
     }
@@ -82,7 +84,7 @@ class SosController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private static function payload(SosAlert $sos, User $viewer): array
+    public static function payload(SosAlert $sos, User $viewer): array
     {
         return [
             'id' => $sos->id,
