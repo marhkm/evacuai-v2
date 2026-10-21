@@ -58,6 +58,9 @@ class SosController extends Controller
     {
         $body = $request->validate(['body' => ['required', 'string', 'max:500']])['body'];
         $this->expect($sos->isOpen(), 'This SOS is closed.');
+        if ($sos->status === 'pending') {
+            $sos->acknowledge(); // an officer replying means someone is on it
+        }
         $sos->messages()->create(['sender_id' => $this->officer($request)->id, 'body' => trim($body)]);
 
         return $this->sos($sos, $request, 201);

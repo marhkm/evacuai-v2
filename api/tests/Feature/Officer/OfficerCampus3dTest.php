@@ -16,12 +16,12 @@ beforeEach(function () {
     $this->drill = Alert::where('external_id', DemoDrillSeeder::EXTERNAL_ID)->sole();
 });
 
-it('serves the same live overlay as the admin 3D page', function () {
-    $web = $this->actingAs($this->officer, 'web')->getJson(route('campus3d.live', ['alert' => $this->drill->id]))->assertOk()->json();
+it('serves the live overlay of an alert for the 3D view', function () {
     Sanctum::actingAs($this->officer);
 
-    $api = $this->getJson("/api/officer/live?alert={$this->drill->id}")->assertOk()->json();
-    expect($api)->toEqual($web)->and($api['alert']['id'])->toBe($this->drill->id);
+    $this->getJson("/api/officer/live?alert={$this->drill->id}")->assertOk()
+        ->assertJsonPath('alert.id', $this->drill->id)
+        ->assertJsonStructure(['alert' => ['id', 'label', 'active'], 'edges', 'hazardRoomIds', 'roomCounts', 'pins']);
 });
 
 it('serves the replay of an alert, and needs the alert', function () {

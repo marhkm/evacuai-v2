@@ -2,14 +2,13 @@
 
 namespace App\Notifications;
 
-use App\Filament\Resources\SosAlerts\SosAlertResource;
 use App\Models\SosAlert;
 use App\Support\Places;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Notifications\Notification;
 
-/** Bell notification in the admin panel for every new SOS. */
+/** Bell notification in the admin panel for every new SOS; opens it in the Command Center. */
 class SosRaised extends Notification
 {
     public function __construct(public SosAlert $sos) {}
@@ -29,7 +28,7 @@ class SosRaised extends Notification
             ->title('SOS: someone needs help')
             ->body("{$this->sos->user->name} at {$where}.")
             ->danger()
-            ->actions([Action::make('open')->label('Open chat')->url(SosAlertResource::getUrl('view', ['record' => $this->sos]))])
+            ->actions([Action::make('open')->label('Open chat')->url(url("/command/sos/{$this->sos->id}"))])
             ->getDatabaseMessage();
     }
 }

@@ -70,10 +70,11 @@ it('shows photos to officers only', function () {
     $report = HazardReport::sole();
     app('auth')->forgetGuards();
 
-    $this->get(route('reports.photo', $report))->assertForbidden();
-    $this->actingAs($this->student)->get(route('reports.photo', $report))->assertForbidden();
+    $url = "/api/officer/reports/{$report->id}/photo";
+    $this->getJson($url)->assertUnauthorized();
+    $this->actingAs($this->student)->getJson($url)->assertNotFound();
     $officer = User::forceCreate(['name' => 'Officer', 'email' => 'so@example.test', 'role' => Role::SafetyOfficer]);
-    $this->actingAs($officer)->get(route('reports.photo', $report))->assertOk()->assertHeader('content-type', 'image/jpeg');
+    $this->actingAs($officer)->get($url)->assertOk()->assertHeader('content-type', 'image/jpeg');
 });
 
 it('deletes photos of closed reports after the retention period, and with the account', function () {

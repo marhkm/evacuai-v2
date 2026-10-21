@@ -2,9 +2,6 @@
 
 use App\Enums\Role;
 use App\Events\SosUpdated;
-use App\Filament\Pages\SafetyMonitor;
-use App\Filament\Resources\SosAlerts\Pages\ListSosAlerts;
-use App\Filament\Resources\SosAlerts\Pages\SosChat;
 use App\Models\Alert;
 use App\Models\SosAlert;
 use App\Models\User;
@@ -15,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\Sanctum;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -68,12 +64,9 @@ it('runs a two-way chat between the person and the officer, and nobody else', fu
     $this->postJson("/api/sos/{$id}/messages", ['body' => 'Smoke is getting thick'])->assertCreated();
 
     $this->actingAs($this->officer);
-    Livewire::test(SosChat::class, ['record' => $id])
-        ->assertSee('Smoke is getting thick')
-        ->assertSee('Demo Building · Ground · R101')
-        ->set('body', 'Stay low, we are coming from Exit 1')
-        ->call('send')
-        ->assertHasNoErrors();
+    $this->getJson("/api/officer/sos/{$id}")->assertOk()
+        ->assertJsonPath('sos.messages.0.body', 'Smoke is getting thick')->assertJsonPath('sos.place', 'Demo Building · Ground · R101');
+    $this->postJson("/api/officer/sos/{$id}/messages", ['body' => 'Stay low, we are coming from Exit 1'])->assertCreated();
     $sos = SosAlert::find($id);
     expect($sos->status)->toBe('acknowledged')->and($sos->acknowledged_by)->toBe($this->officer->id); // replying acknowledges
 
@@ -107,7 +100,8 @@ it('authorizes the private SOS channel for the sender and officers only', functi
 it('officers resolve SOS from the desk, and closed SOS reject new messages', function () {
     $sos = SosAlert::create(['user_id' => $this->student->id]);
     $this->actingAs($this->officer);
-    Livewire::test(ListSosAlerts::class)->assertCanSeeTableRecords([$sos])->callTableAction('resolve', $sos);
+    $this->getJson('/api/officer/sos?open=1')->assertJsonPath('sos.0.id', $sos->id);
+    $this->postJson("/api/officer/sos/{$sos->id}/resolve")->assertOk();
     expect($sos->fresh()->status)->toBe('resolved');
 
     Sanctum::actingAs($this->student);
@@ -140,7 +134,7 @@ it('records location events only while an alert is active', function () {
     expect(DB::table('location_events')->where(['alert_id' => $alert->id, 'user_id' => $this->student->id])->count())->toBe(1);
 });
 
-it('shows safe, needs help and unknown people with last known location on the Safety Monitor', function () {
+it('lists safe, needs help and unknown people with their last known place for officers', function () {
     $alert = activeAlert();
     $safe = User::forceCreate(['name' => 'Ana Safe', 'email' => 'a@example.test']);
     $help = User::forceCreate(['name' => 'Ben Help', 'email' => 'b@example.test']);
@@ -151,13 +145,7 @@ it('shows safe, needs help and unknown people with last known location on the Sa
     DB::table('location_events')->insert(['user_id' => $this->student->id, 'alert_id' => $alert->id, 'room_id' => 'DEMO/2/R201',
         'building_id' => 'DEMO', 'level' => 2, 'source' => 'schedule', 'confidence' => 'likely', 'created_at' => now()]);
 
-    $this->actingAs($this->officer);
-    Livewire::test(SafetyMonitor::class)
-        ->assertSee('Demo Building · Ground · AP')
-        ->assertCanSeeTableRecords([$help, $this->student, $safe], inOrder: true) // needs help, unknown, safe
-        ->assertCanNotSeeTableRecords([$this->officer])
-        ->assertSee('Demo Building · Second · R201')
-        ->filterTable('status', 'unknown')
-        ->assertCanSeeTableRecords([$this->student])
-        ->assertCanNotSeeTableRecords([$safe, $help]);
+    $people = $this->actingAs($this->officer)->getJson('/api/officer/safety')->assertOk()->json('people');
+    expect(array_column($people, 'id'))->toBe([$help->id, $this->student->id, $safe->id]) // needs help, unknown, safe; no officers
+        ->and(array_column($people, 'place'))->toContain('Demo Building · Ground · AP', 'Demo Building · Second · R201');
 });

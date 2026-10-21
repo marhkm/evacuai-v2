@@ -2,9 +2,6 @@
 
 use App\Enums\Role;
 use App\Events\AlertBroadcast;
-use App\Filament\Resources\Alerts\Pages\CreateAlert;
-use App\Filament\Resources\Alerts\Pages\ListAlerts;
-use App\Filament\Resources\HazardReports\Pages\ListHazardReports;
 use App\Jobs\SendAlertPush;
 use App\Models\Alert;
 use App\Models\HazardReport;
@@ -21,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -161,8 +157,8 @@ it('summarizes matching reports for officers without sending who reported them',
     }
     $this->actingAs($this->officer);
 
-    Livewire::test(ListHazardReports::class)->callTableAction('summarize', HazardReport::first())
-        ->assertNotified('Matching reports (AI summary, check before acting)');
+    $report = HazardReport::first();
+    $this->postJson("/api/officer/reports/{$report->id}/summary")->assertOk()->assertJsonPath('text', 'Two people report smoke at R101.');
 
     Http::assertSent(function (Request $r) {
         $prompt = $r['messages'][1]['content'];
@@ -172,7 +168,7 @@ it('summarizes matching reports for officers without sending who reported them',
     });
 
     config(['services.llm.groq.key' => null]);
-    Livewire::test(ListHazardReports::class)->assertTableActionHidden('summarize', HazardReport::first());
+    $this->postJson("/api/officer/reports/{$report->id}/summary")->assertNotFound(); // no AI configured
 });
 
 it('lets an officer edit and publish a draft, or discard it', function () {
@@ -181,9 +177,8 @@ it('lets an officer edit and publish a draft, or discard it', function () {
     [$quake, $rain] = [Alert::where('hazard_type', 'earthquake')->sole(), Alert::where('hazard_type', 'flood')->sole()];
     $this->actingAs($this->officer);
 
-    Livewire::test(ListAlerts::class)
-        ->callTableAction('publish', $quake, ['message' => 'M5.2 earthquake felt on campus. Evacuate to the field.'])
-        ->callTableAction('discard', $rain);
+    $this->postJson("/api/officer/alerts/{$quake->id}/publish", ['message' => 'M5.2 earthquake felt on campus. Evacuate to the field.'])->assertOk();
+    $this->postJson("/api/officer/alerts/{$rain->id}/discard")->assertOk();
 
     $quake->refresh();
     expect($quake->status)->toBe('active')->and($quake->verified)->toBeTrue()->and($quake->issued_by)->toBe($this->officer->id)
@@ -210,10 +205,8 @@ it('translates with the first working provider, falls back, and never sends cont
 
 it('broadcasts officer-reviewed translations with the alert', function () {
     $this->actingAs($this->officer);
-    Livewire::test(CreateAlert::class)
-        ->fillForm(['hazard_type' => 'fire', 'severity_level' => 'high', 'message' => 'Fire drill at BE.', 'is_drill' => true,
-            'translations' => ['ceb' => 'Fire drill sa BE.', 'fil' => '']])
-        ->call('create')->assertHasNoFormErrors();
+    $this->postJson('/api/officer/alerts', ['hazard_type' => 'fire', 'severity_level' => 'high', 'message' => 'Fire drill at BE.', 'is_drill' => true,
+        'translations' => ['ceb' => 'Fire drill sa BE.', 'fil' => '']])->assertCreated();
 
     expect(Alert::sole()->translations)->toBe(['ceb' => 'Fire drill sa BE.']);
     $this->getJson('/api/alerts')->assertJsonPath('alerts.0.translations.ceb', 'Fire drill sa BE.');

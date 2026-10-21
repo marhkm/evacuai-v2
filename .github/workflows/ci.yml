@@ -16,8 +16,7 @@ jobs:
         working-directory: mobile
       - run: npx tsc --noEmit -p command && npm test -w command && npm run build -w command # Command Center
       - run: npm run snapshots && git diff --exit-code campus-data/*.snapshot.json
-      - run: npm run build:3d && git diff --exit-code api/public/js/campus-3d.js
-      - run: npm run manual && git diff --exit-code docs/user-manual.html
+      - run: npm run manual && git diff --exit-code docs/setup-guide.html docs/walkthrough.html
       # Floor-plan importer self-test on a synthetic poster (the real PDFs are never in the repository).
       - uses: actions/setup-python@v5
         with:

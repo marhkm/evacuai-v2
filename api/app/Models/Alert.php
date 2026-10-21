@@ -24,6 +24,9 @@ use Illuminate\Support\Carbon;
  */
 class Alert extends Model
 {
+    /** Hazards an officer can broadcast (officer API validation and the apps' labels). */
+    public const HAZARDS = ['earthquake' => 'Earthquake', 'fire' => 'Fire', 'flood' => 'Flood', 'structural_damage' => 'Structural damage', 'other' => 'Other / general'];
+
     protected $guarded = ['id'];
 
     protected $attributes = ['status' => 'active', 'source' => 'admin', 'verified' => true, 'is_drill' => false];

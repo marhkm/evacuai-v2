@@ -1,0 +1,12 @@
+/* Signage fonts for the admin panel, self-hosted (no external requests; works on a campus server offline). */
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('inter-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600 700; font-display: swap; src: url('inter-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url('barlow-condensed-latin-700-normal.woff2') format('woff2'); }
+
+/* Headings and the brand in condensed capitals, like the posters and the Command Center. */
+.fi-header-heading, .fi-section-header-heading, .fi-simple-header-heading, .fi-logo, .fi-sidebar-group-label {
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fi-logo { color: #D7263D; font-size: 1.5rem; }

@@ -55,6 +55,6 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active && $this->role->canManageIncidents();
+        return $this->is_active && $this->role === Role::Admin; // officers work in the Command Center (/command)
     }
 }

@@ -3,7 +3,6 @@
 use App\Enums\Role;
 use App\Events\CampusChanged;
 use App\Filament\Pages\ImportSchedules;
-use App\Filament\Resources\Paths\Pages\ListPaths;
 use App\Models\EvacEdge;
 use App\Models\User;
 use Database\Seeders\CampusSeeder;
@@ -35,7 +34,7 @@ describe('paths', function () {
         $this->actingAs($so);
         $edge = EvacEdge::findOrFail('DEMO/1/C1->DEMO/1/C2');
 
-        Livewire::test(ListPaths::class)->call('updateTableColumnState', 'status', $edge->getKey(), 'blocked');
+        $this->patchJson('/api/officer/paths/'.rawurlencode($edge->getKey()), ['status' => 'blocked'])->assertOk();
 
         expect($edge->fresh()->status)->toBe('blocked')->and($edge->fresh()->updated_by)->toBe($so->id);
         Event::assertDispatched(CampusChanged::class);
@@ -47,9 +46,8 @@ describe('paths', function () {
     });
 
     it('hides elevator edges, which are never routed', function () {
-        $this->actingAs(officer());
-        // 12 demo edges, 1 elevator. (Record keys contain '>' which HTML-escapes, so count instead of string-matching.)
-        Livewire::test(ListPaths::class)->assertCountTableRecords(11);
+        // 12 demo edges, 1 elevator: officers never see (or block) the elevator.
+        $this->actingAs(officer())->getJson('/api/officer/paths')->assertOk()->assertJsonCount(11, 'paths');
     });
 });
 

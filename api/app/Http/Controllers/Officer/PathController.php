@@ -17,6 +17,7 @@ class PathController extends Controller
     public function index(Request $request): JsonResponse
     {
         $rows = $this->query()
+            ->where('evac_edges.type', '!=', 'elevator') // never routed (elevators are off in an emergency), so nothing to set
             ->when($request->query('building'), fn ($q, $b) => $q->where('n.building_id', $b))
             ->when($request->query('level') !== null, fn ($q) => $q->where('n.level', (int) $request->query('level')))
             ->orderBy('n.building_id')->orderBy('n.level')->orderBy('evac_edges.id')->get();

@@ -19,10 +19,10 @@ beforeEach(function () {
 
 it('lists paths filtered by building and floor', function () {
     $level2 = DB::table('evac_edges')->join('evac_nodes', 'evac_nodes.id', '=', 'evac_edges.from_node_id')
-        ->where(['evac_nodes.building_id' => 'DEMO', 'evac_nodes.level' => 2])->count();
+        ->where(['evac_nodes.building_id' => 'DEMO', 'evac_nodes.level' => 2])->where('evac_edges.type', '!=', 'elevator')->count();
 
     $all = $this->getJson('/api/officer/paths')->assertOk()->json('paths');
-    expect($all)->toHaveCount(EvacEdge::count());
+    expect($all)->toHaveCount(EvacEdge::where('type', '!=', 'elevator')->count()); // elevators are never routed
     $this->getJson('/api/officer/paths?building=DEMO&level=2')->assertOk()
         ->assertJsonCount($level2, 'paths')
         ->assertJsonPath('paths.0.level', 2)

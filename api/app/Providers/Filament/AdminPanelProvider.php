@@ -2,10 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -30,8 +32,23 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->databaseNotifications()
             ->databaseNotificationsPolling('10s')
+            // Signage colours (ISO 7010 meanings) and fonts, as in the Command Center and the app. Admin-only panel.
+            ->brandName('EvacuAI Admin')
             ->colors([
-                'primary' => Color::Amber,
+                // Full Tailwind scales close to the Signage tokens (a single hex gave washed-out button shades).
+                'primary' => Color::Red,
+                'danger' => Color::Red,
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'info' => Color::Blue,
+                'gray' => Color::Slate,
+            ])
+            ->font('Inter', url: asset('brand/admin.css'), provider: LocalFontProvider::class)
+            ->navigationItems([
+                NavigationItem::make('Command Center')
+                    ->url('/command', shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-signal')
+                    ->sort(-1),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

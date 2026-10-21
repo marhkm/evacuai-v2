@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Filament\Resources\Alerts\AlertResource;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Notifications\Notification;
@@ -25,7 +24,7 @@ class DraftAlertFromFeed extends Notification
             ->title($this->count === 1 ? 'New draft alert from a hazard feed' : "{$this->count} new draft alerts from hazard feeds")
             ->body('Review it, then publish or discard. Drafts are not sent to anyone.')
             ->warning()
-            ->actions([Action::make('review')->label('Review drafts')->url(AlertResource::getUrl('index', ['filters' => ['status' => ['value' => 'draft']]]))])
+            ->actions([Action::make('review')->label('Review drafts')->url(url('/command/alerts'))])
             ->getDatabaseMessage();
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Officer;
 
-use App\Filament\Resources\Alerts\Schemas\AlertForm;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AlertResource;
 use App\Models\Alert;
@@ -33,7 +32,7 @@ class AlertController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'hazard_type' => ['required', Rule::in(array_keys(AlertForm::HAZARDS))],
+            'hazard_type' => ['required', Rule::in(array_keys(Alert::HAZARDS))],
             'severity_level' => ['required', Rule::in(['low', 'medium', 'high', 'critical'])],
             'building_id' => ['nullable', 'string', Rule::exists('buildings', 'id')],
             'message' => ['required', 'string', 'max:500'],
