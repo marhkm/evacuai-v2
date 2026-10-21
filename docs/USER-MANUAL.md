@@ -7,19 +7,20 @@ This manual walks through everything, in order:
 
 1. [Run EvacuAI on your computer (Docker)](#1-run-evacuai-on-your-computer-docker)
 2. [The mobile app](#2-the-mobile-app)
-3. [The admin dashboard (web)](#3-the-admin-dashboard-web)
-4. [A complete drill, start to finish](#4-a-complete-drill-start-to-finish)
-5. [Sample data and simulations](#5-sample-data-and-simulations)
-6. [Optional features](#6-optional-features)
-7. [Privacy and data](#7-privacy-and-data)
-8. [Troubleshooting](#8-troubleshooting)
+3. [The Command Center (safety officers, web)](#3-the-command-center-safety-officers-web)
+4. [The admin dashboard (web)](#4-the-admin-dashboard-web)
+5. [A complete drill, start to finish](#5-a-complete-drill-start-to-finish)
+6. [Sample data and simulations](#6-sample-data-and-simulations)
+7. [Optional features](#7-optional-features)
+8. [Privacy and data](#8-privacy-and-data)
+9. [Troubleshooting](#9-troubleshooting)
 
 **Who uses what**
 
 | Role | Uses | Can do |
 |---|---|---|
 | Student, faculty, staff | Mobile app | Receive alerts, find the evacuation route, report hazards, send SOS, check in safe |
-| Safety officer | Admin dashboard (and the app) | Everything above, plus broadcast alerts, verify reports, block paths, answer SOS, monitor the evacuation |
+| Safety officer | Command Center (and the app) | Everything above, plus broadcast alerts, verify reports, block paths, answer SOS, monitor the evacuation |
 | Admin | Admin dashboard | Everything a safety officer can do, plus manage users and roles and read the activity log |
 
 New accounts are always students. Only an admin can make someone a safety officer or admin.
@@ -87,6 +88,7 @@ All services should show `running` (and `app` should show `healthy`).
 | What | Address |
 |---|---|
 | Mobile app (web version) | http://localhost:8081 |
+| Command Center (safety officers) | http://localhost:8000/command |
 | Admin dashboard | http://localhost:8000/admin |
 | Test mailbox (verification and reset codes) | http://localhost:8025 |
 
@@ -178,7 +180,7 @@ Open http://localhost:8081 (or the app on your phone).
 password.
 
 **Google or Microsoft 365:** the **Continue with Google** and **Continue with Microsoft 365** buttons appear only when
-they have been set up (see [6. Optional features](#6-optional-features)).
+they have been set up (see [7. Optional features](#7-optional-features)).
 
 **Privacy notice:** the first time you sign in, read the notice and tap **I agree**. The app only uses your location
 during an emergency (route, SOS, check-in).
@@ -318,7 +320,33 @@ Tap **Send feedback**, choose 1 to 5 stars, optionally add comments, and tap **S
 
 ---
 
-## 3. The admin dashboard (web)
+## 3. The Command Center (safety officers, web)
+
+Safety officers work in the **Command Center** at http://localhost:8000/command, a dark control-room screen made for
+emergencies. Sign in with a safety officer or admin account (e.g. `safety_officer@evacuai.test`). Students, faculty and
+staff are refused. The officer pages of the admin dashboard (section 4) still work for now; they move fully to the
+Command Center in a later update.
+
+- **Top bar:** **LIVE** (green) while updates arrive instantly; **RECONNECTING** (amber) means the screens refresh every
+  15 seconds instead. It also shows the campus clock and the active alert (striped when it is a drill).
+- **Live Ops:** open SOS requests on the left, the floor plan in the middle (pick a building and floor; blocked paths are
+  dark dashed lines with ✕, people counts are red badges, SOS pins pulse), and Safe / Needs help / Unknown counters with
+  the latest hazard reports on the right. **3D** switches to the 3D campus.
+- **Alerts:** broadcast an alert (tick **Drill** for practice), translate it with AI when available, and publish,
+  confirm, resolve or retract alerts. Without 3 matching reports you are asked to confirm that you checked the incident
+  yourself.
+- **Reports:** hazard reports with a matching count (red at 3 or more), photos, Verify / Dismiss / Resolve, and an AI
+  summary when available.
+- **Paths:** click a path on the plan, then **Open**, **Congested** or **Blocked**. Every phone re-routes at once.
+- **SOS:** open a request to see the conversation, **Acknowledge** it, reply, and **Resolve** it when the person is safe.
+- **Safety:** who is safe, who needs help and who is unknown for an alert, assembly-point counts, and the **Drill report
+  (CSV)**.
+- **Replay:** play back a past drill in 3D (people are numbered, not named).
+- **Feedback:** the average rating and comments.
+
+Keyboard: press **g** then **l** (Live Ops), **a** (Alerts), **s** (SOS), **r** (Reports) or **p** (Paths).
+
+## 4. The admin dashboard (web)
 
 Open http://localhost:8000/admin and sign in as a safety officer or admin (e.g. `safety_officer@evacuai.test`). Other
 accounts cannot open the dashboard.
@@ -326,7 +354,7 @@ accounts cannot open the dashboard.
 The bell icon (top right) shows notifications: new SOS requests, unverified alerts from reports, and new draft alerts
 from hazard feeds.
 
-### 3.1 Dashboard
+### 4.1 Dashboard
 
 Live numbers (refresh every 10 seconds):
 
@@ -336,7 +364,7 @@ Live numbers (refresh every 10 seconds):
 - For the current or latest alert: **Checked in** (safe / need help / unknown and the check-in rate) and
   **Evacuation time (median)** with the slowest time.
 
-### 3.2 SOS
+### 4.2 SOS
 
 The SOS list shows open requests first, with the person, their location, message, number of chat messages, status and
 the responding officer. It refreshes every 5 seconds.
@@ -346,7 +374,7 @@ the responding officer. It refreshes every 5 seconds.
 - Click a row to open the **chat**: see the person's location, phone number and messages, then type a reply and press
   **Send**. Replying also acknowledges the SOS.
 
-### 3.3 Safety Monitor
+### 4.3 Safety Monitor
 
 For the current alert (or a past one chosen under **Alert**):
 
@@ -355,9 +383,9 @@ For the current alert (or a past one chosen under **Alert**):
 - A list of everyone with their status, where they are (assembly point or last known location), last update and
   phone. People who need help or have an open SOS are listed first, then unknown, then safe.
 - Filter by status, or search by name.
-- **Drill report (CSV):** downloads a spreadsheet for the selected alert (see 3.5).
+- **Drill report (CSV):** downloads a spreadsheet for the selected alert (see 4.5).
 
-### 3.4 Campus 3D
+### 4.4 Campus 3D
 
 A live 3D view of the campus, updated every 2 seconds:
 
@@ -372,7 +400,7 @@ you can look inside.
 **Replay:** choose a past alert or drill under **Replay**, then press **Play** or drag the time slider to watch how
 people moved and checked in. People are numbered, not named. Choose **Live (now)** to go back.
 
-### 3.5 Alerts
+### 4.5 Alerts
 
 **Broadcast an alert:**
 
@@ -395,7 +423,7 @@ people moved and checked in. People are numbered, not named. Choose **Live (now)
 - **Drafts from hazard feeds** (if enabled) show as "Draft": **Publish** (you can edit the message first) or
   **Discard**. Drafts are never sent to anyone until published. Filter by status **Draft (from feeds)** to find them.
 
-### 3.6 Hazard Reports
+### 4.6 Hazard Reports
 
 Reports from the app, newest first, refreshing every 5 seconds. The **Same-floor reporters (10 min)** column turns red
 at three reporters.
@@ -409,27 +437,27 @@ at three reporters.
 - **Resolve:** the hazard is cleared.
 - **Broadcast alert** (top right): opens the alert form.
 
-### 3.7 Paths
+### 4.7 Paths
 
 Every path segment of the campus map (corridors, doors, stairs, outdoor paths). Set **Status** to **Open**,
 **Congested** or **Blocked** right in the list. Open apps re-route within seconds. Filter by status, building or type.
 The menu badge shows how many paths are blocked.
 
-### 3.8 Users
+### 4.8 Users
 
 - Create, edit or delete accounts. Set **Role** (student, faculty, staff, safety officer, admin), department, phone and
   **Active**. Turning **Active** off stops that person from signing in.
 - You cannot change your own role or deactivate yourself.
 - Every role change is recorded in the activity log.
 
-### 3.9 Import class schedules
+### 4.9 Import class schedules
 
 Upload a CSV from the registrar with the columns `email, subject, room_code, days, time_start, time_end`, for example
 `juan@uclm.edu.ph, IT 101, BE203, MWF, 08:00, 09:30`. Day codes: M, T, W, TH, F, S, SU and combinations like MWF or
 TTH. Each listed student's previous schedule is replaced; problems are listed by row. During class time the app then starts the
 evacuation route from the student's classroom automatically.
 
-### 3.10 QR stickers
+### 4.10 QR stickers
 
 A printable sheet with one QR sticker per room, stair landing, exit and assembly point. Choose a building, then print
 (or save as PDF from the print dialog). Put stickers inside every room door, at each stairwell landing on every floor,
@@ -439,7 +467,7 @@ Scanning is optional for everyone: the app finds people from their class schedul
 and **Pick my room** always works. The stickers make locations exact when scanned in calm times, and the printed room
 name helps people tell officers where they are.
 
-### 3.11 Reports: Feedback and Activity log
+### 4.11 Reports: Feedback and Activity log
 
 - **Feedback:** every rating and comment, with the average.
 - **Activity log** (admins only): sign-ins, registrations, account deletions, role changes, alerts issued and updated,
@@ -447,7 +475,7 @@ name helps people tell officers where they are.
 
 ---
 
-## 4. A complete drill, start to finish
+## 5. A complete drill, start to finish
 
 Use two browser windows side by side: the app at http://localhost:8081 signed in as `student@evacuai.test`, and the
 dashboard at http://localhost:8000/admin signed in as `safety_officer@evacuai.test`.
@@ -469,12 +497,12 @@ dashboard at http://localhost:8000/admin signed in as `safety_officer@evacuai.te
 
 ---
 
-## 5. Sample data and simulations
+## 6. Sample data and simulations
 
 Testing alone, you cannot easily be twenty students and an officer at once. EvacuAI comes with sample data and
 simulation commands for that. They exist only on test setups and refuse to run in production.
 
-### 5.1 The sample drill
+### 6.1 The sample drill
 
 Every fresh test stack includes a finished **sample earthquake drill** from two days ago, so every dashboard screen has
 data from the start:
@@ -492,7 +520,7 @@ Try it:
 
 The sample people also appear as **Unknown** in your own drills; that is expected.
 
-### 5.2 Simulation commands
+### 6.2 Simulation commands
 
 Run these in a terminal in the repository folder while the app and the dashboard are open. Each prints what to look
 at.
@@ -520,9 +548,9 @@ banner, the re-route and the dashboards react together.
 
 ---
 
-## 6. Optional features
+## 7. Optional features
 
-### 6.1 Building the Android app
+### 7.1 Building the Android app
 
 Testers install the APK from a link; they never need to build it. The APK is built on Expo's servers from the
 `mobile` folder, signed in to the Expo account that owns the project (linked in `mobile/app.json`):
@@ -541,7 +569,7 @@ testers. Build again after app changes; the new APK installs over the old one.
 Push notifications are already set up: the Firebase config is stored on Expo as the private variable
 `GOOGLE_SERVICES_JSON`, and the push key (FCM V1) in Expo's Android credentials. Neither file is in the repository.
 
-### 6.2 Other optional features
+### 7.2 Other optional features
 
 
 These are off until they are set in `docker/.env`, followed by a restart with
@@ -557,7 +585,7 @@ These are off until they are set in `docker/.env`, followed by a restart with
 
 ---
 
-## 7. Privacy and data
+## 8. Privacy and data
 
 EvacuAI follows the Data Privacy Act of 2012 (RA 10173):
 
@@ -574,7 +602,7 @@ EvacuAI follows the Data Privacy Act of 2012 (RA 10173):
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Problem | Fix |
 |---|---|

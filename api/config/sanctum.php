@@ -18,12 +18,13 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+    // Plus the request's own host, so the Command Center also works when the stack is opened by its LAN address
+    // (a phone or another PC); only same-origin pages send a matching Referer/Origin, and CSRF still applies.
+    'stateful' => [...explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
-    ))),
+    ))), ltrim(Sanctum::currentRequestHost(), ',')],
 
     /*
     |--------------------------------------------------------------------------

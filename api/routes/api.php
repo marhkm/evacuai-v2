@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Safety officers and admins (Command Center and the app's Responder mode). Everyone else gets 404.
 Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(function () {
     Route::get('overview', Officer\OverviewController::class);
+    Route::get('me', Officer\MeController::class);
 
     Route::get('alerts', [Officer\AlertController::class, 'index']);
     Route::get('alerts/{alert}/report.csv', [Officer\AlertController::class, 'report']);

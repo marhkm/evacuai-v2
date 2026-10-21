@@ -18,3 +18,6 @@ mobile/google-services.json
 
 # Python bytecode (campus-data tools)
 __pycache__/
+
+# Command Center build (made inside the Docker image)
+/api/public/command/

@@ -13,3 +13,4 @@ docker/.env
 api/bootstrap/cache/*.php
 mobile/dist
 mobile/.expo
+api/public/command

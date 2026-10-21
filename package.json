@@ -3,13 +3,15 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "mobile"
+    "mobile",
+    "command"
   ],
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.base.json",
     "validate": "tsx packages/routing/src/cli/validate.ts campus-data/demo campus-data/uclm",
     "snapshots": "tsx packages/routing/src/cli/snapshot.ts campus-data/demo campus-data/uclm",
+    "build:command": "npm run build -w command",
     "build:3d": "vite build --config packages/campus-3d/vite.config.ts --logLevel warn",
     "e2e": "playwright test",
     "manual": "node scripts/build-manual.mjs"

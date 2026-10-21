@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         FilamentTimezone::set(config('evacuai.timezone')); // admin tables show campus time; the DB stays in UTC
 
-        // Admin-panel sign-ins (session). App sign-ins are logged by the API, which issues tokens without this event.
-        Event::listen(Login::class, fn (Login $e) => Activity::log('login', ['method' => 'admin_panel'], (int) $e->user->getAuthIdentifier()));
+        // Session sign-ins (admin panel, Command Center). App sign-ins are logged by the API, which issues tokens without this event.
+        Event::listen(Login::class, fn (Login $e) => Activity::log('login', ['method' => request()->is('command/*') ? 'command' : 'admin_panel'], (int) $e->user->getAuthIdentifier()));
     }
 }

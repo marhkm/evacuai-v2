@@ -14,6 +14,7 @@ test('evacuation route from a picked room', async ({ page }) => {
   const chooseHazard = page.getByRole('button', { name: 'Earthquake' });
   if (await chooseHazard.isVisible()) await chooseHazard.click(); // only shown when no alert is active
   await page.getByRole('button', { name: 'Pick my room' }).click();
+  await page.getByRole('button', { name: 'Basic Education Building' }).click(); // Annex 1 is listed first
   await page.getByRole('button', { name: 'Third' }).click();
   await page.getByRole('button', { name: 'BE301' }).click();
   await expect(page.getByText(/\d+ m to safety/)).toBeVisible();

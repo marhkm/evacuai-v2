@@ -5,10 +5,21 @@ RUN install-php-extensions pdo_pgsql intl zip bcmath pcntl gd exif opcache
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
+# The Command Center (React, command/) for officers at /command. Not committed; built here so `docker compose up` has it.
+FROM node:26-alpine AS command
+WORKDIR /repo
+COPY package.json package-lock.json ./
+COPY packages/ packages/
+COPY command/ command/
+# npm needs every workspace's manifest to read the lockfile; only command's dependencies are installed.
+COPY mobile/package.json mobile/
+RUN npm ci -w command --no-audit --no-fund && npm run build -w command
+
 FROM base AS app
 COPY api/composer.json api/composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 COPY api/ ./
+COPY --from=command /repo/api/public/command public/command
 COPY campus-data/ /campus-data/
 RUN composer dump-autoload --optimize --no-dev \
  && php artisan package:discover \

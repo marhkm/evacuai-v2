@@ -19,6 +19,7 @@ You only need **Docker Desktop** (Windows: with WSL2) and about 8 GB of RAM.
 | What | Address |
 |---|---|
 | Mobile app (web build) | http://localhost:8081 |
+| Command Center (safety officers) | http://localhost:8000/command |
 | Admin dashboard | http://localhost:8000/admin |
 | Emails (verification, password reset) | http://localhost:8025 |
 
@@ -93,7 +94,7 @@ npx playwright install chromium
 npm run e2e
 ```
 
-The tests only read data (no alerts, reports or SOS are created), so they are safe to run on a shared stack.
+The app and admin tests only read data. The Command Center tests create a drill alert and an SOS from the demo student and briefly block one path, then resolve and reopen them, so run them on your own stack, not a shared one.
 
 ## Using a real phone
 

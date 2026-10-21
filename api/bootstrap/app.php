@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withBroadcasting(__DIR__.'/../routes/channels.php', ['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['officer' => EnsureOfficer::class]);
+        $middleware->statefulApi(); // the Command Center (same origin) authenticates with the web session cookie
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
