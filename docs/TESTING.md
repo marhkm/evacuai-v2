@@ -66,6 +66,9 @@ Mark drills as drills ("This is a drill") so everyone knows it is practice.
 7. **3D.** App → **Campus map** → **All floors** or **3D**. Dashboard → **Campus 3D**: blocked paths, hazards, people
    still inside and SOS pins update every 2 seconds; choose an alert under **Replay** and press **Play**.
 8. **Feedback.** App → **Send feedback**. Dashboard → **Reports** → **Feedback** (admins also see the **Activity log**).
+9. **Responder mode.** Sign in to the app as `safety_officer@evacuai.test`: it opens on **Responder**. From another
+   window, send an SOS as a student: it appears in **SOS inbox** within seconds. Open it, **Acknowledge** and reply;
+   the student sees the reply live. Also try **Paths**, **Alerts** and **Who's missing** (during an active drill).
 
 ## Testing alone: sample data and simulations
 

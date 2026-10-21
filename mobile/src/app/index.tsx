@@ -1,15 +1,16 @@
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { AlertBanner } from '@/components/AlertBanner';
 import { Button, Screen, colors } from '@/components/ui';
 import { useAlerts } from '@/lib/alerts';
 import { getServerUrl } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
+import { isOfficer, useAuth } from '@/lib/auth';
 
 export default function Home() {
   const { state } = useAuth();
   const { active } = useAlerts();
+  const { student } = useLocalSearchParams<{ student?: string }>();
 
   if (state.status === 'loading') {
     return (
@@ -20,12 +21,15 @@ export default function Home() {
   }
   if (state.status === 'signedOut') return <Redirect href="/login" />;
   if (!state.user.consented) return <Redirect href="/consent" />;
+  const officer = isOfficer(state.user);
+  if (officer && !student) return <Redirect href="/responder" />; // officers open on their own home
 
   return (
     <Screen title="EvacuAI">
       {active.map(a => <AlertBanner key={a.id} alert={a} />)}
       <Text style={styles.welcome}>Welcome, {state.user.name}</Text>
       <Text style={styles.meta}>{state.user.role.replace('_', ' ')} · {getServerUrl()}</Text>
+      {officer ? <Button label="Responder mode" onPress={() => router.replace('/responder')} /> : null}
       <Button label="SOS" variant="danger" onPress={() => router.push('/sos')} />
       {active.length ? <Button label="Check in safe" onPress={() => router.push('/checkin')} /> : null}
       <Button label="Evacuation route" onPress={() => router.push('/route')} />

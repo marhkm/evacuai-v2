@@ -43,3 +43,21 @@ test('SOS, report, check-in, alerts, feedback and profile screens open', async (
   await page.goto('/checkin');
   await expect(page.getByRole('heading', { name: 'Check in' })).toBeVisible();
 });
+
+test.describe('Responder mode (safety officer on the app)', () => {
+  test('an officer opens on the Responder home and can open every tool', async ({ page }) => {
+    // The student session from beforeEach is cleared first. /responder also checks the server keeps the port on folder routes.
+    await page.goto('/responder');
+    await page.evaluate(() => localStorage.clear());
+    await page.goto('/login');
+    await page.getByLabel('Email').fill(demoEmail('safety_officer'));
+    await page.getByLabel('Password').fill(DEMO_PASSWORD);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page.getByText('Responder', { exact: true })).toBeVisible({ timeout: 45_000 });
+    for (const [button, title] of [['SOS inbox', 'SOS inbox'], ["Who's missing", "Who's missing"], ['Paths', 'Paths'], ['Alerts', 'Alerts']] as const) {
+      await page.getByRole('button', { name: new RegExp(`^${button}`) }).click();
+      await expect(page.getByText(title, { exact: true }).last()).toBeVisible();
+      await page.goBack();
+    }
+  });
+});

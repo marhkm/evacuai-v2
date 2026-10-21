@@ -27,6 +27,9 @@ type Auth = {
   setUser: (user: User) => Promise<void>;
 };
 
+/** Safety officers and admins get Responder mode. */
+export const isOfficer = (user: User) => user.role === 'safety_officer' || user.role === 'admin';
+
 export const DEVICE_NAME = `${Platform.OS} app`;
 const AuthContext = createContext<Auth | null>(null);
 

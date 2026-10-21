@@ -31,13 +31,13 @@ export function Field({ label, error, ...input }: TextInputProps & { label: stri
   );
 }
 
-export function Button({ label, onPress, busy, variant = 'primary' }: {
-  label: string; onPress: () => void; busy?: boolean; variant?: 'primary' | 'secondary' | 'danger';
+export function Button({ label, onPress, busy, variant = 'primary', a11yLabel }: {
+  label: string; onPress: () => void; busy?: boolean; variant?: 'primary' | 'secondary' | 'danger'; a11yLabel?: string;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={a11yLabel ?? label}
       disabled={busy}
       onPress={onPress}
       style={[styles.button, variant === 'secondary' && styles.secondary, variant === 'danger' && styles.dangerButton, busy && styles.busy]}

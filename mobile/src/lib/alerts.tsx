@@ -2,9 +2,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { router } from 'expo-router';
 import { AppState } from 'react-native';
 
-import { openRouteOnAlertTap } from '@/lib/alertTap';
+import { onNotificationTap } from '@/lib/alertTap';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
+import { isOfficer, useAuth } from '@/lib/auth';
 import { registerForPush } from '@/lib/push';
 import { subscribeAlerts } from '@/lib/realtime';
 import { storage } from '@/lib/storage';
@@ -41,8 +41,9 @@ function upsert(list: AlertItem[], a: AlertItem): AlertItem[] {
 
 /** Loads alerts, keeps them live over Reverb, refreshes when the app returns to the foreground, caches for offline. */
 export function AlertsProvider({ children }: { children: ReactNode }) {
-  const { token } = useAuth();
+  const { token, state } = useAuth();
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const officer = state.status === 'signedIn' && isOfficer(state.user);
 
   const save = useCallback((next: AlertItem[]) => {
     setAlerts(next);
@@ -73,14 +74,17 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       .then(u => (cancelled ? u() : (unsubscribe = u)))
       .catch(() => undefined); // offline: the foreground refresh catches up
     const sub = AppState.addEventListener('change', s => s === 'active' && refresh());
-    const offTap = openRouteOnAlertTap(() => router.push('/route'));
+    // Students go straight to their route; officers to the SOS or the alert to verify.
+    const offTap = onNotificationTap(tap => router.push(
+      'sosId' in tap ? `/responder/sos/${tap.sosId}` : officer ? '/responder/alerts' : '/route',
+    ));
     return () => {
       cancelled = true;
       unsubscribe?.();
       sub.remove();
       offTap();
     };
-  }, [token, refresh]);
+  }, [token, refresh, officer]);
 
   const value = useMemo(() => {
     const visible = token ? alerts : []; // signed out: show nothing, without a setState in the effect

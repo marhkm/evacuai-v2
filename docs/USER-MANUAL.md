@@ -318,6 +318,24 @@ Tap **Send feedback**, choose 1 to 5 stars, optionally add comments, and tap **S
 - **Record pressure trace (test builds):** for students helping tune floor tracking. Stand still, tap
   **Start recording**, walk the stairs written in the note, stand still, **Stop recording**, then **Share trace**.
 
+### 2.11 Responder mode (safety officers)
+
+Safety officers and admins who sign in to the app open on the **Responder** home instead of the student home. It shows
+the open SOS count, new reports and blocked paths, then four tools:
+
+- **SOS inbox:** open requests, newest first, updated live. Tap one to see where the person is and the conversation.
+  **Acknowledge** it, type a **Message** and tap **Send**, and **Resolve** it when the person is safe.
+- **Who's missing:** for the active alert, the people with an SOS, who need help or have not checked in, with their last
+  known place and a **Call** link. This list is never saved on the phone.
+- **Paths:** pick a building and floor, then set each path to **Open**, **Congested** or **Blocked**. Every phone
+  re-routes at once.
+- **Alerts:** broadcast an alert (pick **Drill** for practice). With fewer than 3 matching reports you are asked to
+  confirm that you checked the incident yourself. Active alerts can be confirmed, resolved or retracted, and drafts
+  from hazard feeds published or discarded.
+
+**Student view** opens the normal home (to evacuate, report or check in yourself); **Responder mode** brings you back.
+Tapping an SOS notification opens that SOS.
+
 ---
 
 ## 3. The Command Center (safety officers, web)
