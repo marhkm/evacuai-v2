@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-/** Local/student testing accounts only (SEED_DEMO=true). Listed in docs/TESTING.md. Never run in production. */
+/** Local/student testing accounts only (SEED_DEMO=true). Listed in docs/SETUP-GUIDE.md. Never run in production. */
 class DemoSeeder extends Seeder
 {
     public const PASSWORD = 'evacuai-demo';

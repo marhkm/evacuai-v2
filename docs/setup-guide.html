@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EvacuAI Setup Guide</title>
+<meta name="description" content="How to install Docker, start EvacuAI on your computer, connect a phone, and fix common problems.">
+<style>
+  /* Signage colours: red danger/SOS, green safe/exit, amber warning/drill, blue information. */
+  :root {
+    --danger: #D7263D; --safe: #0B7A55; --warning: #8A5A00; --info: #1A5FCC; --ink: #0B1220; --muted: #4A5568;
+    --bg: #FFFFFF; --card: #F4F6FA; --line: #D5DBE5; --tint: #E8F0FE; --safe-tint: #E3F4EC; --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --danger: #FF4D5E; --safe: #2BD48F; --warning: #FFC23D; --info: #4C8DFF; --ink: #E6EAF2; --muted: #A3AEC2;
+      --bg: #0B1220; --card: #131B2B; --line: #2A3650; --tint: #14223D; --safe-tint: #10291F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --danger: #FF4D5E; --safe: #2BD48F; --warning: #FFC23D; --info: #4C8DFF; --ink: #E6EAF2; --muted: #A3AEC2;
+    --bg: #0B1220; --card: #131B2B; --line: #2A3650; --tint: #14223D; --safe-tint: #10291F;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--info); }
+  h1, h2, h3, header.bar strong, nav.toc strong { font-family: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif; text-transform: uppercase; letter-spacing: .03em; }
+  header.bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; padding: 10px 20px;
+    background: #0B1220; color: #fff; border-bottom: 3px solid #D7263D; }
+  header.bar .logo { width: 34px; height: 34px; flex: none; }
+  header.bar strong { font-size: 22px; font-weight: 700; }
+  header.bar span { opacity: .8; font-size: 14px; }
+  header.bar .spacer { flex: 1; }
+  header.bar a, header.bar button { color: #fff; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); border-radius: 20px;
+    padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; min-height: 36px; text-decoration: none; display: inline-flex; align-items: center; }
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+  nav.toc { position: sticky; top: 84px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; padding-right: 8px; }
+  nav.toc strong { display: block; color: var(--muted); font-size: 15px; margin: 4px 0 8px; }
+  nav.toc a { display: block; text-decoration: none; color: var(--ink); border-radius: 8px; padding: 5px 10px; font-size: 15px; line-height: 1.35; }
+  nav.toc a.toc-2 { font-weight: 700; margin-top: 8px; }
+  nav.toc a.toc-3 { color: var(--muted); padding-left: 22px; font-size: 14px; }
+  nav.toc a:hover, nav.toc a.active { background: var(--tint); color: var(--ink); }
+  main { min-width: 0; max-width: 820px; }
+  .welcome { background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--safe); border-radius: var(--radius); padding: 18px 24px; margin-bottom: 8px; }
+  .welcome p:first-child { font-size: 19px; margin-top: 0; }
+  h2 { font-size: 32px; color: var(--ink); margin: 48px 0 12px; padding-top: 12px; border-top: 3px solid var(--danger); }
+  h3 { font-size: 23px; margin: 32px 0 8px; }
+  h2 .anchor, h3 .anchor { float: left; margin-left: -1em; padding-right: .3em; color: var(--line); text-decoration: none; visibility: hidden; }
+  h2:hover .anchor, h3:hover .anchor { visibility: visible; }
+  p, li { max-width: 72ch; }
+  li { margin: 4px 0; }
+  li:has(> input.check) { list-style: none; margin-left: -1.4em; }
+  input.check { width: 20px; height: 20px; margin: 0 8px 0 0; vertical-align: -4px; accent-color: var(--safe); cursor: pointer; }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; background: var(--card);
+    border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; }
+  .code { position: relative; margin: 12px 0; }
+  .code pre { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; padding-right: 72px; overflow-x: auto; }
+  .code pre code { background: none; border: 0; padding: 0; font-size: 14px; overflow-wrap: normal; }
+  .code .copy { position: absolute; top: 8px; right: 8px; border: 1px solid var(--info); background: var(--bg); color: var(--info);
+    border-radius: 20px; padding: 3px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .code .copy.done { background: var(--safe); border-color: var(--safe); color: #fff; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  th { background: var(--card); font-weight: 700; }
+  tr:last-child td { border-bottom: 0; }
+  aside.tip { background: var(--tint); border-left: 4px solid var(--info); border-radius: var(--radius); padding: 4px 16px; margin: 16px 0; }
+  figure { margin: 20px 0; }
+  figure img { max-width: 100%; max-height: 560px; border: 1px solid var(--line); border-radius: var(--radius); display: block; }
+  figcaption { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  hr { display: none; }
+  .back { position: fixed; right: 20px; bottom: 20px; background: var(--ink); color: var(--bg); border-radius: 24px; padding: 10px 16px;
+    text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+  footer { color: var(--muted); font-size: 14px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  details.toc-mobile { display: none; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; padding: 16px 16px 64px; }
+    nav.toc { display: none; }
+    details.toc-mobile { display: block; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; }
+    details.toc-mobile summary { font-weight: 700; cursor: pointer; min-height: 32px; }
+    details.toc-mobile a { display: block; padding: 4px 0; text-decoration: none; }
+    details.toc-mobile a.toc-3 { padding-left: 16px; font-size: 15px; color: var(--muted); }
+    header.bar span, header.bar a { display: none; }
+    h2 { font-size: 26px; }
+  }
+  @media print {
+    header.bar, nav.toc, details.toc-mobile, .back, .code .copy { display: none !important; }
+    .layout { display: block; padding: 0; }
+    h2 { break-before: page; }
+    figure { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <svg class="logo" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#D7263D"/><path d="M18 6l10 4v7c0 6.5-4.2 11.4-10 13-5.8-1.6-10-6.5-10-13v-7z" fill="#fff"/><path d="M16 12h4v6h4l-6 7-6-7h4z" fill="#0B7A55"/></svg>
+  <strong>EvacuAI Setup Guide</strong><span>Run EvacuAI on your own computer</span>
+  <div class="spacer"></div>
+  <a href="walkthrough.html">Walkthrough</a>
+  <button type="button" id="theme" aria-label="Switch between light and dark">Dark mode</button>
+</header>
+<div class="layout">
+  <nav class="toc" aria-label="Contents"><strong>Contents</strong>
+<a class="toc-2" href="#1-what-you-need">1. What you need</a>
+<a class="toc-2" href="#2-install-docker-desktop">2. Install Docker Desktop</a>
+<a class="toc-2" href="#3-get-the-code">3. Get the code</a>
+<a class="toc-2" href="#4-start-evacuai">4. Start EvacuAI</a>
+<a class="toc-2" href="#5-open-it-and-sign-in">5. Open it and sign in</a>
+<a class="toc-2" href="#6-use-a-real-phone-optional">6. Use a real phone (optional)</a>
+<a class="toc-2" href="#7-sample-data-and-simulations">7. Sample data and simulations</a>
+<a class="toc-3" href="#71-the-sample-drill">7.1 The sample drill</a>
+<a class="toc-3" href="#72-simulation-commands">7.2 Simulation commands</a>
+<a class="toc-2" href="#8-stop-update-and-reset">8. Stop, update and reset</a>
+<a class="toc-2" href="#9-optional-features">9. Optional features</a>
+<a class="toc-2" href="#10-privacy-and-data">10. Privacy and data</a>
+<a class="toc-2" href="#11-troubleshooting">11. Troubleshooting</a>
+  </nav>
+  <main>
+    <details class="toc-mobile"><summary>Contents</summary>
+<a class="toc-2" href="#1-what-you-need">1. What you need</a>
+<a class="toc-2" href="#2-install-docker-desktop">2. Install Docker Desktop</a>
+<a class="toc-2" href="#3-get-the-code">3. Get the code</a>
+<a class="toc-2" href="#4-start-evacuai">4. Start EvacuAI</a>
+<a class="toc-2" href="#5-open-it-and-sign-in">5. Open it and sign in</a>
+<a class="toc-2" href="#6-use-a-real-phone-optional">6. Use a real phone (optional)</a>
+<a class="toc-2" href="#7-sample-data-and-simulations">7. Sample data and simulations</a>
+<a class="toc-3" href="#71-the-sample-drill">7.1 The sample drill</a>
+<a class="toc-3" href="#72-simulation-commands">7.2 Simulation commands</a>
+<a class="toc-2" href="#8-stop-update-and-reset">8. Stop, update and reset</a>
+<a class="toc-2" href="#9-optional-features">9. Optional features</a>
+<a class="toc-2" href="#10-privacy-and-data">10. Privacy and data</a>
+<a class="toc-2" href="#11-troubleshooting">11. Troubleshooting</a>
+    </details>
+    <section class="welcome">
+<p>EvacuAI warns people on campus about emergencies, shows each person a safe way out, and gives safety officers a live
+picture of who is safe and who needs help. This guide gets the whole system running on <strong>your own computer</strong>. When it
+runs, follow the <a href="walkthrough.html">Walkthrough</a> to try every function step by step.</p>
+<p>This guide covers, in order:</p>
+<p><strong>Where each person works</strong></p>
+<table>
+<thead>
+<tr>
+<th>Who</th>
+<th>Where</th>
+<th>Address once it runs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Students, faculty, staff</td>
+<td>The <strong>EvacuAI app</strong> (phone, or its web version)</td>
+<td><a href="http://localhost:8081">http://localhost:8081</a></td>
+</tr>
+<tr>
+<td>Safety officers</td>
+<td>The <strong>Command Center</strong> (web), and <strong>Responder mode</strong> in the app</td>
+<td><a href="http://localhost:8000/command">http://localhost:8000/command</a></td>
+</tr>
+<tr>
+<td>Admins</td>
+<td>The <strong>Admin panel</strong>: accounts, activity log, class schedules, QR stickers</td>
+<td><a href="http://localhost:8000/admin">http://localhost:8000/admin</a></td>
+</tr>
+</tbody></table>
+<hr>
+
+    </section>
+<h2 id="1-what-you-need"><a class="anchor" href="#1-what-you-need" aria-hidden="true">#</a>1. What you need</h2>
+<ul>
+<li>A computer with <strong>8 GB of RAM</strong> or more (Windows 10/11, macOS or Linux) and about <strong>15 GB of free disk space</strong>.</li>
+<li><strong>Docker Desktop</strong> (next section). It runs everything: you do <strong>not</strong> need PHP, Node.js or a database.</li>
+<li>Chrome, Edge or Firefox.</li>
+<li>An internet connection for the first start (it downloads the building blocks once).</li>
+<li>Optional: an Android phone on the same Wi-Fi as the computer (section 6).</li>
+</ul>
+<h2 id="2-install-docker-desktop"><a class="anchor" href="#2-install-docker-desktop" aria-hidden="true">#</a>2. Install Docker Desktop</h2>
+<ol>
+<li><p>Download Docker Desktop from <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a> and run the installer.</p>
+</li>
+<li><p><strong>Windows:</strong> keep <strong>Use WSL 2</strong> ticked. If the installer or Docker asks you to update WSL, open <strong>PowerShell</strong> and
+run the command below, then restart the computer:</p>
+<div class="code"><pre><code data-lang="powershell">wsl --update</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p>Start <strong>Docker Desktop</strong> and wait until the whale icon says <strong>Docker Desktop is running</strong> (the first start can take
+a few minutes). You can skip signing in to Docker.</p>
+</li>
+</ol>
+<aside class="tip"><p><strong>Windows tip (slow computer):</strong> Docker can take most of your memory. To cap it, create the file
+<code>C:\Users\&lt;your name&gt;\.wslconfig</code> containing the two lines below, run <code>wsl --shutdown</code> in PowerShell, then start
+Docker Desktop again.</p>
+<div class="code"><pre><code data-lang="ini">[wsl2]
+memory=4GB</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</aside>
+<h2 id="3-get-the-code"><a class="anchor" href="#3-get-the-code" aria-hidden="true">#</a>3. Get the code</h2>
+<p><strong>Option A, without git:</strong> open <a href="https://github.com/marhkm/evacuai-v2">https://github.com/marhkm/evacuai-v2</a>, click the green <strong>Code</strong> button, then
+<strong>Download ZIP</strong>. Unzip it, for example to <code>Documents\evacuai-v2</code>.</p>
+<p><strong>Option B, with git:</strong></p>
+<div class="code"><pre><code data-lang="bash">git clone https://github.com/marhkm/evacuai-v2.git</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Then make the settings file: in the <code>docker</code> folder, <strong>copy</strong> <code>.env.example</code> and name the copy <code>.env</code>. The defaults
+work as they are.</p>
+<ul>
+<li><p><strong>Windows File Explorer:</strong> first turn on <strong>View → Show → File name extensions</strong>, so the file is really named <code>.env</code>
+and not <code>.env.txt</code>.</p>
+</li>
+<li><p><strong>Terminal (Git Bash, macOS, Linux):</strong></p>
+<div class="code"><pre><code data-lang="bash">cp docker/.env.example docker/.env</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+</ul>
+<h2 id="4-start-evacuai"><a class="anchor" href="#4-start-evacuai" aria-hidden="true">#</a>4. Start EvacuAI</h2>
+<p>Open a terminal <strong>in the project folder</strong> (Windows: open the folder in File Explorer, right-click an empty space,
+choose <strong>Open in Terminal</strong>). Then run:</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml up -d --build</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>The <strong>first start takes 10 to 20 minutes</strong>: it builds the app, the Command Center and the phone app&#39;s web version,
+creates the database, imports the UCLM campus map (Basic Ed and Annex 1) and creates the demo accounts. Later starts
+take seconds.</p>
+<p>Check that everything is running:</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml ps</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>You should see <code>app</code>, <code>reverb</code>, <code>queue</code>, <code>scheduler</code>, <code>postgres</code>, <code>mailpit</code> and <code>mobile-web</code>, each <strong>Up</strong>, and <code>app</code>
+marked <strong>healthy</strong>. If <code>app</code> is still <strong>starting</strong>, wait a minute and check again.</p>
+<h2 id="5-open-it-and-sign-in"><a class="anchor" href="#5-open-it-and-sign-in" aria-hidden="true">#</a>5. Open it and sign in</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What</th>
+<th>Address</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EvacuAI app (web version of the phone app)</td>
+<td><a href="http://localhost:8081">http://localhost:8081</a></td>
+</tr>
+<tr>
+<td>Command Center (safety officers)</td>
+<td><a href="http://localhost:8000/command">http://localhost:8000/command</a></td>
+</tr>
+<tr>
+<td>Admin panel (admins)</td>
+<td><a href="http://localhost:8000/admin">http://localhost:8000/admin</a></td>
+</tr>
+<tr>
+<td>Test mailbox (sign-up and password codes)</td>
+<td><a href="http://localhost:8025">http://localhost:8025</a></td>
+</tr>
+</tbody></table>
+</div><p>Tip: to make the app look like a phone in Chrome or Edge, press <strong>F12</strong>, click the phone/tablet icon at the top left of
+the panel that opens, and choose a phone such as <strong>Pixel 7</strong>.</p>
+<p><strong>Demo accounts</strong> (password for all of them: <strong><code>evacuai-demo</code></strong>). They exist only on test setups, never in
+production.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Email</th>
+<th>Opens on</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Student</td>
+<td><a href="mailto:student@evacuai.test">student@evacuai.test</a></td>
+<td>The app&#39;s student home</td>
+</tr>
+<tr>
+<td>Faculty</td>
+<td><a href="mailto:faculty@evacuai.test">faculty@evacuai.test</a></td>
+<td>The app&#39;s student home</td>
+</tr>
+<tr>
+<td>Staff</td>
+<td><a href="mailto:staff@evacuai.test">staff@evacuai.test</a></td>
+<td>The app&#39;s student home</td>
+</tr>
+<tr>
+<td>Safety officer</td>
+<td><a href="mailto:safety_officer@evacuai.test">safety_officer@evacuai.test</a></td>
+<td>Command Center (web), Responder mode (app)</td>
+</tr>
+<tr>
+<td>Admin</td>
+<td><a href="mailto:admin@evacuai.test">admin@evacuai.test</a></td>
+<td>Admin panel, Command Center and Responder mode</td>
+</tr>
+</tbody></table>
+</div><p>You can also create your own account in the app (<strong>Create an account</strong>). The 6-digit code arrives in the test mailbox
+at <a href="http://localhost:8025">http://localhost:8025</a>. New accounts are always students; an admin can change the role in the Admin panel
+(<strong>Users</strong>).</p>
+<h2 id="6-use-a-real-phone-optional"><a class="anchor" href="#6-use-a-real-phone-optional" aria-hidden="true">#</a>6. Use a real phone (optional)</h2>
+<p>The Android app talks to EvacuAI running on your computer, over Wi-Fi. A phone adds QR sticker scanning, camera photos,
+floor tracking with the barometer, GPS check-in and <strong>push notifications</strong>.</p>
+<ol>
+<li><p><strong>Install the app.</strong> Open the EvacuAI APK link your teacher shares (or scan its QR code) on the Android phone,
+download it and tap it to install. Android asks once to allow installing apps from your browser or files app:
+allow it. You do not need an Expo, Firebase or Google Play account.</p>
+</li>
+<li><p><strong>Start EvacuAI on your computer</strong> (section 4).</p>
+</li>
+<li><p><strong>Put the phone and the computer on the same Wi-Fi.</strong> School and café networks often block devices from reaching
+each other; a phone hotspot that the computer joins always works.</p>
+</li>
+<li><p><strong>Find your computer&#39;s address.</strong> Windows: run <code>ipconfig</code> in PowerShell and copy the <strong>IPv4 Address</strong> of the Wi-Fi
+adapter (for example <code>192.168.1.5</code>). macOS: System Settings → Wi-Fi → Details.</p>
+</li>
+<li><p><strong>Windows only: let the phone through the firewall</strong> (once). Open PowerShell <strong>as administrator</strong> and run:</p>
+<div class="code"><pre><code data-lang="powershell">New-NetFirewallRule -DisplayName "EvacuAI test stack" -Direction Inbound -Protocol TCP -LocalPort 8000,8080,8081 -Action Allow -Profile Private</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Also make sure Windows treats the Wi-Fi as a <strong>Private</strong> network (Settings → Network &amp; internet → Wi-Fi → your
+network → <strong>Private network</strong>).</p>
+</li>
+<li><p><strong>Point the app at your computer.</strong> Open EvacuAI on the phone, tap <strong>Server: …</strong> under the <strong>Sign in</strong> button, enter
+<code>http://&lt;your computer&#39;s address&gt;:8000</code> (for example <code>http://192.168.1.5:8000</code>), tap <strong>Save server</strong>, and sign in.</p>
+</li>
+</ol>
+<p><strong>Check:</strong> the phone&#39;s browser should open <code>http://&lt;your computer&#39;s address&gt;:8000/up</code>. If it does not, the phone cannot
+reach the computer: check step 3 and step 5.</p>
+<p>Push notifications need internet on the computer (they go through Expo&#39;s push service). Allow notifications when the
+app asks.</p>
+<p>Officers can also open the Command Center from another computer or tablet on the same Wi-Fi at
+<code>http://&lt;your computer&#39;s address&gt;:8000/command</code>.</p>
+<h2 id="7-sample-data-and-simulations"><a class="anchor" href="#7-sample-data-and-simulations" aria-hidden="true">#</a>7. Sample data and simulations</h2>
+<p>You cannot easily be twenty students and an officer at once, so EvacuAI includes sample data and simulations. They
+work only on test setups.</p>
+<h3 id="71-the-sample-drill"><a class="anchor" href="#71-the-sample-drill" aria-hidden="true">#</a>7.1 The sample drill</h3>
+<p>Every fresh setup already contains a finished <strong>sample earthquake drill</strong> from two days ago, so the officer screens have
+data from the start:</p>
+<ul>
+<li>12 sample people (<strong>Sample Student 01–12</strong>). They have no password, so nobody can sign in as them.</li>
+<li>9 checked in safe, 1 needed help (with a resolved SOS and a short chat) and 2 never checked in.</li>
+<li>Where each person was during the drill, plus three feedback ratings.</li>
+</ul>
+<p>See it in the Command Center: <strong>Safety</strong> (choose the sample drill under <strong>Alert</strong>), <strong>Replay</strong> (choose it and press
+<strong>Play</strong>) and <strong>Feedback</strong>.</p>
+<h3 id="72-simulation-commands"><a class="anchor" href="#72-simulation-commands" aria-hidden="true">#</a>7.2 Simulation commands</h3>
+<p>Run these in a terminal in the project folder while the app and the Command Center are open. Each one prints what to
+look at.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What happens</th>
+<th>Where to look</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate drill</code></td>
+<td>A drill alert goes out. Over 90 seconds, sample people are seen in their rooms, move to the stairs and check in; one needs help and sends an SOS. The drill is resolved at the end.</td>
+<td>App banner; Command Center <strong>Live Ops</strong>, <strong>Safety</strong>, <strong>SOS</strong></td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reports</code></td>
+<td>Three sample people report a fire on the same floor. The 3-report rule broadcasts an <strong>UNVERIFIED</strong> alert.</td>
+<td>App banner; Command Center <strong>Reports</strong> and <strong>Alerts</strong> (Confirm or Retract)</td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate sos</code></td>
+<td>A sample student sends an SOS from a room.</td>
+<td>Command Center <strong>SOS</strong>; app <strong>Responder → SOS inbox</strong></td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate block</code></td>
+<td>The first open stair is blocked.</td>
+<td>An open evacuation route re-routes; Command Center <strong>Paths</strong></td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate reopen</code></td>
+<td>Every blocked or congested path is opened again.</td>
+<td>Command Center <strong>Paths</strong></td>
+</tr>
+<tr>
+<td><code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate feed</code></td>
+<td>Sample earthquake, heavy-rain and wind-signal events become <strong>draft</strong> alerts.</td>
+<td>Command Center <strong>Alerts</strong> (status <strong>draft</strong>: Publish or Discard)</td>
+</tr>
+</tbody></table>
+</div><p>Options for <code>drill</code>: <code>--people=20</code> (up to 50), <code>--seconds=180</code>, and <code>--keep</code> (leave the drill active so you can check in,
+answer the SOS and resolve it yourself). Option for <code>reports</code>: <code>--hazard=flood</code> (or earthquake, structural_damage,
+other).</p>
+<h2 id="8-stop-update-and-reset"><a class="anchor" href="#8-stop-update-and-reset" aria-hidden="true">#</a>8. Stop, update and reset</h2>
+<p>Stop (keeps your data):</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml down</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Start again later:</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml up -d</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Update after downloading new code (new ZIP or <code>git pull</code>):</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml up -d --build</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Reset everything: deletes the database, accounts you made and uploaded photos. The next start creates a fresh setup.</p>
+<div class="code"><pre><code data-lang="bash">docker compose -f docker/compose.yml down -v</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<h2 id="9-optional-features"><a class="anchor" href="#9-optional-features" aria-hidden="true">#</a>9. Optional features</h2>
+<p>These are off until they are set in <code>docker/.env</code>. After changing that file, run
+<code>docker compose -f docker/compose.yml up -d --build</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Settings in <code>docker/.env</code></th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hazard feeds</td>
+<td><code>FEEDS_ENABLED=true</code>, <code>CAMPUS_LAT</code>, <code>CAMPUS_LNG</code></td>
+<td>Every 5 minutes, turns nearby earthquakes (PHIVOLCS, USGS), heavy-rain forecasts (Open-Meteo) and PAGASA wind signals into <strong>draft</strong> alerts for officers to publish or discard. <code>FEEDS_FAKE=true</code> uses built-in samples without internet.</td>
+</tr>
+<tr>
+<td>AI assist</td>
+<td><code>GEMINI_API_KEY</code> and/or <code>GROQ_API_KEY</code>, or <code>OLLAMA_URL</code></td>
+<td>Adds <strong>Translate with AI</strong> to the alert form and <strong>Summarize</strong> to Reports. Free AI tiers may keep what you send: never type names or phone numbers in alerts.</td>
+</tr>
+<tr>
+<td>Google sign-in</td>
+<td><code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code></td>
+<td>Google Cloud OAuth client (Web application) with <code>http://localhost:8081</code> as authorized origin and redirect URI. In Testing mode, add each student&#39;s Google email as a test user.</td>
+</tr>
+<tr>
+<td>Microsoft 365 sign-in</td>
+<td><code>MICROSOFT_TENANT_ID</code>, <code>MICROSOFT_CLIENT_ID</code></td>
+<td>Entra ID &quot;Single-page application&quot; registration with redirect <code>http://localhost:8081</code>. Only accounts of that school can sign in.</td>
+</tr>
+<tr>
+<td>SMS alerts</td>
+<td><code>SEMAPHORE_API_KEY</code></td>
+<td>Sends alerts by SMS (paid per message) to users with a mobile number.</td>
+</tr>
+</tbody></table>
+</div><p><strong>Building the Android app (teachers only).</strong> Testers install the APK from a link and never build it. It is built on
+Expo&#39;s servers from the <code>mobile</code> folder by the Expo account that owns the project:</p>
+<div class="code"><pre><code data-lang="bash">cd mobile</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<div class="code"><pre><code data-lang="bash">npx eas-cli@latest build --platform android --profile preview</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>After 15–40 minutes the build page on expo.dev shows the download link and a QR code to share. Build again after app
+changes (for example new fonts or screens); the new APK installs over the old one.</p>
+<h2 id="10-privacy-and-data"><a class="anchor" href="#10-privacy-and-data" aria-hidden="true">#</a>10. Privacy and data</h2>
+<p>EvacuAI follows the Data Privacy Act of 2012 (RA 10173):</p>
+<ul>
+<li>Location is used only during an emergency (route, SOS, check-in), kept only for an active alert, and deleted after
+30 days.</li>
+<li>Report photos are re-saved without hidden data (GPS position, phone model, time), are visible only to safety officers
+and admins, and are deleted 30 days after the report is closed.</li>
+<li>The officer&#39;s list of missing people is never saved on officers&#39; phones.</li>
+<li>IP addresses in the activity log are cleared after 30 days. Deleting your account deletes your reports and photos.</li>
+<li>AI translation and summaries send only the alert or report text, never names or contact details.</li>
+<li>The 30-day period is <code>PRIVACY_RETENTION_DAYS</code> in <code>docker/.env</code>. Before a pilot with real users, check the setup with
+the UCLM Data Protection Officer.</li>
+</ul>
+<h2 id="11-troubleshooting"><a class="anchor" href="#11-troubleshooting" aria-hidden="true">#</a>11. Troubleshooting</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docker</code> is not recognized</td>
+<td>Docker Desktop is not installed or not running. Start it and wait until it says <strong>running</strong>, then open a new terminal.</td>
+</tr>
+<tr>
+<td>&quot;port is already allocated&quot;</td>
+<td>Another program uses port 8000, 8080, 8081, 5432, 8025 or 1025. Close it, or stop the other Docker project.</td>
+</tr>
+<tr>
+<td>The first start seems stuck</td>
+<td>It downloads a lot once. Wait, then check <code>docker compose -f docker/compose.yml logs app</code>.</td>
+</tr>
+<tr>
+<td>The computer becomes very slow</td>
+<td>Cap Docker&#39;s memory (tip in section 2), close other programs, and build one part at a time: <code>docker compose -f docker/compose.yml build app</code>, then <code>docker compose -f docker/compose.yml build mobile-web</code>, then <code>up -d</code>.</td>
+</tr>
+<tr>
+<td><a href="http://localhost:8000/command">http://localhost:8000/command</a> says &quot;Command Center not built&quot;</td>
+<td>Rebuild: <code>docker compose -f docker/compose.yml up -d --build</code>.</td>
+</tr>
+<tr>
+<td>The app says &quot;Cannot reach the server&quot;</td>
+<td>Check that <code>app</code> is running (<code>docker compose -f docker/compose.yml ps</code>). On a phone, check the server address, the Wi-Fi and the firewall (section 6).</td>
+</tr>
+<tr>
+<td>No sign-up code arrives</td>
+<td>Open <a href="http://localhost:8025">http://localhost:8025</a>. On a test setup all emails go there.</td>
+</tr>
+<tr>
+<td>Alerts or chat do not update live</td>
+<td>Check that <code>reverb</code> is running. The Command Center shows <strong>RECONNECTING</strong> and refreshes every 15 seconds meanwhile.</td>
+</tr>
+<tr>
+<td>&quot;This browser cannot show 3D&quot;</td>
+<td>Turn on hardware acceleration in the browser settings, or use <strong>Floor plan</strong> or <strong>All floors</strong>.</td>
+</tr>
+<tr>
+<td>A safety officer cannot open the Admin panel</td>
+<td>Correct: the Admin panel is for admins. Officers use the Command Center at <a href="http://localhost:8000/command">http://localhost:8000/command</a>.</td>
+</tr>
+<tr>
+<td>A student cannot open the Command Center</td>
+<td>Correct: only safety officers and admins can. An admin can change the role in <strong>Users</strong>.</td>
+</tr>
+<tr>
+<td>Start over completely</td>
+<td><code>docker compose -f docker/compose.yml down -v</code>, then <code>docker compose -f docker/compose.yml up -d --build</code>.</td>
+</tr>
+</tbody></table>
+</div><p>Found a bug? Write down the steps you took, what you expected, what happened, and add a screenshot. Then open a GitHub
+issue or give it to your teacher.</p>
+
+    <footer>Generated from docs/SETUP-GUIDE.md. EvacuAI, UCLM capstone project.</footer>
+  </main>
+</div>
+<a class="back" href="#">↑ Top</a>
+<script>
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+  // Copy buttons on commands.
+  document.querySelectorAll('.code .copy').forEach(b => b.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(b.parentElement.querySelector('code').innerText);
+      b.textContent = 'Copied'; b.classList.add('done');
+      setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('done'); }, 1500);
+    } catch { b.textContent = 'Select and copy'; }
+  }));
+  // Check boxes are remembered on this device, so a tester can come back later.
+  const key = 'evacuai-setup-guide.html-checks';
+  const boxes = [...document.querySelectorAll('input.check')];
+  const saved = (store.get(key) ?? '').split(',');
+  boxes.forEach((b, i) => { if (saved[i] === '1') b.checked = true; b.addEventListener('change', () => store.set(key, boxes.map(x => (x.checked ? '1' : '0')).join(','))); });
+  // Light / dark, remembered on this device.
+  const root = document.documentElement, btn = document.getElementById('theme');
+  const dark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => { btn.textContent = dark() ? 'Light mode' : 'Dark mode'; };
+  const t = store.get('evacuai-manual-theme'); if (t) root.dataset.theme = t;
+  label();
+  btn.addEventListener('click', () => { root.dataset.theme = dark() ? 'light' : 'dark'; label(); store.set('evacuai-manual-theme', root.dataset.theme); });
+  // Highlight the section being read in the contents.
+  const links = [...document.querySelectorAll('nav.toc a')];
+  const observer = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+  }), { rootMargin: '-80px 0px -70% 0px' });
+  document.querySelectorAll('main h2[id], main h3[id]').forEach(h => observer.observe(h));
+</script>
+</body>
+</html>

@@ -110,7 +110,7 @@ evacu-ai/
     compose.dev.yml       override: mount source for developers
     .env.example
   .github/workflows/      ci.yml, images.yml, deploy.yml, eas.yml
-  docs/                   PLAN.md, TESTING.md (student guide), RUNBOOK.md
+  docs/                   PLAN.md, SETUP-GUIDE.md and WALKTHROUGH.md (student guides), RUNBOOK.md
 ```
 
 pnpm workspace = `mobile` + `packages/routing`. The Laravel app is managed by Composer in `api/`.
@@ -255,7 +255,7 @@ The first start runs migrations and the demo seed automatically.
 AI features are off unless `GEMINI_API_KEY` or `GROQ_API_KEY` is set in `.env`, or the `ai-local` profile is used. Students can each get a free Gemini key from Google AI Studio.
 
 **Demo data:**
-- Demo accounts for each role. Their emails and passwords are defined in the Laravel demo seeder and listed in `docs/TESTING.md`.
+- Demo accounts for each role. Their emails and passwords are defined in the Laravel demo seeder and listed in `docs/SETUP-GUIDE.md`.
 - A demo building.
 - A sample active incident, so every screen has data.
 - `docker compose down -v` resets everything.
@@ -290,7 +290,7 @@ AI features are off unless `GEMINI_API_KEY` or `GROQ_API_KEY` is set in `.env`, 
 | Devices | Low-end Android 8–9 (2 GB RAM), mid-range, tablet | Startup, route render, battery over a 30-minute drill |
 | Accessibility | TalkBack, font scaling, contrast | Large SOS button, readable under stress |
 | Security | OWASP ASVS/MASVS checklists, `composer audit`, `pnpm audit`, secrets scan | No secrets in the APK. HTTPS only in production. CSRF on admin, Sanctum on API |
-| Student round | Scripted scenarios in `docs/TESTING.md`, bugs filed through a GitHub Issue template | |
+| Student round | Scripted scenarios in `docs/WALKTHROUGH.md`, bugs filed through a GitHub Issue template | |
 | Field test | Live drill with the UCLM Civil Security Unit | Alert-to-device time, check-in %, route correctness, SOS response time |
 | Evaluation | Google Forms, ISO/IEC 25010 + 5-point Likert, weighted mean (Ch. III) | The 8 quality characteristics |
 
