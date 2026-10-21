@@ -51,5 +51,5 @@ const useStyles = makeStyles(c => ({
   grow: { flex: 1 },
   name: { fontFamily: fonts.bodyBold, fontSize: 17, color: c.text },
   meta: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
-  call: { fontFamily: fonts.bodyBold, color: c.info, fontSize: 16, paddingHorizontal: 4 },
+  call: { fontFamily: fonts.bodyBold, color: c.infoText, fontSize: 16, paddingHorizontal: 4 },
 }));

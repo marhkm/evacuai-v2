@@ -17,6 +17,10 @@ const palette = (mode: Mode) => {
     infoFill: tokens.color.info.light,
     warningFill: tokens.color.warning.light,
     drillFill: '#8A5A00',
+    // Small text in a status colour (messages, links, unselected chips): 4.5:1 on surface and surface2.
+    safeText: mode === 'light' ? '#0B7A55' : t.safe,
+    warningText: mode === 'light' ? '#8A5A00' : t.warning,
+    infoText: mode === 'light' ? '#1A5FCC' : t.info,
     // Soft backgrounds for status cards (sent SOS, checked in, …), readable under ink text in each mode.
     safeTint: mode === 'light' ? '#E3F4EC' : '#10291F',
     dangerTint: mode === 'light' ? '#FDECEA' : '#3A1418',

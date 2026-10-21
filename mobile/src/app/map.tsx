@@ -96,10 +96,10 @@ function Tabs({ items, active, onSelect }: { items: { key: string; label: string
 
 const useStyles = makeStyles(c => ({
   tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tab: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: c.primary, minHeight: 44, justifyContent: 'center' },
-  tabActive: { backgroundColor: c.primary },
-  tabText: { fontFamily: fonts.bodySemi, color: c.primary, fontSize: 15 },
-  tabTextActive: { color: c.surface },
+  tab: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1.5, borderColor: c.infoText, minHeight: 44, justifyContent: 'center' },
+  tabActive: { backgroundColor: c.infoFill, borderColor: c.infoFill },
+  tabText: { fontFamily: fonts.bodySemi, color: c.infoText, fontSize: 15 },
+  tabTextActive: { color: c.onColor },
   legend: { gap: 4 },
   legendText: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
   blocked: { color: c.danger, fontFamily: fonts.bodyBold },

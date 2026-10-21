@@ -12,6 +12,10 @@ test.each(['light', 'dark'] as const)('%s theme: text is readable (WCAG AA)', mo
   }
   for (const fill of [c.dangerFill, c.safeFill, c.infoFill, c.drillFill]) expect(contrast(c.onColor, fill)).toBeGreaterThanOrEqual(4.5);
   for (const status of [c.danger, c.safe, c.warning, c.info]) expect(contrast(status, c.surface)).toBeGreaterThanOrEqual(3); // large status text
+  // Colours used for small text (messages, links, unselected chips, tabs) must reach 4.5:1 on both surfaces.
+  for (const text of [c.safeText, c.warningText, c.infoText, c.danger]) {
+    for (const bg of [c.surface, c.surface2]) expect(contrast(text, bg)).toBeGreaterThanOrEqual(4.5);
+  }
 });
 
 test('styles follow the phone: dark mode gets the dark surface', async () => {

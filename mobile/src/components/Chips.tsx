@@ -13,7 +13,7 @@ export function Chips({ items, active, onSelect, tone = 'info' }: {
   const s = useStyles();
   const c = useTheme();
   const fill = { info: c.infoFill, danger: c.dangerFill, safe: c.safeFill, warning: c.drillFill, ink: c.ink }[tone];
-  const line = tone === 'ink' ? c.ink : c[tone];
+  const line = { info: c.infoText, danger: c.danger, safe: c.safeText, warning: c.warningText, ink: c.ink }[tone];
   const onFill = tone === 'ink' ? c.surface : c.onColor;
   return (
     <View style={s.chips}>
