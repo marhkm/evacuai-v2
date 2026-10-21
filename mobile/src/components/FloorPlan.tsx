@@ -1,10 +1,10 @@
 import { routeChevrons, toFloorShapes, toPlanShapes } from '@evacuai/campus-view';
 import type { CampusSnapshot, Point } from '@evacuai/routing';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Polygon, Polyline, Text as SvgText } from 'react-native-svg';
 
-import { colors } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 
 /** Poster palette: the same look as UCLM's printed evacuation plans. */
 export const PLAN = {
@@ -33,6 +33,7 @@ const pts = (p: Point[]) => p.map(q => q.join(',')).join(' ');
 
 /** One floor drawn like the evacuation poster: walls, door swings, stairs, blue labels, red escape chevrons. */
 export function FloorPlan({ snapshot, building, level, route, you, badge }: Props) {
+  const styles = useStyles();
   const [legend, setLegend] = useState(false);
   const plan = useMemo(() => toPlanShapes(snapshot, building, level), [snapshot, building, level]);
   const shapes = useMemo(() => toFloorShapes(snapshot, building, level), [snapshot, building, level]);
@@ -117,11 +118,12 @@ export function FloorPlan({ snapshot, building, level, route, you, badge }: Prop
   );
 }
 
-const styles = StyleSheet.create({
+// The plan itself is always the white poster sheet; the controls around it follow the theme.
+const useStyles = makeStyles(c => ({
   wrap: { gap: 8 },
-  badge: { alignSelf: 'flex-start', backgroundColor: PLAN.you, color: '#fff', fontWeight: '800', fontSize: 15, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
-  legendChip: { alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.muted, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, minHeight: 44, justifyContent: 'center' },
-  legendTitle: { fontSize: 14, fontWeight: '700', color: colors.text },
-  legend: { gap: 4, padding: 12, borderRadius: 12, backgroundColor: '#f4f6fa' },
-  legendRow: { fontSize: 15, fontWeight: '700' },
-});
+  badge: { alignSelf: 'flex-start', backgroundColor: c.safeFill, color: c.onColor, fontFamily: fonts.display, fontSize: 18, letterSpacing: 0.6, textTransform: 'uppercase', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 999, overflow: 'hidden' },
+  legendChip: { alignSelf: 'flex-start', borderWidth: 1.5, borderColor: c.muted, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, minHeight: 44, justifyContent: 'center' },
+  legendTitle: { fontFamily: fonts.bodySemi, fontSize: 14, color: c.ink },
+  legend: { gap: 4, padding: 12, borderRadius: 12, backgroundColor: PLAN.sheet },
+  legendRow: { fontFamily: fonts.bodyBold, fontSize: 15 },
+}));

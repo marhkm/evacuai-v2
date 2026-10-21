@@ -2,10 +2,11 @@ import type { CampusSnapshot } from '@evacuai/routing';
 import * as ImagePicker from 'expo-image-picker';
 import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Platform, StyleSheet, View } from 'react-native';
+import { Image, Platform, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
-import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { Button, Field, Message, Screen } from '@/components/ui';
+import { makeStyles } from '@/theme';
 import { ApiError, api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { loadSnapshot } from '@/lib/campus';
@@ -19,6 +20,7 @@ const HAZARDS = [
 ];
 
 export default function Report() {
+  const styles = useStyles();
   const { state, token } = useAuth();
   const [snapshot, setSnapshot] = useState<CampusSnapshot | null>(null);
   const [hazard, setHazard] = useState<string | null>(null);
@@ -88,7 +90,7 @@ export default function Report() {
   return (
     <Screen title="Report a hazard">
       <Section label="What is it?">
-        <Chips items={HAZARDS} active={hazard} onSelect={setHazard} color={colors.danger} />
+        <Chips items={HAZARDS} active={hazard} onSelect={setHazard} tone="danger" />
       </Section>
       {snapshot && snapshot.buildings.length > 1 ? (
         <Section label="Building">
@@ -136,8 +138,8 @@ async function photoPart(asset: ImagePicker.ImagePickerAsset): Promise<Blob> {
   return { uri: asset.uri, name: asset.fileName ?? 'photo.jpg', type: asset.mimeType ?? 'image/jpeg' } as unknown as Blob;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(c => ({
   photoRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   flex: { flex: 1 },
-  thumb: { width: 88, height: 88, borderRadius: 8, backgroundColor: '#eee' },
-});
+  thumb: { width: 88, height: 88, borderRadius: 8, backgroundColor: c.surface3 },
+}));

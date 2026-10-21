@@ -1,8 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Text } from 'react-native';
 
-import { Button, Field, Link, Message, Screen, colors } from '@/components/ui';
+import { Body, Button, Field, Link, Message, Screen } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { DEVICE_NAME, useAuth, type User } from '@/lib/auth';
 
@@ -42,7 +41,7 @@ export default function Verify() {
 
   return (
     <Screen title="Verify your email">
-      <Text style={{ fontSize: 16, color: colors.muted }}>We sent a 6-digit code to {email}.</Text>
+      <Body muted>We sent a 6-digit code to {email}.</Body>
       <Field label="6-digit code" value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={6} autoComplete="one-time-code" error={error?.fieldError('code')} />
       <Message text={error && !error.fieldError('code') ? error.message : null} />
       <Message text={info} kind="info" />

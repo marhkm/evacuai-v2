@@ -1,9 +1,10 @@
 import { detectFloorChanges, type PressureSample } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Share, StyleSheet, Text } from 'react-native';
+import { Share, Text } from 'react-native';
 
-import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { Button, Field, Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { TEST_BUILD } from '@/config';
 import { watchPressure } from '@/lib/barometer';
 
@@ -14,6 +15,7 @@ const FLOOR_HEIGHT_M = 3.5;
  * then shares it as JSON. Traces become fixtures for the floor-change detector tests (spec §7).
  */
 export default function PressureRecorder() {
+  const styles = useStyles();
   const [note, setNote] = useState('');
   const [recording, setRecording] = useState(false);
   const [samples, setSamples] = useState<PressureSample[]>([]);
@@ -65,7 +67,7 @@ export default function PressureRecorder() {
   );
 }
 
-const styles = StyleSheet.create({
-  text: { fontSize: 16, color: colors.text, lineHeight: 22 },
-  stat: { fontSize: 15, color: colors.muted },
-});
+const useStyles = makeStyles(c => ({
+  text: { fontFamily: fonts.body, fontSize: 16, color: c.text, lineHeight: 22 },
+  stat: { fontFamily: fonts.body, fontSize: 15, color: c.muted },
+}));

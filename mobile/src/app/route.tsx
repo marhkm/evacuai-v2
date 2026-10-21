@@ -2,12 +2,13 @@ import { exitBadge, floorRoutePoints, routeSteps } from '@evacuai/campus-view';
 import { findRoute, type Hazard } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
 import { FloorPlan } from '@/components/FloorPlan';
 import { LocationChooser } from '@/components/LocationChooser';
-import { Message, Screen, colors } from '@/components/ui';
+import { Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { useAlerts } from '@/lib/alerts';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -33,6 +34,7 @@ function startsAt(hhmm: string): number {
 }
 
 export default function RouteScreen() {
+  const styles = useStyles();
   const { state, token } = useAuth();
   const { active } = useAlerts();
   const { snapshot, offline, error } = useCampus();
@@ -100,7 +102,7 @@ export default function RouteScreen() {
       <Message text={offline ? 'Offline: using the last downloaded map. Path changes may be missing.' : null} kind="info" />
 
       {active[0] ? (
-        <Text style={styles.hazard}>Routing for: {active[0].hazard_type.replace(/_/g, ' ')}{active[0].is_drill ? ' (drill)' : ''}</Text>
+        <Text style={styles.hazard}>Routing for {active[0].hazard_type.replace(/_/g, ' ')}{active[0].is_drill ? ' (drill)' : ''}</Text>
       ) : (
         <Section label="What is happening?">
           <Chips items={HAZARD_CHOICES} active={chosenHazard} onSelect={k => setChosenHazard(k as Hazard)} />
@@ -132,7 +134,12 @@ export default function RouteScreen() {
       {route && snapshot ? (
         <View style={styles.steps}>
           <Text style={styles.distance}>{Math.round(route.distance_m)} m to safety</Text>
-          {routeSteps(snapshot, route).map((s, i) => <Text key={i} style={styles.step}>{s}</Text>)}
+          {routeSteps(snapshot, route).map((s, i) => (
+            <View key={i} style={styles.stepRow}>
+              <Text style={styles.stepNo} accessible={false}>{i + 1}</Text>
+              <Text style={styles.step}>{s}</Text>
+            </View>
+          ))}
         </View>
       ) : null}
 
@@ -148,10 +155,13 @@ export default function RouteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  hazard: { fontSize: 16, fontWeight: '700', color: colors.danger, textTransform: 'capitalize' },
-  where: { fontSize: 15, color: colors.muted },
-  steps: { gap: 6, backgroundColor: '#eef5fd', borderRadius: 12, padding: 14 },
-  distance: { fontSize: 18, fontWeight: '800', color: '#0b6bcb' },
-  step: { fontSize: 17, color: colors.text, lineHeight: 24 },
-});
+const useStyles = makeStyles(c => ({
+  hazard: { fontFamily: fonts.display, fontSize: 20, letterSpacing: 0.6, color: c.danger, textTransform: 'uppercase' },
+  where: { fontFamily: fonts.body, fontSize: 15, color: c.muted },
+  // Green like an exit sign: the way out.
+  steps: { gap: 10, backgroundColor: c.safeFill, borderRadius: 14, padding: 16 },
+  distance: { fontFamily: fonts.display, fontSize: 30, letterSpacing: 0.8, textTransform: 'uppercase', color: c.onColor },
+  stepRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  stepNo: { fontFamily: fonts.display, fontSize: 17, color: c.safeFill, backgroundColor: c.onColor, width: 28, height: 28, lineHeight: 28, borderRadius: 14, textAlign: 'center', overflow: 'hidden' },
+  step: { flex: 1, fontFamily: fonts.bodySemi, fontSize: 17, color: c.onColor, lineHeight: 26 },
+}));

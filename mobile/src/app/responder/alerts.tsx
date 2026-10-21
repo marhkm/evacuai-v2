@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
-import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { Button, Field, Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import type { AlertItem } from '@/lib/alerts';
 import { confirm } from '@/lib/confirm';
 import { useOfficer, useOfficerAction } from '@/lib/officer';
@@ -18,6 +19,7 @@ const SEVERITIES = ['low', 'medium', 'high', 'critical'].map(s => ({ key: s, lab
 
 /** Broadcast and manage alerts. */
 export default function Alerts() {
+  const styles = useStyles();
   const { snapshot } = useCampus();
   const { data, error, refresh } = useOfficer<{ alerts: Alert[] }>('/api/officer/alerts');
   const action = useOfficerAction(refresh);
@@ -46,7 +48,7 @@ export default function Alerts() {
   return (
     <Screen title="Alerts">
       <Text style={styles.heading}>Broadcast an alert</Text>
-      <Section label="Hazard"><Chips items={HAZARDS} active={form.hazard} onSelect={hazard => set({ hazard })} color={colors.danger} /></Section>
+      <Section label="Hazard"><Chips items={HAZARDS} active={form.hazard} onSelect={hazard => set({ hazard })} tone="danger" /></Section>
       <Section label="Severity"><Chips items={SEVERITIES} active={form.severity} onSelect={severity => set({ severity })} /></Section>
       {snapshot ? (
         <Section label="Building">
@@ -87,11 +89,11 @@ export default function Alerts() {
   );
 }
 
-const styles = StyleSheet.create({
-  heading: { fontSize: 18, fontWeight: '700', color: colors.text, marginTop: 8 },
-  meta: { fontSize: 14, color: colors.muted },
-  card: { padding: 12, borderRadius: 10, backgroundColor: '#fdecea', gap: 8 },
-  draft: { backgroundColor: colors.card },
-  title: { fontSize: 15, fontWeight: '700', color: colors.text, textTransform: 'capitalize' },
-  body: { fontSize: 16, color: colors.text },
-});
+const useStyles = makeStyles(c => ({
+  heading: { fontFamily: fonts.bodyBold, fontSize: 18, color: c.text, marginTop: 8 },
+  meta: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
+  card: { padding: 12, borderRadius: 10, backgroundColor: c.dangerTint, gap: 8 },
+  draft: { backgroundColor: c.card },
+  title: { fontFamily: fonts.bodyBold, fontSize: 15, color: c.text, textTransform: 'capitalize' },
+  body: { fontFamily: fonts.body, fontSize: 16, color: c.text },
+}));

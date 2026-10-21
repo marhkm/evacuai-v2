@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { View } from 'react-native';
 import Svg, { G, Line, Polygon, Text as SvgText } from 'react-native-svg';
 
-import { colors } from '@/components/ui';
+import { useTheme } from '@/theme';
 
 const TILT = 0.42; // vertical squash of each floor plane
 const SHEAR = 0.55; // slant, so floors read as stacked slabs
@@ -27,6 +27,7 @@ export function StackedFloors({ snapshot, buildingId }: { snapshot: CampusSnapsh
     const layerH = d * TILT + 4; // one floor's on-screen height plus a gap
     return { floors, minX, minY, w, d, layerH, label: Math.max(w, d) / 30 };
   }, [snapshot, buildingId]);
+  const colors = useTheme(); // hooks before the early return
   if (!layout) return null;
 
   const { floors, minX, minY, w, d, layerH, label } = layout;

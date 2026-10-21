@@ -1,13 +1,15 @@
 import { Redirect } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { Screen, colors } from '@/components/ui';
+import { Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { alertTitle, alertTranslations, useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 
 const STATUS = { active: 'Active', resolved: 'Resolved', retracted: 'Retracted' } as const;
 
 export default function Alerts() {
+  const styles = useStyles();
   const { state } = useAuth();
   const { alerts } = useAlerts();
   if (state.status === 'loading') return null;
@@ -31,15 +33,15 @@ export default function Alerts() {
   );
 }
 
-const styles = StyleSheet.create({
-  empty: { fontSize: 16, color: colors.muted },
-  card: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 14, gap: 6 },
-  activeCard: { borderColor: colors.danger, borderWidth: 2 },
+const useStyles = makeStyles(c => ({
+  empty: { fontFamily: fonts.body, fontSize: 16, color: c.muted },
+  card: { borderWidth: 1, borderColor: c.border, borderRadius: 12, padding: 14, gap: 6 },
+  activeCard: { borderColor: c.danger, borderWidth: 2 },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' },
-  title: { fontSize: 16, fontWeight: '800', color: colors.text, flexShrink: 1 },
-  status: { fontSize: 14, color: colors.muted, fontWeight: '700' },
-  activeStatus: { color: colors.danger },
-  message: { fontSize: 16, color: colors.text, lineHeight: 22 },
-  translation: { fontSize: 15, color: colors.muted, lineHeight: 21 },
-  time: { fontSize: 13, color: colors.muted },
-});
+  title: { fontFamily: fonts.bodyBold, fontSize: 16, color: c.text, flexShrink: 1 },
+  status: { fontFamily: fonts.bodyBold, fontSize: 14, color: c.muted },
+  activeStatus: { color: c.danger },
+  message: { fontFamily: fonts.body, fontSize: 16, color: c.text, lineHeight: 22 },
+  translation: { fontFamily: fonts.body, fontSize: 15, color: c.muted, lineHeight: 21 },
+  time: { fontFamily: fonts.body, fontSize: 13, color: c.muted },
+}));

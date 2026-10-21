@@ -1,10 +1,11 @@
 import { displayName } from '@evacuai/campus-view';
 import { Redirect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { LocationChooser } from '@/components/LocationChooser';
-import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { Button, Field, Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { api } from '@/lib/api';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
@@ -26,6 +27,7 @@ type Sos = {
 const isOpen = (s: Sos) => (s.status === 'pending' || s.status === 'acknowledged');
 
 export default function SosScreen() {
+  const styles = useStyles();
   const { state, token } = useAuth();
   const { active } = useAlerts();
   const { snapshot } = useCampus();
@@ -128,18 +130,18 @@ export default function SosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  intro: { fontSize: 17, color: colors.text, lineHeight: 24 },
-  where: { fontSize: 15, color: colors.muted },
+const useStyles = makeStyles(c => ({
+  intro: { fontFamily: fonts.body, fontSize: 17, color: c.text, lineHeight: 24 },
+  where: { fontFamily: fonts.body, fontSize: 15, color: c.muted },
   card: { borderRadius: 12, padding: 14, gap: 6 },
-  pending: { backgroundColor: '#fdecea' },
-  responding: { backgroundColor: '#fff4e0' },
-  status: { fontSize: 19, fontWeight: '800', color: colors.text },
-  meta: { fontSize: 15, color: colors.muted },
-  heading: { fontSize: 17, fontWeight: '700', color: colors.text },
+  pending: { backgroundColor: c.dangerTint },
+  responding: { backgroundColor: c.warningTint },
+  status: { fontFamily: fonts.bodyBold, fontSize: 19, color: c.text },
+  meta: { fontFamily: fonts.body, fontSize: 15, color: c.muted },
+  heading: { fontFamily: fonts.bodyBold, fontSize: 17, color: c.text },
   bubble: { borderRadius: 12, padding: 10, maxWidth: '85%' },
-  mine: { alignSelf: 'flex-end', backgroundColor: '#e3f1e8' },
-  theirs: { alignSelf: 'flex-start', backgroundColor: colors.card },
-  sender: { fontSize: 12, color: colors.muted },
-  body: { fontSize: 16, color: colors.text },
-});
+  mine: { alignSelf: 'flex-end', backgroundColor: c.safeTint },
+  theirs: { alignSelf: 'flex-start', backgroundColor: c.card },
+  sender: { fontFamily: fonts.body, fontSize: 12, color: c.muted },
+  body: { fontFamily: fonts.body, fontSize: 16, color: c.text },
+}));

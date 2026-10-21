@@ -1,12 +1,13 @@
 import { toFloorShapes } from '@evacuai/campus-view';
 import { Redirect } from 'expo-router';
 import { Suspense, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { Campus3DView } from '@/components/Campus3DLazy';
 import { FloorPlan } from '@/components/FloorPlan';
 import { StackedFloors } from '@/components/StackedFloors';
-import { Message, Screen, colors } from '@/components/ui';
+import { Message, Screen } from '@/components/ui';
+import { fonts, makeStyles, useTheme } from '@/theme';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { can3d } from '@/lib/can3d';
@@ -15,6 +16,8 @@ import { useCampus } from '@/lib/useCampus';
 type Mode = 'plan' | 'stacked' | '3d';
 
 export default function MapScreen() {
+  const styles = useStyles();
+  const colors = useTheme();
   const { state } = useAuth();
   const { active } = useAlerts();
   const { snapshot, offline, error } = useCampus(); // live: refetches when officers block or reopen paths
@@ -72,6 +75,7 @@ export default function MapScreen() {
 }
 
 function Tabs({ items, active, onSelect }: { items: { key: string; label: string }[]; active?: string; onSelect: (key: string) => void }) {
+  const styles = useStyles();
   return (
     <View style={styles.tabs} accessibilityRole="tablist">
       {items.map(i => (
@@ -90,14 +94,14 @@ function Tabs({ items, active, onSelect }: { items: { key: string; label: string
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(c => ({
   tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tab: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: colors.primary, minHeight: 44, justifyContent: 'center' },
-  tabActive: { backgroundColor: colors.primary },
-  tabText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
-  tabTextActive: { color: '#fff' },
+  tab: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: c.primary, minHeight: 44, justifyContent: 'center' },
+  tabActive: { backgroundColor: c.primary },
+  tabText: { fontFamily: fonts.bodySemi, color: c.primary, fontSize: 15 },
+  tabTextActive: { color: c.surface },
   legend: { gap: 4 },
-  legendText: { fontSize: 14, color: colors.muted },
-  blocked: { color: colors.danger, fontWeight: '700' },
+  legendText: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
+  blocked: { color: c.danger, fontFamily: fonts.bodyBold },
   view3d: { height: 460, borderRadius: 12, overflow: 'hidden', justifyContent: 'center' },
-});
+}));

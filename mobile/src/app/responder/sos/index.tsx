@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
-import { Message, Screen, colors } from '@/components/ui';
+import { Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { useOfficer } from '@/lib/officer';
 
 export type SosItem = { id: number; person: string | null; place: string | null; status: string; message: string | null; created_at: string };
@@ -10,6 +11,7 @@ export const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-PH', 
 
 /** Open SOS requests, newest first; updates live. */
 export default function SosInbox() {
+  const styles = useStyles();
   const { data, error } = useOfficer<{ sos: SosItem[] }>('/api/officer/sos?open=1');
 
   return (
@@ -29,11 +31,11 @@ export default function SosInbox() {
   );
 }
 
-const styles = StyleSheet.create({
-  empty: { fontSize: 16, color: colors.muted },
-  item: { padding: 14, borderRadius: 10, backgroundColor: colors.card, borderLeftWidth: 5, borderLeftColor: '#e0a400', gap: 2 },
-  pending: { borderLeftColor: colors.danger },
-  person: { fontSize: 18, fontWeight: '700', color: colors.text },
-  place: { fontSize: 15, color: colors.text },
-  meta: { fontSize: 13, color: colors.muted },
-});
+const useStyles = makeStyles(c => ({
+  empty: { fontFamily: fonts.body, fontSize: 16, color: c.muted },
+  item: { padding: 14, borderRadius: 10, backgroundColor: c.card, borderLeftWidth: 5, borderLeftColor: c.warning, gap: 2 },
+  pending: { borderLeftColor: c.danger },
+  person: { fontFamily: fonts.bodyBold, fontSize: 18, color: c.text },
+  place: { fontFamily: fonts.body, fontSize: 15, color: c.text },
+  meta: { fontFamily: fonts.body, fontSize: 13, color: c.muted },
+}));

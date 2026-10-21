@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
 import { FloorPlan } from '@/components/FloorPlan';
-import { Message, Screen, colors } from '@/components/ui';
+import { Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { useOfficer, useOfficerAction } from '@/lib/officer';
 import { useCampus } from '@/lib/useCampus';
 
@@ -12,6 +13,7 @@ const STATUSES = [{ key: 'open', label: 'Open' }, { key: 'congested', label: 'Co
 
 /** Mark paths Open / Congested / Blocked. Every phone re-routes at once. */
 export default function Paths() {
+  const styles = useStyles();
   const { snapshot } = useCampus();
   const [pick, setPick] = useState<{ building?: string; level?: number }>({});
   const building = snapshot?.buildings.find(b => b.id === pick.building) ?? snapshot?.buildings[0];
@@ -41,7 +43,7 @@ export default function Paths() {
           <Text style={styles.name}>{p.from} → {p.to}</Text>
           <Text style={styles.meta}>{p.type}{p.updated_by ? ` · changed by ${p.updated_by}` : ''}</Text>
           <Chips items={STATUSES.map(s => ({ key: s.key, label: s.label, a11yLabel: `${s.label}: ${p.from} to ${p.to}` }))} active={p.status}
-            color={p.status === 'blocked' ? '#2B2F36' : p.status === 'congested' ? '#b07a00' : colors.primary}
+            tone={p.status === 'blocked' ? 'ink' : p.status === 'congested' ? 'warning' : 'safe'}
             onSelect={status => status !== p.status && action.run(`/api/officer/paths/${encodeURIComponent(p.id)}`, 'PATCH', { status })} />
         </View>
       ))}
@@ -49,8 +51,8 @@ export default function Paths() {
   );
 }
 
-const styles = StyleSheet.create({
-  meta: { fontSize: 14, color: colors.muted },
-  row: { padding: 12, borderRadius: 10, backgroundColor: colors.card, gap: 6 },
-  name: { fontSize: 16, fontWeight: '700', color: colors.text },
-});
+const useStyles = makeStyles(c => ({
+  meta: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
+  row: { padding: 12, borderRadius: 10, backgroundColor: c.card, gap: 6 },
+  name: { fontFamily: fonts.bodyBold, fontSize: 16, color: c.text },
+}));

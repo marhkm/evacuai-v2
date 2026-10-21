@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { Button, Message, Screen, colors } from '@/components/ui';
+import { Button, Counter, Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { useOfficer } from '@/lib/officer';
@@ -11,6 +12,7 @@ type Overview = { stats: { open_sos: number; pending_reports: number; blocked_pa
 
 /** Officers' home: open SOS first, then who's missing, paths and alerts. */
 export default function ResponderHome() {
+  const styles = useStyles();
   const { state } = useAuth();
   const { active } = useAlerts();
   const { data, error } = useOfficer<Overview>('/api/officer/overview');
@@ -22,7 +24,7 @@ export default function ResponderHome() {
       {active.map(a => <AlertBanner key={a.id} alert={a} />)}
       <Text style={styles.meta}>{name} · safety officer tools</Text>
       <View style={styles.counters}>
-        <Counter value={s?.open_sos} label="Open SOS" color={colors.danger} />
+        <Counter value={s?.open_sos} label="Open SOS" tone="danger" />
         <Counter value={s?.pending_reports} label="New reports" />
         <Counter value={s?.blocked_paths} label="Blocked paths" />
       </View>
@@ -37,19 +39,7 @@ export default function ResponderHome() {
   );
 }
 
-function Counter({ value, label, color = colors.text }: { value?: number; label: string; color?: string }) {
-  return (
-    <View style={styles.counter} accessible accessibilityLabel={`${label}: ${value ?? 'loading'}`}>
-      <Text style={[styles.number, { color }]}>{value ?? '–'}</Text>
-      <Text style={styles.label}>{label}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  meta: { fontSize: 15, color: colors.muted },
+const useStyles = makeStyles(c => ({
+  meta: { fontFamily: fonts.body, fontSize: 15, color: c.muted },
   counters: { flexDirection: 'row', gap: 8 },
-  counter: { flex: 1, alignItems: 'center', padding: 12, borderRadius: 10, backgroundColor: colors.card },
-  number: { fontSize: 32, fontWeight: '800' },
-  label: { fontSize: 13, color: colors.muted, textAlign: 'center' },
-});
+}));

@@ -1,16 +1,18 @@
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 
-import { Message, Screen, colors } from '@/components/ui';
+import { Chip, Message, Screen, type Tone } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { useOfficer } from '@/lib/officer';
 
 type Person = { id: number; name: string; role: string; status: string; place: string | null; source: string | null; phone: string | null };
 type Board = { counts: { safe: number; needs_help: number; unknown: number; sos: number } | null; people: Person[] };
 
 const LABEL: Record<string, string> = { SOS: 'SOS', needs_help: 'Needs help', unknown: 'Unknown' };
-const COLOR: Record<string, string> = { SOS: colors.danger, needs_help: '#b07a00', unknown: colors.muted };
+const TONE: Record<string, Tone> = { SOS: 'danger', needs_help: 'warning', unknown: 'neutral' };
 
 /** People with an SOS, who need help or have not checked in, for the active alert. In memory only. */
 export default function Missing() {
+  const styles = useStyles();
   const { data, error } = useOfficer<Board>('/api/officer/safety');
   const people = data?.people.filter(p => p.status in LABEL) ?? []; // already sorted: SOS, needs help, unknown
   const c = data?.counts;
@@ -31,7 +33,7 @@ export default function Missing() {
             <Text style={styles.name}>{p.name}</Text>
             <Text style={styles.meta}>{p.place ?? 'No location shared'}</Text>
           </View>
-          <Text style={[styles.chip, { backgroundColor: COLOR[p.status] }]}>{LABEL[p.status]}</Text>
+          <Chip label={LABEL[p.status]} tone={TONE[p.status]} />
           {p.phone ? (
             <Pressable accessibilityRole="link" accessibilityLabel={`Call ${p.name}`} onPress={() => Linking.openURL(`tel:${p.phone}`)} hitSlop={8}>
               <Text style={styles.call}>Call</Text>
@@ -43,12 +45,11 @@ export default function Missing() {
   );
 }
 
-const styles = StyleSheet.create({
-  summary: { fontSize: 16, fontWeight: '700', color: colors.text },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 10, backgroundColor: colors.card },
+const useStyles = makeStyles(c => ({
+  summary: { fontFamily: fonts.bodyBold, fontSize: 16, color: c.text },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 10, backgroundColor: c.card },
   grow: { flex: 1 },
-  name: { fontSize: 17, fontWeight: '700', color: colors.text },
-  meta: { fontSize: 14, color: colors.muted },
-  chip: { color: '#fff', fontWeight: '700', fontSize: 13, paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12, overflow: 'hidden' },
-  call: { color: colors.primary, fontWeight: '700', fontSize: 16, paddingHorizontal: 4 },
-});
+  name: { fontFamily: fonts.bodyBold, fontSize: 17, color: c.text },
+  meta: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
+  call: { fontFamily: fonts.bodyBold, color: c.info, fontSize: 16, paddingHorizontal: 4 },
+}));

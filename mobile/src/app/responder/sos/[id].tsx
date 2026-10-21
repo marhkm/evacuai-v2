@@ -1,8 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { Button, Field, Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { confirm } from '@/lib/confirm';
 import { useOfficer, useOfficerAction } from '@/lib/officer';
 
@@ -12,6 +13,7 @@ type Sos = SosItem & { responder: string | null; messages: { id: number; body: s
 
 /** One SOS: where they are, the conversation, Acknowledge / Resolve. */
 export default function SosChat() {
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, error, refresh } = useOfficer<{ sos: Sos }>(`/api/officer/sos/${id}`);
   const action = useOfficerAction(refresh);
@@ -58,14 +60,14 @@ export default function SosChat() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(c => ({
   card: { borderRadius: 12, padding: 14, gap: 6 },
-  pending: { backgroundColor: '#fdecea' },
-  responding: { backgroundColor: '#fff4e0' },
-  place: { fontSize: 18, fontWeight: '700', color: colors.text },
-  body: { fontSize: 16, color: colors.text },
-  meta: { fontSize: 13, color: colors.muted },
+  pending: { backgroundColor: c.dangerTint },
+  responding: { backgroundColor: c.warningTint },
+  place: { fontFamily: fonts.bodyBold, fontSize: 18, color: c.text },
+  body: { fontFamily: fonts.body, fontSize: 16, color: c.text },
+  meta: { fontFamily: fonts.body, fontSize: 13, color: c.muted },
   bubble: { borderRadius: 12, padding: 10, maxWidth: '85%' },
-  mine: { alignSelf: 'flex-end', backgroundColor: '#e3f1e8' },
-  theirs: { alignSelf: 'flex-start', backgroundColor: colors.card },
-});
+  mine: { alignSelf: 'flex-end', backgroundColor: c.safeTint },
+  theirs: { alignSelf: 'flex-start', backgroundColor: c.card },
+}));

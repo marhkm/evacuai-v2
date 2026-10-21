@@ -1,8 +1,8 @@
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, Text } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
-import { Button, Field, Message, Screen, colors } from '@/components/ui';
+import { Body, Button, Field, Heading, Message, Screen } from '@/components/ui';
 import { TEST_BUILD } from '@/config';
 import { ApiError, api } from '@/lib/api';
 import { useAuth, type User } from '@/lib/auth';
@@ -62,13 +62,13 @@ function ProfileForm({ user }: { user: User }) {
 
   return (
     <Screen title="Profile">
-      <Text style={{ color: colors.muted }}>{user.email} · {user.role.replace('_', ' ')}</Text>
+      <Body muted>{user.email} · {user.role.replace('_', ' ')}</Body>
       <Field label="Full name" value={form.name} onChangeText={name => setForm(f => ({ ...f, name }))} autoCapitalize="words" error={error?.fieldError('name')} />
       <Field label="Department" value={form.department} onChangeText={department => setForm(f => ({ ...f, department }))} autoCapitalize="words" />
       <Field label="Mobile number" value={form.phone} onChangeText={phone => setForm(f => ({ ...f, phone }))} keyboardType="phone-pad" placeholder="09XXXXXXXXX" error={error?.fieldError('phone')} />
       <Button label="Save profile" onPress={saveProfile} />
 
-      <Text style={{ fontSize: 18, fontWeight: '700', marginTop: 16 }}>{user.has_password ? 'Change password' : 'Set a password'}</Text>
+      <Heading>{user.has_password ? 'Change password' : 'Set a password'}</Heading>
       {user.has_password ? (
         <Field label="Current password" value={pw.current_password} onChangeText={v => setPw(p => ({ ...p, current_password: v }))} secureTextEntry error={error?.fieldError('current_password')} />
       ) : null}
@@ -82,7 +82,7 @@ function ProfileForm({ user }: { user: User }) {
       {TEST_BUILD ? <Button label="Record pressure trace (test builds)" variant="secondary" onPress={() => router.push('/pressure')} /> : null}
       <Button label="Sign out" variant="secondary" onPress={async () => { await signOut(); router.replace('/login'); }} />
 
-      <Text style={{ fontSize: 18, fontWeight: '700', marginTop: 16, color: colors.danger }}>Delete account</Text>
+      <Heading>Delete account</Heading>
       {user.has_password ? (
         <Field label="Password to confirm deletion" value={deletePw} onChangeText={setDeletePw} secureTextEntry error={error?.fieldError('password') && deletePw ? error.fieldError('password') : undefined} />
       ) : null}

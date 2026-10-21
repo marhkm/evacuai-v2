@@ -1,13 +1,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
-import { Button, Message, Screen, colors } from '@/components/ui';
+import { Button, Message, Screen } from '@/components/ui';
+import { makeStyles } from '@/theme';
 import { ApiError, api } from '@/lib/api';
 import { useAuth, type User } from '@/lib/auth';
 
 // RA 10173 (Data Privacy Act of 2012) notice shown once before first use.
 export default function Consent() {
+  const styles = useStyles();
   const { token, setUser, signOut } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,4 +46,4 @@ export default function Consent() {
   );
 }
 
-const styles = StyleSheet.create({ p: { fontSize: 16, lineHeight: 23, color: colors.text } });
+const useStyles = makeStyles(c => ({ p: { fontSize: 16, lineHeight: 23, color: c.text } }));

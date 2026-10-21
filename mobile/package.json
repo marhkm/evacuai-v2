@@ -5,7 +5,10 @@
   "dependencies": {
     "@evacuai/campus-3d": "*",
     "@evacuai/campus-view": "*",
+    "@evacuai/design": "*",
     "@evacuai/routing": "*",
+    "@expo-google-fonts/barlow-condensed": "^0.4.1",
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo/ui": "~57.0.23",
     "@react-native-community/netinfo": "12.0.1",
     "expo": "~57.0.28",

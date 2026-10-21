@@ -1,10 +1,11 @@
 import { displayName } from '@evacuai/campus-view';
 import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { LocationChooser } from '@/components/LocationChooser';
-import { Button, Message, Screen, colors } from '@/components/ui';
+import { Button, Message, Screen } from '@/components/ui';
+import { fonts, makeStyles } from '@/theme';
 import { api } from '@/lib/api';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
@@ -15,6 +16,7 @@ import { updateWhereabouts } from '@/lib/whereabouts';
 type CheckIn = { alert_id: number; status: 'safe' | 'needs_help' | null; place: string | null; checked_in_at: string | null } | null;
 
 export default function CheckInScreen() {
+  const styles = useStyles();
   const { state, token } = useAuth();
   const { active } = useAlerts();
   const { snapshot } = useCampus();
@@ -100,11 +102,11 @@ export default function CheckInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  text: { fontSize: 17, color: colors.text, lineHeight: 24 },
+const useStyles = makeStyles(c => ({
+  text: { fontFamily: fonts.body, fontSize: 17, color: c.text, lineHeight: 24 },
   card: { borderRadius: 12, padding: 14, gap: 4 },
-  safe: { backgroundColor: '#e3f1e8' },
-  help: { backgroundColor: '#fdecea' },
-  status: { fontSize: 19, fontWeight: '800', color: colors.text },
-  meta: { fontSize: 15, color: colors.muted },
-});
+  safe: { backgroundColor: c.safeTint },
+  help: { backgroundColor: c.dangerTint },
+  status: { fontFamily: fonts.bodyBold, fontSize: 19, color: c.text },
+  meta: { fontFamily: fonts.body, fontSize: 15, color: c.muted },
+}));
