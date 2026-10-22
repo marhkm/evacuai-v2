@@ -26,6 +26,17 @@ test.describe('signed in as an officer', () => {
     await expect(page.getByRole('status')).toHaveText('LIVE', { timeout: 20_000 });
   });
 
+  test('Live Ops 3D shows one building with its own controls', async ({ page }) => {
+    await page.getByRole('button', { name: '3D', exact: true }).click();
+    const bar = page.getByRole('toolbar', { name: '3D view controls' });
+    await expect(bar).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.view3d canvas')).toBeVisible();
+    await bar.getByRole('button', { name: 'Ground' }).click();
+    await expect(bar.getByRole('button', { name: 'Ground' })).toHaveAttribute('aria-pressed', 'true');
+    await bar.getByRole('button', { name: 'Top' }).click();
+    await expect(bar.getByRole('button', { name: 'Top' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('broadcast a drill alert, see it listed, then resolve it', async ({ page }) => {
     const message = `E2E drill ${Date.now()}`;
     await page.getByRole('link', { name: 'Alerts' }).click();

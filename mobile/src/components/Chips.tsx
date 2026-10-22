@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { tap } from '@/lib/haptics';
 import { fonts, makeStyles, useTheme } from '@/theme';
 
 export type ChipItem = { key: string; label: string; a11yLabel?: string };
@@ -21,7 +22,7 @@ export function Chips({ items, active, onSelect, tone = 'info' }: {
         const on = i.key === active;
         return (
           <Pressable key={i.key} accessibilityRole="button" accessibilityLabel={i.a11yLabel ?? i.label} accessibilityState={{ selected: on }}
-            onPress={() => onSelect(i.key)} style={[s.chip, { borderColor: on ? fill : line }, on && { backgroundColor: fill }]}>
+            onPress={() => { if (!on) tap(); onSelect(i.key); }} style={[s.chip, { borderColor: on ? fill : line }, on && { backgroundColor: fill }]}>
             <Text style={[s.text, { color: on ? onFill : line }]}>{i.label}</Text>
           </Pressable>
         );

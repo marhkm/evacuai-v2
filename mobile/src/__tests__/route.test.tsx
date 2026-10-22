@@ -99,7 +99,9 @@ test('routes from the current class with no tap, and offers to pick the room ins
 
 test('a room picked earlier today is still the starting point after the app restarts', async () => {
   alerts = [activeAlert('fire')];
-  mockMem.set('whereabouts', JSON.stringify({ roomId: 'DEMO/1/R101', building: 'DEMO', floor: 1, source: 'manual', confidence: 'exact', at: Date.now() - 3 * 3600_000 }));
+  // Earlier today (3 hours ago, or midnight when it is not yet 3 AM: a pick from yesterday is rightly forgotten).
+  const at = Math.max(new Date().setHours(0, 0, 0, 0), Date.now() - 3 * 3600_000);
+  mockMem.set('whereabouts', JSON.stringify({ roomId: 'DEMO/1/R101', building: 'DEMO', floor: 1, source: 'manual', confidence: 'exact', at }));
   await open();
   expect(await screen.findByText('Exit R101')).toBeTruthy();
   expect(screen.getByText(/you picked it/)).toBeTruthy();

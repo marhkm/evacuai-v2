@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
+import type { CSSStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AnimatedView, EASE_OUT, useReduced } from '@/lib/motion';
 import { fonts, makeStyles, useTheme, type Palette } from '@/theme';
 
 export function Screen({ title, children }: { title: string; children: ReactNode }) {
@@ -45,22 +47,31 @@ export function Button({ label, onPress, busy, variant = 'primary', a11yLabel, h
 }) {
   const s = useStyles();
   const c = useTheme();
+  const reduced = useReduced();
+  const [pressed, setPressed] = useState(false);
   const outline = variant === 'secondary';
+  // Feedback on press-in: shrink to 0.97 over 120 ms (opacity only with reduced motion), commit on release.
+  const feedback = pressed ? (reduced ? { opacity: 0.8 } : { transform: [{ scale: 0.97 }] }) : null;
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={a11yLabel ?? label}
       disabled={busy}
       onPress={onPress}
-      style={({ pressed }) => [s.button, s[variant], hero && s.hero, (busy || pressed) && s.dim]}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      pressRetentionOffset={16}
     >
-      {busy ? <ActivityIndicator color={outline ? c.ink : buttonText(c, variant)} /> : (
-        <Text style={[s.buttonText, hero && s.heroText, { color: outline ? c.ink : buttonText(c, variant) }]}>{label}</Text>
-      )}
+      <AnimatedView testID="button-face" style={[s.button, s[variant], hero && s.hero, busy && s.dim, press, feedback]}>
+        {busy ? <ActivityIndicator color={outline ? c.ink : buttonText(c, variant)} /> : (
+          <Text style={[s.buttonText, hero && s.heroText, { color: outline ? c.ink : buttonText(c, variant) }]}>{label}</Text>
+        )}
+      </AnimatedView>
     </Pressable>
   );
 }
 const buttonText = (c: Palette, v: Variant) => (v === 'primary' ? c.surface : c.onColor);
+const press: CSSStyle<ViewStyle> = { transitionProperty: ['transform', 'opacity'], transitionDuration: 120, transitionTimingFunction: EASE_OUT };
 
 export function Link({ label, onPress }: { label: string; onPress: () => void }) {
   const s = useStyles();

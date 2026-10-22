@@ -1,7 +1,8 @@
-import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
 
+import { AlertSheet } from '@/components/AlertSheet';
 import { alertTitle, alertTranslations, type AlertItem } from '@/lib/alerts';
 import { fonts, makeStyles, useTheme } from '@/theme';
 
@@ -13,11 +14,14 @@ export function AlertBanner({ alert }: { alert: AlertItem }) {
   const s = useStyles();
   const c = useTheme();
   const drill = alert.is_drill;
+  const [open, setOpen] = useState(false);
   return (
+    <>
     <Pressable
       accessibilityRole="alert"
       accessibilityLabel={[alertTitle(alert), alert.message, ...alertTranslations(alert)].join('. ')}
-      onPress={() => router.push('/alerts')}
+      accessibilityHint="Shows the alert details"
+      onPress={() => setOpen(true)}
       style={[s.banner, { backgroundColor: drill ? c.drillFill : c.dangerFill }]}
     >
       {drill ? (
@@ -36,6 +40,8 @@ export function AlertBanner({ alert }: { alert: AlertItem }) {
         {alertTranslations(alert).map(t => <Text key={t} style={s.translation}>{t}</Text>)}
       </View>
     </Pressable>
+    {open ? <AlertSheet alert={alert} onClose={() => setOpen(false)} /> : null}
+    </>
   );
 }
 

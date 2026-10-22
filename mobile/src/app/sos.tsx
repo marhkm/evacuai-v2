@@ -7,6 +7,7 @@ import { LocationChooser } from '@/components/LocationChooser';
 import { Button, Field, Message, Screen } from '@/components/ui';
 import { fonts, makeStyles } from '@/theme';
 import { api } from '@/lib/api';
+import { medium, success } from '@/lib/haptics';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import type { Observation } from '@/lib/estimator';
@@ -125,7 +126,10 @@ export default function SosScreen() {
       <Field label="What happened? (optional)" value={note} onChangeText={setNote} multiline maxLength={500} autoCapitalize="sentences" />
       <Message text={error} />
       <Button label="Send SOS" variant="danger" busy={busy}
-        onPress={() => run(() => api('/api/sos', { method: 'POST', token, body: { node_id: here, message: note.trim() || null } }))} />
+        onPress={async () => {
+          medium();
+          if (await run(() => api('/api/sos', { method: 'POST', token, body: { node_id: here, message: note.trim() || null } }))) success();
+        }} />
     </Screen>
   );
 }

@@ -1,13 +1,13 @@
 import { toFloorShapes } from '@evacuai/campus-view';
-import { Redirect } from 'expo-router';
-import { Suspense, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Redirect, router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
-import { Campus3DView } from '@/components/Campus3DLazy';
+import { Campus3DPanel } from '@/components/Campus3DPanel';
 import { FloorPlan } from '@/components/FloorPlan';
 import { StackedFloors } from '@/components/StackedFloors';
 import { Message, Screen } from '@/components/ui';
-import { fonts, makeStyles, useTheme } from '@/theme';
+import { fonts, makeStyles } from '@/theme';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { can3d } from '@/lib/can3d';
@@ -17,7 +17,6 @@ type Mode = 'plan' | 'stacked' | '3d';
 
 export default function MapScreen() {
   const styles = useStyles();
-  const colors = useTheme();
   const { state } = useAuth();
   const { active } = useAlerts();
   const { snapshot, offline, error } = useCampus(); // live: refetches when officers block or reopen paths
@@ -55,12 +54,9 @@ export default function MapScreen() {
         <Tabs items={building.floors.map(f => ({ key: String(f.level), label: f.name }))} active={String(floor?.level)} onSelect={l => setLevel(Number(l))} />
       ) : null}
       {mode === 'stacked' && snapshot && building ? <StackedFloors snapshot={snapshot} buildingId={building.id} /> : null}
-      {mode === '3d' && snapshot ? (
-        <View style={styles.view3d}>
-          <Suspense fallback={<ActivityIndicator color={colors.primary} />}>
-            <Campus3DView snapshot={snapshot} dom={{ style: { flex: 1 }, scrollEnabled: false }} />
-          </Suspense>
-        </View>
+      {mode === '3d' && snapshot && building ? (
+        <Campus3DPanel key={building.id} snapshot={snapshot} building={building.id}
+          onFullScreen={() => router.push({ pathname: '/map-3d', params: { building: building.id } })} />
       ) : null}
       {mode === 'plan' && snapshot && building && floor ? <FloorPlan snapshot={snapshot} building={building.id} level={floor.level} /> : null}
       {mode === 'plan' && shapes ? (
@@ -103,5 +99,4 @@ const useStyles = makeStyles(c => ({
   legend: { gap: 4 },
   legendText: { fontFamily: fonts.body, fontSize: 14, color: c.muted },
   blocked: { color: c.danger, fontFamily: fonts.bodyBold },
-  view3d: { height: 460, borderRadius: 12, overflow: 'hidden', justifyContent: 'center' },
 }));

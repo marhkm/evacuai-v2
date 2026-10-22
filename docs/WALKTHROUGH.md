@@ -91,19 +91,33 @@ safe, amber is a warning or a drill, and blue is information.
 
 ![Evacuation route: distance, numbered steps and the poster-style floor plan](images/app-route.jpg)
 
-### S4. Campus map
+### S4. Campus map and the 3D building
 
 **Steps**
 
-1. Go home and tap **Campus map**. Choose a building.
-2. Switch between **Floor plan**, **All floors** and **3D**. In 3D, drag to turn and scroll or pinch to zoom.
-3. On **Floor plan**, tap **Legend**.
+1. Go home and tap **Campus map**. Choose a building (**Annex 1** or **Basic Education Building**).
+2. Switch between **Floor plan**, **All floors** and **3D**.
+3. In **3D**:
+   - Drag to turn and pinch (or scroll) to zoom.
+   - Under the view, tap a floor (for example **Third**), then **Whole building**.
+   - Tap **Top**, then **Front**, then **3D**.
+   - Drag **Explode floors** to the right.
+   - Tap **Reset**, then **Full screen**.
+4. In 3D, tap a room on a floor you picked.
+5. On **Floor plan**, tap **Legend**.
 
 **Expected result**
 
-- [ ] **Floor plan** shows one floor; **All floors** stacks every floor with the ground floor at the bottom.
-- [ ] **3D** shows the walls on stacked floors (on a phone, only if it has enough memory).
+- [ ] **3D** shows only the chosen building, as a model: full-height walls, tinted rooms, glass stair cores, and the
+      building's name.
+- [ ] Picking a floor flies the camera to it and shows its room names; floors above disappear, floors below fade.
+      **Whole building** shows them all again.
+- [ ] **Top** looks straight down like a plan; **Explode floors** pulls the floors apart so every floor is visible.
+- [ ] Tapping a room opens a sheet with its name, floor and how many people are inside, with **Route from here**.
+- [ ] **Full screen** opens the 3D view on its own screen; **Close** goes back.
 - [ ] The legend explains the route arrows, your location, blocked and congested paths and stairs.
+
+![The 3D building on the phone, with its native controls](images/app-3d.jpg)
 
 ### S5. Report a hazard with a photo
 
@@ -186,6 +200,10 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
 
 ![Command Center, Live Ops](images/command-live-ops.jpg)
 
+![Live Ops in 3D: one floor with its room names](images/command-3d-floor.jpg)
+
+![Live Ops in 3D: floors exploded apart](images/command-3d-exploded.jpg)
+
 ### O1. Sign in, and only officers get in
 
 **Steps**
@@ -202,12 +220,16 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
 
 **Steps**
 
-1. Choose **Annex 1** and a floor, then the other building. Click **3D**, then **2D**.
-2. Keep Live Ops open while a student sends an SOS (S6) or reports a hazard (S5).
+1. Choose **Annex 1** and a floor, then the other building. Click **3D**.
+2. In the bar under the 3D view: pick a floor (**3** = Third), then **All**; drag **Explode**; click **Top**, **Front**,
+   **3D** and **Reset**. Click a room. Then click **2D**.
+3. Keep Live Ops open while a student sends an SOS (S6) or reports a hazard (S5).
 
 **Expected result**
 
-- [ ] The floor plan changes with the building and floor; **3D** shows the 3D campus.
+- [ ] The floor plan changes with the building and floor.
+- [ ] **3D** shows one building as a model with its own control bar: a floor shows its room names, **Explode** spreads the
+      floors, **Top** looks straight down, and clicking a room shows a card with people inside, hazard and SOS.
 - [ ] New SOS requests appear on the left and new reports on the right, within seconds.
 - [ ] The counters on the right show **Safe**, **Needs help** and **Unknown** for the active alert.
 
@@ -486,7 +508,7 @@ Copy this table into your report and fill it in. Use **Pass**, **Fail** or **Ski
 | S1 Create an account | | |
 | S2 Sign in, sign out, forgot password | | |
 | S3 Find the way out | | |
-| S4 Campus map | | |
+| S4 Campus map and the 3D building | | |
 | S5 Report a hazard with a photo | | |
 | S6 SOS and chat | | |
 | S7 Alerts and check-in | | |

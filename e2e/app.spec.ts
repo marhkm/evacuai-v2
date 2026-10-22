@@ -26,7 +26,11 @@ test('campus map: floor plan, all floors and 3D', async ({ page }) => {
   await expect(page.getByLabel(/^Room /).first()).toBeVisible();
   await page.getByRole('button', { name: 'All floors' }).click();
   await expect(page.getByLabel('All floors stacked, ground floor at the bottom')).toBeVisible();
-  await page.getByRole('button', { name: '3D' }).click();
+  await page.getByRole('button', { name: '3D', exact: true }).click();
+  await expect(page.locator('canvas')).toBeVisible();
+  // Native controls under the 3D view: one floor, then the whole building again.
+  await page.getByRole('button', { name: 'Second' }).last().click();
+  await page.getByRole('button', { name: 'Whole building' }).click();
   await expect(page.locator('canvas')).toBeVisible();
 });
 

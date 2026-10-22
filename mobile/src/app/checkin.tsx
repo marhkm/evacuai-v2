@@ -7,6 +7,7 @@ import { LocationChooser } from '@/components/LocationChooser';
 import { Button, Message, Screen } from '@/components/ui';
 import { fonts, makeStyles } from '@/theme';
 import { api } from '@/lib/api';
+import { success } from '@/lib/haptics';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { nearbyAssemblyPoint } from '@/lib/geofence';
@@ -47,6 +48,7 @@ export default function CheckInScreen() {
     setBusy(true);
     try {
       setCheckIn((await api<{ check_in: CheckIn }>('/api/check-in', { method: 'POST', token, body: { status, node_id: nodeId ?? null } })).check_in);
+      if (status === 'safe') success();
     } catch (e) {
       setError((e as Error).message);
     } finally {

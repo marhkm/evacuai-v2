@@ -2,27 +2,45 @@ import { routeChevrons } from '@evacuai/campus-view';
 import type { CampusNode, CampusSnapshot, EdgeStatus, Point, Route } from '@evacuai/routing';
 import * as THREE from 'three';
 
+import { doorArcs, roomInlay, slab, SLAB_M } from './scene/floors';
+import { routeRibbon, scrollRibbons } from './scene/route';
+import { stairCore, stairSteps } from './scene/stairs';
+import { thickWalls } from './scene/walls';
+import type { FloorKey, FloorStyle } from './views';
+
+export * from './views';
+
 /**
- * Campus in 3D (spec §3.4). World axes: x = plan x (m), z = plan y (m), y = up (elevation).
- * Flat shading, no textures. Walls are the lines traced from the evacuation posters (room outlines where a floor has
- * no traced plan), raised as thin panels; rooms are tinted floor tiles; status/route/pins are overlays updated in place.
+ * One building in 3D as an architectural model (spec 2026-10-23). World axes: x = plan x (m), z = plan y (m), y = up.
+ * The building is centred on the origin. Walls are the lines traced from the evacuation posters (room outlines where a
+ * floor has no traced plan), raised full height and 0.15 m thick; rooms are tinted floor inlays; status, route and pins
+ * are overlays updated in place.
  */
 export interface Campus3D {
   scene: THREE.Scene;
-  /** One group per floor, keyed "<building>/<level>"; toggle `.visible` to peel floors. */
-  floors: Map<string, THREE.Group>;
-  /** Room meshes keyed by room id (`userData.roomId` set on each). */
+  /** The building this scene shows (one building per scene). */
+  building: string;
+  /** One group per floor, keyed "<building>/<level>". */
+  floors: Map<FloorKey, THREE.Group>;
+  /** Room inlays keyed by room id (`userData.roomId`, `userData.floor` set on each). */
   rooms: Map<string, THREE.Mesh>;
-  /** World position of each graph node (a little above its floor). */
+  /** World position of each graph node of this building (a little above its floor). */
   nodePos: Map<string, THREE.Vector3>;
   overlay: { edges: THREE.Group; route: THREE.Group; pins: THREE.Group };
   bounds: THREE.Box3;
-  /** x offset per building (buildings without a geo origin are laid out side by side). */
-  offsets: Map<string, number>;
   /** Unexploded node positions and each node's floor key, for explode(). */
   basePos: Map<string, THREE.Vector3>;
-  nodeFloor: Map<string, string>;
+  nodeFloor: Map<string, FloorKey>;
   exits: Set<string>;
+  /** Anchor points for DOM labels (made by mount): the building name, and every room's name. */
+  labels: { building: Map<string, THREE.Vector3>; rooms: Map<string, { pos: THREE.Vector3; name: string; floor: FloorKey }> };
+  /** Floor visibility and opacity (see views.floorStyles); kept across applyStatus and showRoute. */
+  setFloorStyles(styles: Map<FloorKey, FloorStyle>): void;
+  styles: Map<FloorKey, FloorStyle> | null;
+  /** Hazard / heat material for one floor (one per floor and kind, so a ghosted floor keeps its opacity). */
+  statusMaterial(floor: FloorKey, kind: string, color: number): THREE.Material;
+  /** Frees every material this scene owns, attached to a mesh right now or not (floors' own and status ones). */
+  disposeMaterials(): void;
 }
 
 export interface LiveState {
@@ -33,95 +51,174 @@ export interface LiveState {
 }
 
 export const COLORS = {
-  room: 0xcfe3d4, corridor: 0xf2f2f2, stairwell: 0xb9d0ec, exit: 0x9fd8ae, hazard: 0xe74c3c, slab: 0xbfc6c2,
-  blocked: 0x2b2f36, congested: 0xf2a900, route: 0xd7263d, wall: 0x3a3f47, sos: 0xd0021b, checkin: 0x1a7a3c,
+  // Architectural model: warm off-white walls, pale slabs, softly tinted rooms.
+  wall: 0xf4f1ea, slab: 0xe3e6ea, ground: 0xeef1ec, grid: 0xd9ded6, door: 0x8a94a3, glass: 0x9cc3e6, stairs: 0xc9cfd8,
+  room: 0xe8ede6, classroom: 0xddebf7, office: 0xf3e8d6, lab: 0xe5ddf2, corridor: 0xf7f7f5, stairwell: 0xcfe0f5, exit: 0xcdebd6,
+  hazard: 0xe74c3c, blocked: 0x2b2f36, congested: 0xf2a900, route: 0xd7263d, sos: 0xd0021b, checkin: 0x1a7a3c,
   heat: [0xfff3b0, 0xffc56b, 0xff8a3d, 0xe8452c] as const, // 1, 2–4, 5–9, 10+ people
 };
 
-const WALL_HEIGHT = 0.6; // share of the floor height drawn as walls (lets you see into rooms from above)
-const TILE_M = 0.05; // rooms are tinted floor tiles
 const EXPLODE_M = 2; // extra metres per floor and per unit of explode()
-const GAP_M = 12; // spacing between buildings that have no geo origin yet
 
 const heatColor = (n: number) => COLORS.heat[n >= 10 ? 3 : n >= 5 ? 2 : n >= 2 ? 1 : 0];
 const roomColor = (type: string) => (COLORS as Record<string, unknown>)[type] as number | undefined ?? COLORS.room;
+const standard = (color: number, extra: THREE.MeshStandardMaterialParameters = {}) =>
+  new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...extra });
 
-function material(color: number, opacity = 1): THREE.MeshLambertMaterial {
-  return new THREE.MeshLambertMaterial({ color, transparent: opacity < 1, opacity, flatShading: true, depthWrite: opacity >= 1 });
-}
-
-export function buildScene(snap: CampusSnapshot): Campus3D {
+/** Builds one building (default: the first in the snapshot), centred on the origin. */
+export function buildScene(snap: CampusSnapshot, opts: { building?: string } = {}): Campus3D {
+  const b = snap.buildings.find(x => x.id === opts.building) ?? snap.buildings[0];
   const scene = new THREE.Scene();
-  const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-  sun.position.set(30, 60, 20);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 2.2), sun);
+  const buildingRooms = snap.rooms.filter(r => r.building === b.id);
 
-  // ponytail: buildings without a geo origin are laid out side by side; place them by lat/lng + rotation once surveyed.
-  const offsets = new Map<string, number>();
-  let cursor = 0;
-  for (const b of snap.buildings) {
-    const xs = [
-      ...snap.rooms.filter(r => r.building === b.id).flatMap(r => r.polygon.map(p => p[0])),
-      ...b.floors.flatMap(f => f.plan?.walls.flat().map(p => p[0]) ?? []),
-    ];
-    offsets.set(b.id, cursor - (xs.length ? Math.min(...xs) : 0));
-    cursor += (xs.length ? Math.max(...xs) - Math.min(...xs) : 0) + GAP_M;
-  }
+  // Centre the building on the origin.
+  const pts = [...buildingRooms.flatMap(r => r.polygon), ...b.floors.flatMap(f => f.plan?.walls.flat() ?? [])];
+  const xs = pts.map(p => p[0]);
+  const zs = pts.map(p => p[1]);
+  const dx = pts.length ? -(Math.min(...xs) + Math.max(...xs)) / 2 : 0;
+  const dz = pts.length ? -(Math.min(...zs) + Math.max(...zs)) / 2 : 0;
 
-  const floors = new Map<string, THREE.Group>();
+  const floors = new Map<FloorKey, THREE.Group>();
   const rooms = new Map<string, THREE.Mesh>();
-  const materials = new Map<string, THREE.Material>();
-  const shared = (key: string, make: () => THREE.Material) => materials.get(key) ?? materials.set(key, make()).get(key)!;
+  const labels: Campus3D['labels'] = { building: new Map(), rooms: new Map() };
 
-  for (const b of snap.buildings) {
-    const dx = offsets.get(b.id)!;
-    for (const f of b.floors) {
-      const group = new THREE.Group();
-      group.name = `${b.id}/${f.level}`;
-      group.userData = { building: b.id, level: f.level, name: f.name };
-      const floorRooms = snap.rooms.filter(r => r.building === b.id && r.level === f.level);
-      for (const r of floorRooms) {
-        const shape = new THREE.Shape(r.polygon.map(([x, y]) => new THREE.Vector2(x + dx, y)));
-        const geo = new THREE.ExtrudeGeometry(shape, { depth: TILE_M, bevelEnabled: false });
-        geo.rotateX(Math.PI / 2); // shape plane XY → XZ; extrusion now points down
-        const mesh = new THREE.Mesh(geo, shared(r.type, () => material(roomColor(r.type), 0.55)));
-        mesh.position.y = f.elevation_m + TILE_M;
-        mesh.userData = { roomId: r.id, name: r.name, baseMaterial: mesh.material };
-        rooms.set(r.id, mesh);
-        group.add(mesh);
+  for (const f of b.floors) {
+    const key = `${b.id}/${f.level}`;
+    const group = new THREE.Group();
+    group.name = key;
+    group.userData = { building: b.id, level: f.level, name: f.name, materials: [] as THREE.Material[] };
+    // Each floor owns its materials, so one floor can be ghosted or hidden without touching the others.
+    const own = <M extends THREE.Material>(m: M, baseOpacity = 1): M => {
+      m.userData.baseOpacity = baseOpacity;
+      if (baseOpacity < 1) Object.assign(m, { transparent: true, opacity: baseOpacity, depthWrite: false });
+      group.userData.materials.push(m);
+      return m;
+    };
+    const byType = new Map<string, THREE.Material>();
+    const floorRooms = buildingRooms.filter(r => r.level === f.level);
+    for (const r of floorRooms) {
+      const mat = byType.get(r.type) ?? byType.set(r.type, own(standard(roomColor(r.type)))).get(r.type)!;
+      const mesh = roomInlay(r, dx, dz, f.elevation_m, mat);
+      mesh.userData = { roomId: r.id, name: r.name, floor: key, baseMaterial: mat };
+      rooms.set(r.id, mesh);
+      group.add(mesh);
+      if (r.type !== 'corridor') {
+        const c = centroid(r.polygon);
+        labels.rooms.set(r.id, { pos: new THREE.Vector3(c[0] + dx, f.elevation_m + 0.6, c[1] + dz), name: r.name, floor: key });
       }
-      const wallLines: Point[][] = f.plan?.walls ?? floorRooms.map(r => r.polygon);
-      if (wallLines.length) group.add(wallMesh(wallLines, dx, f.elevation_m, f.height_m * WALL_HEIGHT));
-      if (group.children.length) { // slab under the floor
-        const box = new THREE.Box3().setFromObject(group);
-        const slab = new THREE.Mesh(new THREE.BoxGeometry(box.max.x - box.min.x + 1, 0.15, box.max.z - box.min.z + 1), shared('slab', () => material(COLORS.slab, 0.6)));
-        slab.position.set((box.min.x + box.max.x) / 2, f.elevation_m - 0.08, (box.min.z + box.max.z) / 2);
-        group.add(slab);
-      }
-      floors.set(group.name, group);
-      scene.add(group);
     }
+
+    const wallLines: Point[][] = f.plan?.walls ?? floorRooms.filter(r => r.type !== 'corridor').map(r => [...r.polygon, r.polygon[0]]);
+    const wallHeight = f.height_m - SLAB_M;
+    if (wallLines.length) {
+      const walls = new THREE.Mesh(thickWalls(wallLines, { dx, dz, height: wallHeight }), own(standard(COLORS.wall, { roughness: 0.9 })));
+      walls.name = 'walls';
+      walls.position.y = f.elevation_m;
+      walls.castShadow = true;
+      walls.receiveShadow = true;
+      group.add(walls);
+    }
+    if (f.plan?.doors.length) group.add(doorArcs(f.plan.doors, dx, dz, f.elevation_m + 0.05, own(new THREE.LineBasicMaterial({ color: COLORS.door }))));
+
+    const stairPolys = f.plan?.stairs.length ? f.plan.stairs : floorRooms.filter(r => r.type === 'stairwell').map(r => r.polygon);
+    if (stairPolys.length) {
+      const stairMat = own(standard(COLORS.stairs));
+      const glassMat = own(standard(COLORS.glass, { roughness: 0.1 }), 0.18);
+      for (const poly of stairPolys) {
+        const steps = new THREE.Mesh(stairSteps(poly, { dx, dz, height: f.height_m }), stairMat);
+        steps.name = 'stairs';
+        steps.position.y = f.elevation_m;
+        steps.castShadow = true;
+        const core = new THREE.Mesh(stairCore(poly, { dx, dz, height: f.height_m }), glassMat);
+        core.name = 'stair-core';
+        core.position.y = f.elevation_m;
+        group.add(steps, core);
+      }
+    }
+    // The plate under the floor spans its bounding box (courtyards included), so it is a light, see-through plate.
+    if (group.children.length) group.add(slab(new THREE.Box3().setFromObject(group), f.elevation_m, own(standard(COLORS.slab), 0.45)));
+    floors.set(key, group);
+    scene.add(group);
   }
 
   const nodePos = new Map<string, THREE.Vector3>();
   const basePos = new Map<string, THREE.Vector3>();
-  const nodeFloor = new Map<string, string>();
-  const exits = new Set(snap.nodes.filter(n => n.type === 'exit').map(n => n.id));
-  const elevation = (n: CampusNode) => snap.buildings.find(b => b.id === n.building)?.floors.find(f => f.level === n.level)?.elevation_m ?? 0;
-  for (const n of snap.nodes) {
-    const p = new THREE.Vector3(n.x + (offsets.get(n.building) ?? 0), elevation(n) + 0.4, n.y);
+  const nodeFloor = new Map<string, FloorKey>();
+  const nodes = snap.nodes.filter(n => n.building === b.id);
+  const exits = new Set(nodes.filter(n => n.type === 'exit').map(n => n.id));
+  const elevation = (n: CampusNode) => b.floors.find(f => f.level === n.level)?.elevation_m ?? 0;
+  for (const n of nodes) {
+    const p = new THREE.Vector3(n.x + dx, elevation(n) + 0.4, n.y + dz);
     basePos.set(n.id, p.clone());
     nodePos.set(n.id, p);
     nodeFloor.set(n.id, `${n.building}/${n.level}`);
   }
 
+  const bounds = new THREE.Box3().setFromObject(scene);
+  const size = bounds.getSize(new THREE.Vector3());
+  labels.building.set(b.id, new THREE.Vector3(0, bounds.max.y + 2, 0));
+
+  // Ground, light and fog: the model sits on a quiet ground plane in soft daylight.
+  const span = Math.max(size.x, size.z) + 40;
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(span, span).rotateX(-Math.PI / 2), standard(COLORS.ground, { roughness: 1 }));
+  ground.name = 'ground';
+  ground.position.y = (b.floors[0]?.elevation_m ?? 0) - SLAB_M - 0.01;
+  ground.receiveShadow = true;
+  const grid = new THREE.GridHelper(span, Math.round(span / 2), COLORS.grid, COLORS.grid);
+  grid.name = 'grid';
+  grid.position.y = ground.position.y + 0.005;
+  const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+  sun.name = 'sun';
+  sun.position.set(span * 0.4, span * 0.8, span * 0.3);
+  const half = span / 2;
+  Object.assign(sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 1, far: span * 3 });
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.0005;
+  scene.add(ground, grid, new THREE.HemisphereLight(0xffffff, 0xb8c2cc, 1.2), sun);
+  scene.fog = new THREE.Fog(COLORS.ground, span * 1.2, span * 3);
+
   const overlay = { edges: new THREE.Group(), route: new THREE.Group(), pins: new THREE.Group() };
-  for (const g of Object.values(overlay)) g.renderOrder = 10; // after the translucent rooms
+  for (const g of Object.values(overlay)) g.renderOrder = 10; // after the translucent parts
   scene.add(overlay.edges, overlay.route, overlay.pins);
 
-  const campus: Campus3D = { scene, floors, rooms, nodePos, overlay, bounds: new THREE.Box3().setFromObject(scene), offsets, basePos, nodeFloor, exits };
+  const statusMats = new Map<string, THREE.MeshStandardMaterial>();
+  const campus: Campus3D = {
+    scene, building: b.id, floors, rooms, nodePos, overlay, bounds, basePos, nodeFloor, exits, labels, styles: null,
+    disposeMaterials() {
+      for (const g of floors.values()) for (const m of g.userData.materials as THREE.Material[]) m.dispose();
+      for (const m of statusMats.values()) m.dispose();
+      statusMats.clear();
+    },
+    statusMaterial(floor, kind, color) {
+      const key = `${floor}|${kind}`;
+      if (!statusMats.has(key)) statusMats.set(key, standard(color, kind === 'hazard' ? { emissive: COLORS.hazard, emissiveIntensity: 0.35 } : {}));
+      return statusMats.get(key)!;
+    },
+    setFloorStyles(styles) {
+      campus.styles = styles;
+      for (const [key, g] of floors) {
+        const st = styles.get(key) ?? { visible: true, opacity: 1, labels: false };
+        g.visible = st.visible;
+        const mats: THREE.Material[] = [...g.userData.materials, ...[...statusMats].filter(([k]) => k.startsWith(`${key}|`)).map(([, m]) => m)];
+        for (const m of mats) {
+          const opacity = (m.userData.baseOpacity ?? 1) * st.opacity;
+          m.opacity = opacity;
+          if (m.transparent !== opacity < 1) { m.transparent = opacity < 1; m.needsUpdate = true; } // new shader only then
+          m.depthWrite = opacity >= 0.6; // nearly solid floors keep depth, or a floor's back walls show through its front
+
+        }
+      }
+      for (const o of [...overlay.edges.children.flatMap(g => g.children), ...overlay.pins.children, ...overlay.route.children]) {
+        if (o.userData.floor) o.visible = styles.get(o.userData.floor)?.visible ?? true;
+      }
+    },
+  };
   applyStatus(campus, snap, {});
   return campus;
+}
+
+function centroid(poly: Point[]): Point {
+  return [poly.reduce((s, p) => s + p[0], 0) / poly.length, poly.reduce((s, p) => s + p[1], 0) / poly.length];
 }
 
 function clear(group: THREE.Group) {
@@ -134,12 +231,15 @@ function clear(group: THREE.Group) {
   }
 }
 
-/** Hazard rooms (red), crowd heat, blocked/congested paths and SOS/check-in pins. Never rebuilds room geometry. */
+/** Hazard rooms (red glow), crowd heat, blocked/congested paths and SOS/check-in pins. Never rebuilds room geometry. */
 export function applyStatus(c: Campus3D, snap: CampusSnapshot, live: LiveState): void {
   const hazards = new Set(live.hazardRoomIds ?? snap.hazardRoomIds);
   for (const [id, mesh] of c.rooms) {
     const count = live.roomCounts?.[id] ?? 0;
-    mesh.material = hazards.has(id) ? hazardMaterial : count > 0 ? heatMaterials[COLORS.heat.indexOf(heatColor(count))] : mesh.userData.baseMaterial;
+    const floor = mesh.userData.floor as FloorKey;
+    const heat = heatColor(count);
+    mesh.material = hazards.has(id) ? c.statusMaterial(floor, 'hazard', COLORS.hazard)
+      : count > 0 ? c.statusMaterial(floor, `heat${heat}`, heat) : mesh.userData.baseMaterial;
     mesh.userData.count = count;
     mesh.userData.hazard = hazards.has(id);
   }
@@ -156,7 +256,7 @@ export function applyStatus(c: Campus3D, snap: CampusSnapshot, live: LiveState):
       if (!a || !b) continue;
       const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(a, b), 1, 0.25, 6, false), status === 'blocked' ? blockedMaterial : congestedMaterial);
       tube.renderOrder = 10;
-      tube.userData = { edgeId: e.id, label: `${status === 'blocked' ? 'Blocked' : 'Congested'} path` };
+      tube.userData = { edgeId: e.id, label: `${status === 'blocked' ? 'Blocked' : 'Congested'} path`, floor: c.nodeFloor.get(e.from) };
       group.add(tube);
     }
     group.userData.count = group.children.length;
@@ -170,85 +270,76 @@ export function applyStatus(c: Campus3D, snap: CampusSnapshot, live: LiveState):
     const pin = new THREE.Mesh(pinGeometry, p.kind === 'sos' ? sosMaterial : checkinMaterial);
     pin.renderOrder = 11;
     pin.position.copy(at).add(new THREE.Vector3(0, 1.6, 0));
-    pin.userData = { pinId: p.id, kind: p.kind, label: p.label };
+    pin.userData = { pinId: p.id, kind: p.kind, label: p.label, floor: c.nodeFloor.get(p.nodeId) };
     c.overlay.pins.add(pin);
   }
+  if (c.styles) c.setFloorStyles(c.styles);
 }
 
 /**
- * Evacuation route as the posters draw it: red chevrons on each floor, joined by a thin red line that also climbs
- * the stairs between floors. Null clears it.
+ * Evacuation route: on each floor a red ribbon with moving chevrons (plus the poster-style chevrons on the floor), and
+ * a thin red link where the route changes floor (stairs). Each floor's part is a group "route-<floor>", hidden with
+ * its floor. Only the part inside this building is drawn. Null clears it.
  */
 export function showRoute(c: Campus3D, route: Route | null): void {
   clear(c.overlay.route);
   const known = route?.nodeIds.filter(id => c.nodePos.has(id)) ?? [];
   const exit = known.findIndex(id => c.exits.has(id));
   const ids = exit < 0 ? known : known.slice(0, exit + 1); // the assembly area is off the model
-  const points = ids.map(id => c.nodePos.get(id)!);
-  if (points.length < 2) return;
-  const path = new THREE.CurvePath<THREE.Vector3>();
-  points.slice(1).forEach((p, i) => path.add(new THREE.LineCurve3(points[i], p)));
-  const tube = new THREE.Mesh(new THREE.TubeGeometry(path, points.length * 8, 0.08, 4, false), routeMaterial);
-  tube.name = 'route';
-  tube.renderOrder = 10;
+  if (ids.length < 2) return;
 
-  const arrows = new THREE.Group();
-  arrows.name = 'arrows';
   let run: string[] = [];
+  let last: THREE.Vector3 | null = null;
   ids.forEach((id, i) => {
     run.push(id);
     const next = ids[i + 1];
     if (next && c.nodeFloor.get(next) === c.nodeFloor.get(id)) return;
+    const floor = c.nodeFloor.get(id)!;
+    const group = new THREE.Group();
+    group.name = `route-${floor}`;
+    group.userData.floor = floor;
+    const pts = run.map(r => c.nodePos.get(r)!.clone().setY(c.nodePos.get(r)!.y - 0.33));
+    if (last) group.add(link(last, pts[0]));
+    if (pts.length > 1) group.add(routeRibbon(pts));
     const base = run.map(r => c.basePos.get(r)!);
     const lift = c.nodePos.get(run[0])!.y - base[0].y; // current explode offset of this floor
     for (const ch of routeChevrons(base.map(p => [p.x, p.z] as Point))) {
       const arrow = new THREE.Mesh(arrowGeometry, routeMaterial);
+      arrow.name = 'arrow';
       arrow.position.set(ch.x, base[0].y - 0.3 + lift, ch.y);
       arrow.rotation.y = (-ch.deg * Math.PI) / 180;
       arrow.renderOrder = 11;
-      arrows.add(arrow);
+      group.add(arrow);
     }
+    c.overlay.route.add(group);
+    last = pts.at(-1)!;
     run = [];
   });
-  c.overlay.route.add(tube, arrows);
+  if (c.styles) c.setFloorStyles(c.styles);
 }
+
+/** Thin red tube where the route climbs or descends the stairs between floors. */
+function link(a: THREE.Vector3, b: THREE.Vector3): THREE.Mesh {
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(a, b), 4, 0.1, 6, false), routeMaterial);
+  tube.name = 'route-link';
+  tube.renderOrder = 10;
+  return tube;
+}
+
+/** Moves the route chevrons; the viewer calls this every frame while a route is shown. */
+export const routeTick = scrollRibbons;
 
 /** Spreads the floors apart (0 = real heights) so lower floors can be seen; re-draw the route afterwards. */
 export function explode(c: Campus3D, factor: number): void {
-  const rank = new Map<string, number>();
-  const byBuilding = new Map<string, THREE.Group[]>();
-  for (const g of c.floors.values()) byBuilding.set(g.userData.building, [...(byBuilding.get(g.userData.building) ?? []), g]);
-  for (const groups of byBuilding.values()) {
-    groups.sort((a, b) => a.userData.level - b.userData.level).forEach((g, i) => rank.set(g.name, i));
-  }
-  for (const [key, g] of c.floors) g.position.y = (rank.get(key) ?? 0) * factor * EXPLODE_M;
+  const ordered = [...c.floors.values()].sort((a, b) => a.userData.level - b.userData.level);
+  ordered.forEach((g, i) => { g.position.y = i * factor * EXPLODE_M; });
   for (const [id, base] of c.basePos) {
     const g = c.floors.get(c.nodeFloor.get(id)!);
     c.nodePos.get(id)!.set(base.x, base.y + (g?.position.y ?? 0), base.z);
   }
 }
 
-/** Thin vertical panels (2 triangles each) for every wall piece of one floor, merged into one mesh. */
-function wallMesh(lines: Point[][], dx: number, floorY: number, height: number): THREE.Mesh {
-  const pos: number[] = [];
-  for (const line of lines) {
-    for (let i = 1; i < line.length; i++) {
-      const [ax, az] = line[i - 1];
-      const [bx, bz] = line[i];
-      const [x1, x2, y0, y1] = [ax + dx, bx + dx, 0, height];
-      pos.push(x1, y0, az, x2, y0, bz, x2, y1, bz, x1, y0, az, x2, y1, bz, x1, y1, az);
-    }
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  geo.computeVertexNormals();
-  const mesh = new THREE.Mesh(geo, wallMaterial);
-  mesh.name = 'walls';
-  mesh.position.y = floorY;
-  return mesh;
-}
-
-/** Total triangles in the scene (spec budget: under 50K for the whole campus). */
+/** Total triangles in the scene (spec budget: under 120K for one building). */
 export function triangleCount(c: Campus3D): number {
   let n = 0;
   c.scene.traverse(o => {
@@ -258,8 +349,6 @@ export function triangleCount(c: Campus3D): number {
   return Math.round(n);
 }
 
-const hazardMaterial = material(COLORS.hazard, 0.8);
-const heatMaterials = COLORS.heat.map(c => material(c, 0.8));
 // Overlays draw on top of the building (no depth test): a blocked stair or an SOS must never hide behind walls.
 const overlayMaterial = (color: number) => new THREE.MeshBasicMaterial({ color, depthTest: false, transparent: true });
 const routeMaterial = overlayMaterial(COLORS.route);
@@ -268,8 +357,9 @@ const congestedMaterial = overlayMaterial(COLORS.congested);
 const sosMaterial = overlayMaterial(COLORS.sos);
 const checkinMaterial = overlayMaterial(COLORS.checkin);
 const pinGeometry = new THREE.ConeGeometry(0.6, 1.6, 8).rotateX(Math.PI); // points down at the spot
-const wallMaterial = new THREE.MeshLambertMaterial({ color: COLORS.wall, side: THREE.DoubleSide });
+for (const shared of [routeMaterial, blockedMaterial, congestedMaterial, sosMaterial, checkinMaterial, pinGeometry]) shared.userData.shared = true;
 // Flat chevron lying on the floor, pointing along +x (rotated per arrow).
 const arrowGeometry = new THREE.ShapeGeometry(new THREE.Shape([
   new THREE.Vector2(-0.55, -0.6), new THREE.Vector2(0.55, 0), new THREE.Vector2(-0.55, 0.6), new THREE.Vector2(-0.2, 0),
 ])).rotateX(Math.PI / 2);
+arrowGeometry.userData.shared = true;

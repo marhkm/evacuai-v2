@@ -6,6 +6,7 @@ import { Button, Screen } from '@/components/ui';
 import { useAlerts } from '@/lib/alerts';
 import { getServerUrl } from '@/lib/api';
 import { isOfficer, useAuth } from '@/lib/auth';
+import { light } from '@/lib/haptics';
 import { fonts, makeStyles, useTheme } from '@/theme';
 
 /**
@@ -37,7 +38,7 @@ export default function Home() {
       <Text style={s.welcome}>Welcome, {state.user.name}</Text>
       {active.map(a => <AlertBanner key={a.id} alert={a} />)}
       {alert ? (
-        <Button hero variant="safe" label="Evacuate now" a11yLabel="Evacuate now: evacuation route" onPress={() => router.push('/route')} />
+        <Button hero variant="safe" label="Evacuate now" a11yLabel="Evacuate now: evacuation route" onPress={() => { light(); router.push('/route'); }} />
       ) : (
         <View style={s.clear} accessible accessibilityLabel="No active alerts. Campus is clear.">
           <Text style={s.clearTitle}>All clear</Text>

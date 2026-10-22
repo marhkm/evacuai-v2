@@ -11,7 +11,8 @@ const PASSWORD = process.env.E2E_PASSWORD ?? 'evacuai-demo';
 const out = name => new URL(`../docs/images/${name}.jpg`, import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
 const shot = (page, name, fullPage = false) => page.screenshot({ path: out(name), type: 'jpeg', quality: 72, fullPage });
 
-const browser = await chromium.launch({ channel: process.env.E2E_CHANNEL ?? 'chromium' });
+// Software WebGL so the 3D shots render without a GPU.
+const browser = await chromium.launch({ channel: process.env.E2E_CHANNEL ?? 'chromium', args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
 
 // Phone app (web build), phone-sized.
 const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
@@ -39,6 +40,12 @@ await app.getByRole('button', { name: 'BE301' }).click();
 await app.getByText(/m to safety/).waitFor();
 await app.waitForTimeout(800);
 await shot(app, 'app-route', true);
+await app.goto(`${APP}/map`);
+await app.getByRole('button', { name: 'Annex 1' }).click();
+await app.getByRole('button', { name: '3D', exact: true }).click();
+await app.locator('canvas').waitFor();
+await app.waitForTimeout(3500);
+await shot(app, 'app-3d', true);
 await app.goto(`${APP}/sos`);
 await app.getByRole('button', { name: /Send SOS|Send message/ }).waitFor();
 await app.waitForTimeout(800);
@@ -60,6 +67,17 @@ await web.getByRole('heading', { name: 'Live Ops' }).waitFor({ timeout: 45_000 }
 await web.getByLabel('Building', { exact: true }).selectOption('A1');
 await web.waitForTimeout(2500);
 await shot(web, 'command-live-ops');
+await web.getByRole('button', { name: '3D', exact: true }).click();
+const bar = web.getByRole('toolbar', { name: '3D view controls' });
+await bar.waitFor({ timeout: 30_000 });
+await web.waitForTimeout(2500);
+await bar.getByRole('button', { name: 'Third' }).click();
+await web.waitForTimeout(1500);
+await shot(web, 'command-3d-floor');
+await bar.getByRole('button', { name: 'All floors' }).click();
+await bar.getByLabel('Explode floors').fill('2.5');
+await web.waitForTimeout(1800);
+await shot(web, 'command-3d-exploded');
 await web.getByRole('link', { name: 'Alerts' }).click();
 await web.getByRole('heading', { name: 'Alerts', exact: true }).waitFor();
 await web.waitForTimeout(800);

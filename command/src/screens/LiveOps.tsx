@@ -51,7 +51,7 @@ export function LiveOps() {
         {snap.error && <p className="banner danger" role="alert">Can't load the campus map. <button onClick={() => snap.refetch()}>Retry</button></p>}
         {snap.data && floor.building && (mode === '2d'
           ? <PlanView snap={snap.data} building={floor.building} level={floor.level} live={live.data} />
-          : <Suspense fallback={<p className="muted">Loading 3D…</p>}><View3D snap={snap.data} live={live.data} /></Suspense>)}
+          : <Suspense fallback={<p className="muted">Loading 3D…</p>}><View3D snap={snap.data} live={live.data} building={floor.building} onBuilding={b => b !== floor.building && floor.set(b)} /></Suspense>)}
       </section>
 
       <aside className="side">

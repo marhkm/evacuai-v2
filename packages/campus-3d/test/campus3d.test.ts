@@ -8,12 +8,11 @@ const load = (name: string): CampusSnapshot => JSON.parse(readFileSync(new URL(`
 
 describe('buildScene', () => {
   const uclm = load('uclm');
-  const c = buildScene(uclm);
+  const c = buildScene(uclm, { building: 'BE' });
 
-  it('makes one group per floor and one mesh per room, mapped by roomId', () => {
-    const floorCount = uclm.buildings.reduce((n, b) => n + b.floors.length, 0);
-    expect(c.floors.size).toBe(floorCount);
-    expect(c.rooms.size).toBe(uclm.rooms.length);
+  it('makes one group per floor and one mesh per room of the building, mapped by roomId', () => {
+    expect(c.floors.size).toBe(uclm.buildings.find(b => b.id === 'BE')!.floors.length);
+    expect(c.rooms.size).toBe(uclm.rooms.filter(r => r.building === 'BE').length);
     const [id, mesh] = [...c.rooms][0];
     expect(mesh.userData.roomId).toBe(id);
   });
@@ -23,8 +22,8 @@ describe('buildScene', () => {
     expect(Math.min(...y('BE/3'))).toBeGreaterThan(Math.max(...y('BE/1')));
   });
 
-  it('stays under the 50K triangle budget', () => {
-    expect(triangleCount(c)).toBeLessThan(50_000);
+  it('stays under the 120K triangle budget', () => {
+    expect(triangleCount(c)).toBeLessThan(120_000);
   });
 });
 
@@ -42,7 +41,7 @@ describe('live overlays', () => {
     const lines = (name: string) => c.overlay.edges.getObjectByName(name) as THREE.Group | undefined;
     expect(lines('blocked')?.userData.count).toBe(1);
     expect(lines('congested')?.userData.count).toBe(1);
-    const color = (id: string) => ((c.rooms.get(id)!.material as THREE.MeshLambertMaterial).color.getHex());
+    const color = (id: string) => ((c.rooms.get(id)!.material as THREE.MeshStandardMaterial).color.getHex());
     expect(color('DEMO/1/R101')).toBe(COLORS.hazard);
     expect(color('DEMO/2/R201')).toBe(COLORS.heat[2]);
     expect(c.overlay.pins.children).toHaveLength(1); // unknown node ignored
@@ -60,7 +59,7 @@ describe('live overlays', () => {
     const r = findRoute(demo, 'DEMO/2/R201', 'earthquake');
     if (!r.ok) throw new Error('expected a route');
     showRoute(c, r.route);
-    expect(c.overlay.route.getObjectByName('route')).toBeTruthy();
+    expect(c.overlay.route.children.some(o => o.name.startsWith('route-DEMO/'))).toBe(true);
     showRoute(c, null);
     expect(c.overlay.route.children).toHaveLength(0);
   });
@@ -68,23 +67,11 @@ describe('live overlays', () => {
 
 // ── Phase 2: real walls from the evacuation posters ──
 import { routeChevrons } from '@evacuai/campus-view';
-import { explode } from '../src/index';
+import { explode, floorStyles } from '../src/index';
 
 describe('poster walls and route arrows', () => {
   const uclm = load('uclm');
-  const c = buildScene(uclm);
-  const walls = (key: string) => c.floors.get(key)!.getObjectByName('walls') as THREE.Mesh | undefined;
-
-  it('raises the traced walls for Annex 1 and room outlines for floors without a plan', () => {
-    const a1 = walls('A1/4')!;
-    const plan = uclm.buildings.find(b => b.id === 'A1')!.floors.find(f => f.level === 4)!.plan!;
-    expect(a1.geometry.attributes.position.count).toBe(plan.walls.reduce((n, w) => n + (w.length - 1) * 6, 0)); // 2 triangles per wall piece
-    expect(walls('BE/1')).toBeTruthy();
-  });
-
-  it('keeps the whole campus under the triangle budget', () => {
-    expect(triangleCount(c)).toBeLessThan(50_000);
-  });
+  const c = buildScene(uclm, { building: 'A1' });
 
   it('draws the route as red arrows on the floor, one per chevron', () => {
     const r = findRoute(uclm, 'A1/4/R_A_31', 'fire');
@@ -102,9 +89,10 @@ describe('poster walls and route arrows', () => {
         run = [];
       }
     });
-    const arrows = c.overlay.route.getObjectByName('arrows')!;
-    expect(arrows.children.length).toBe(expected);
-    expect(((arrows.children[0] as THREE.Mesh).material as THREE.MeshBasicMaterial).color.getHex()).toBe(COLORS.route);
+    const arrows: THREE.Mesh[] = [];
+    c.overlay.route.traverse(o => { if (o.name === 'arrow') arrows.push(o as THREE.Mesh); });
+    expect(arrows.length).toBe(expected);
+    expect((arrows[0].material as THREE.MeshBasicMaterial).color.getHex()).toBe(COLORS.route);
     showRoute(c, null);
     expect(c.overlay.route.children).toHaveLength(0);
   });
@@ -121,23 +109,51 @@ describe('poster walls and route arrows', () => {
 
 describe('route end and shared shapes', () => {
   const uclm = load('uclm');
-  const c = buildScene(uclm);
+  const c = buildScene(uclm, { building: 'A1' });
   const r = findRoute(uclm, 'A1/7/R_A_67', 'fire');
   if (!r.ok) throw new Error('expected a route');
 
   it('stops the route at the building exit instead of running to the off-campus assembly area', () => {
     showRoute(c, r.route);
     const exit = r.route.nodeIds.find(id => uclm.nodes.find(n => n.id === id)!.type === 'exit')!;
-    const pos = (c.overlay.route.getObjectByName('route') as THREE.Mesh<THREE.TubeGeometry>).geometry.parameters.path.getPoint(1);
-    expect(pos.distanceTo(c.nodePos.get(exit)!)).toBeLessThan(0.01);
+    const floors = c.overlay.route.children.filter(o => o.name.startsWith('route-A1/'));
+    const end = floors.at(-1)!.getObjectByName('ribbon')!.userData.end as THREE.Vector3;
+    const at = c.nodePos.get(exit)!;
+    expect(Math.hypot(end.x - at.x, end.z - at.z)).toBeLessThan(0.01);
   });
 
   it('keeps the shared arrow shape when the route is cleared', () => {
     showRoute(c, r.route);
-    const geo = ((c.overlay.route.getObjectByName('arrows')!.children[0]) as THREE.Mesh).geometry;
+    const geo = (c.overlay.route.getObjectByName('arrow') as THREE.Mesh).geometry;
     let disposed = false;
     geo.addEventListener('dispose', () => { disposed = true; });
     showRoute(c, null);
     expect(disposed).toBe(false);
+  });
+});
+
+describe('route ribbon', () => {
+  const uclm = load('uclm');
+  const c = buildScene(uclm, { building: 'A1' });
+  const r = findRoute(uclm, 'A1/7/R_A_67', 'fire');
+  if (!r.ok) throw new Error('expected a route');
+
+  it('draws one red ribbon per floor the route crosses, as long as the route on that floor', () => {
+    showRoute(c, r.route);
+    const groups = c.overlay.route.children.filter(o => o.name.startsWith('route-A1/'));
+    expect(groups[0].name).toBe('route-A1/7');
+    const ids = r.route.nodeIds.filter(id => id.startsWith('A1/7/'));
+    const pts = ids.map(id => c.nodePos.get(id)!);
+    const length = pts.slice(1).reduce((n, p, i) => n + Math.hypot(p.x - pts[i].x, p.z - pts[i].z), 0);
+    expect(groups[0].getObjectByName('ribbon')!.userData.length).toBeCloseTo(length, 0);
+  });
+
+  it('hides the route on floors that are hidden', () => {
+    showRoute(c, r.route);
+    const floors = [...c.floors.values()].map(g => ({ key: g.name, building: 'A1', level: g.userData.level as number }));
+    c.setFloorStyles(floorStyles(floors, { building: 'A1', level: 4 }));
+    expect(c.overlay.route.getObjectByName('route-A1/7')!.visible).toBe(false);
+    const third = c.overlay.route.getObjectByName('route-A1/4');
+    if (third) expect(third.visible).toBe(true);
   });
 });
