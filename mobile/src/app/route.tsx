@@ -14,6 +14,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { current, routeOrigin, type Estimate, type Observation } from '@/lib/estimator';
 import { useCampus } from '@/lib/useCampus';
+import { toHazard } from '@/lib/useEvacRoute';
 import { watchFloorChanges } from '@/lib/barometer';
 import { applyClass, lastEstimate, moveFloors, restoreWhereabouts, updateWhereabouts } from '@/lib/whereabouts';
 
@@ -21,7 +22,6 @@ const HAZARD_CHOICES: { key: Hazard; label: string }[] = [
   { key: 'earthquake', label: 'Earthquake' }, { key: 'fire', label: 'Fire' }, { key: 'flood', label: 'Flood' },
 ];
 // Alert types the router has no special rules for are routed like an earthquake (leave via stairs to an exit).
-const toHazard = (t: string): Hazard => (t === 'fire' || t === 'flood' ? t : 'earthquake');
 
 type ScheduleNow = { subject: string; room_id: string; room_name: string; building: string; level: number; time_start: string } | null;
 

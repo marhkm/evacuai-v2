@@ -14,12 +14,14 @@ jest.mock('@expo/ui', () => {
     Button: ({ label, onPress }: { label: string; onPress: () => void }) => (
       <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress}><Text>{label}</Text></Pressable>
     ),
-    Slider: ({ onValueChange }: { onValueChange: (v: number) => void }) => (
-      <Pressable accessibilityRole="adjustable" accessibilityLabel="Explode slider" onPress={() => onValueChange(2)} />
+    Slider: ({ onValueChange, modifiers }: { onValueChange: (v: number) => void; modifiers?: { accessibilityLabel?: string }[] }) => (
+      <Pressable accessibilityRole="adjustable" accessibilityLabel={modifiers?.find(m => m.accessibilityLabel)?.accessibilityLabel} onPress={() => onValueChange(2)} />
     ),
     BottomSheet: ({ isPresented, children }: { isPresented: boolean; children: unknown }) => (isPresented ? <View accessibilityLabel="sheet">{children}</View> : null),
   };
 });
+jest.mock('@expo/ui/swift-ui/modifiers', () => ({ accessibilityLabel: (label: string) => ({ accessibilityLabel: label }) }));
+jest.mock('@expo/ui/jetpack-compose/modifiers', () => ({ semantics: (p: { contentDescription: string }) => ({ accessibilityLabel: p.contentDescription }) }));
 jest.mock('expo-haptics', () => ({
   selectionAsync: jest.fn(async () => undefined),
   impactAsync: jest.fn(async () => undefined),

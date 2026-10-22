@@ -11,7 +11,7 @@ const uclm = snapshot as unknown as CampusSnapshot;
 // No WebGL in jsdom: a renderer that only owns a canvas.
 const fakeRenderer = (): RendererLike => ({
   domElement: document.createElement('canvas'),
-  shadowMap: { enabled: false, type: THREE.PCFSoftShadowMap },
+  shadowMap: { enabled: false, type: THREE.PCFSoftShadowMap, autoUpdate: true, needsUpdate: false },
   setPixelRatio: () => {},
   setSize: () => {},
   render: () => {},
@@ -114,6 +114,76 @@ describe('viewer fixes', () => {
     v.setFloor(99);
     expect(v.state().level).toBeNull();
     expect([...v.campus.floors.values()].every(g => g.visible)).toBe(true);
+    v.dispose();
+  });
+});
+
+describe('viewer polish', () => {
+  // Reduced motion: camera moves are instant, so the tests can read the camera straight away.
+  beforeEach(() => { vi.stubGlobal('matchMedia', () => ({ matches: true })); vi.useFakeTimers(); });
+  afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
+
+  it('Reset recentres the camera even when floor, view and explode are already the defaults', () => {
+    const v = open();
+    const home = v.camera.position.clone();
+    v.camera.position.set(200, 5, -200); // the user orbited away
+    v.reset();
+    expect(v.camera.position.distanceTo(home)).toBeLessThan(0.01);
+    v.dispose();
+  });
+
+  it("refits after explode without undoing the user's own rotation", () => {
+    const v = open();
+    const target = v.campus.bounds.getCenter(new THREE.Vector3());
+    v.camera.position.copy(target).add(new THREE.Vector3(-80, 30, 0)); // looking from the west
+    v.explode(2);
+    vi.advanceTimersByTime(250);
+    const dir = v.camera.position.clone().sub(target).normalize();
+    expect(dir.x).toBeLessThan(-0.5); // still from the west
+    expect(Math.abs(dir.z)).toBeLessThan(0.3);
+    v.dispose();
+  });
+
+  it('draws shadows only when the scene changes, not on every frame', () => {
+    let shadow!: RendererLike['shadowMap'];
+    const v = mount(document.createElement('div'), uclm, { controls: false, initial: { building: 'A1' }, createRenderer: () => { const r = fakeRenderer(); shadow = r.shadowMap; return r; } });
+    expect(shadow.autoUpdate).toBe(false);
+    shadow.needsUpdate = false;
+    v.explode(1);
+    expect(shadow.needsUpdate).toBe(true);
+    shadow.needsUpdate = false;
+    v.route({ nodeIds: ['A1/4/C1', 'A1/4/C2'], destinationId: 'A1/4/C2', distance_m: 5, cost: 5 });
+    expect(shadow.needsUpdate).toBe(true);
+    v.dispose();
+  });
+
+  it('lifts the building name above the exploded floors', () => {
+    const v = open();
+    const name = () => { let y = 0; v.campus.scene.traverse(o => { if ((o as { isCSS2DObject?: boolean }).isCSS2DObject && !o.userData.floor) y = o.position.y; }); return y; };
+    const before = name();
+    v.explode(3);
+    expect(name()).toBeGreaterThan(before + 5);
+    v.dispose();
+  });
+
+  it('backs the camera off on a tall, narrow (phone) view so the whole floor fits across', () => {
+    const v = open();
+    v.setView('top');
+    const wide = v.camera.position.distanceTo(new THREE.Vector3(...v.campus.bounds.getCenter(new THREE.Vector3()).toArray()));
+    v.camera.aspect = 0.5;
+    v.setView('front');
+    v.setView('top');
+    const tall = v.camera.position.distanceTo(new THREE.Vector3(...v.campus.bounds.getCenter(new THREE.Vector3()).toArray()));
+    expect(tall / wide).toBeGreaterThan(1.8);
+    v.dispose();
+  });
+
+  it('goes back to the 3D view when the next building has no part of the route', () => {
+    const v = open();
+    v.route({ nodeIds: ['A1/4/C1', 'A1/4/C2'], destinationId: 'A1/4/C2', distance_m: 5, cost: 5 });
+    v.setView('route');
+    v.setBuilding('BE');
+    expect(v.state()).toMatchObject({ hasRoute: false, view: '3d' });
     v.dispose();
   });
 });

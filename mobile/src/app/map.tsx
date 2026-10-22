@@ -12,6 +12,7 @@ import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { can3d } from '@/lib/can3d';
 import { useCampus } from '@/lib/useCampus';
+import { useEvacRoute } from '@/lib/useEvacRoute';
 
 type Mode = 'plan' | 'stacked' | '3d';
 
@@ -23,6 +24,7 @@ export default function MapScreen() {
   const [buildingId, setBuildingId] = useState<string | null>(null);
   const [level, setLevel] = useState<number | null>(null);
   const [has3d] = useState(can3d);
+  const route = useEvacRoute(snapshot);
   // A choice only lasts for the alert it was made under: a new alert always opens the plain floor plan (spec §3.4).
   const alertId = active[0]?.id ?? null;
   const [choice, setChoice] = useState<{ mode: Mode; alertId: number | null }>({ mode: 'plan', alertId: null });
@@ -55,8 +57,8 @@ export default function MapScreen() {
       ) : null}
       {mode === 'stacked' && snapshot && building ? <StackedFloors snapshot={snapshot} buildingId={building.id} /> : null}
       {mode === '3d' && snapshot && building ? (
-        <Campus3DPanel key={building.id} snapshot={snapshot} building={building.id}
-          onFullScreen={() => router.push({ pathname: '/map-3d', params: { building: building.id } })} />
+        <Campus3DPanel key={building.id} snapshot={snapshot} building={building.id} route={route}
+          onFullScreen={v => router.push({ pathname: '/map-3d', params: { building: building.id, level: v.level ?? '', view: v.view, explode: v.explode } })} />
       ) : null}
       {mode === 'plan' && snapshot && building && floor ? <FloorPlan snapshot={snapshot} building={building.id} level={floor.level} /> : null}
       {mode === 'plan' && shapes ? (

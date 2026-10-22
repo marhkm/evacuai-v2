@@ -1,7 +1,7 @@
 import type { Preset } from '@evacuai/campus-3d/src/views';
 import type { CampusSnapshot, Route } from '@evacuai/routing';
 import { Host, Slider } from '@expo/ui';
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { Suspense, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { quality3d } from '@/lib/can3d';
+import { nativeLabel } from '@/lib/nativeLabel';
 import { updateWhereabouts } from '@/lib/whereabouts';
 import { makeStyles, useTheme } from '@/theme';
 
@@ -20,22 +21,29 @@ const versions = new WeakMap<CampusSnapshot, number>();
 let nextVersion = 0;
 const versionOf = (snap: CampusSnapshot) => versions.get(snap) ?? (versions.set(snap, ++nextVersion), nextVersion);
 
+export type View3DState = { level: number | null; view: Preset; explode: number };
+
 const VIEWS: { key: Preset; label: string }[] = [{ key: '3d', label: '3D' }, { key: 'top', label: 'Top' }, { key: 'front', label: 'Front' }, { key: 'route', label: 'Follow route' }];
 
 /**
  * One building in 3D with native controls (floors, view, explode) and a native bottom sheet for a tapped room.
  * The 3D canvas itself is the Campus3DView DOM component.
  */
-export function Campus3DPanel({ snapshot, building, route, height, onFullScreen }: {
-  snapshot: CampusSnapshot; building: string; route?: Route | null; height?: number; onFullScreen?: () => void;
+export function Campus3DPanel({ snapshot, building, route, height, initial, onFullScreen }: {
+  snapshot: CampusSnapshot; building: string; route?: Route | null; height?: number; initial?: Partial<View3DState>;
+  onFullScreen?: (current: View3DState) => void;
 }) {
   const s = useStyles();
   const c = useTheme();
   const { token } = useAuth();
   const { active } = useAlerts();
-  const [level, setLevel] = useState<number | null>(null);
-  const [view, setView] = useState<Preset>('3d');
-  const [explode, setExplode] = useState(0);
+  const [level, setLevel] = useState<number | null>(initial?.level ?? null);
+  const [view, setView] = useState<Preset>(initial?.view ?? '3d');
+  const [explode, setExplode] = useState(initial?.explode ?? 0);
+  const [resetKey, setResetKey] = useState(0);
+  // Only the screen in front draws: under the full-screen modal the map's own web view is let go.
+  const focused = useIsFocused();
+  const routeHere = !!route?.nodeIds.some(id => id.startsWith(`${building}/`));
   const [room, setRoom] = useState<PickedRoom | null>(null);
   const [quality] = useState(quality3d);
   const floors = snapshot.buildings.find(b => b.id === building)?.floors ?? [];
@@ -53,13 +61,16 @@ export function Campus3DPanel({ snapshot, building, route, height, onFullScreen 
   return (
     <View style={s.wrap}>
       <View style={[s.view, { height: height ?? 420 }]}>
-        <Suspense fallback={<ActivityIndicator color={c.safe} />}>
-          <Campus3DView
-            snapshot={snapshot} version={version} building={building} level={level} view={view} explode={explode} route={route ?? null} quality={quality}
-            onPick={async info => { if (info.roomId) setRoom(info as PickedRoom); }}
-            dom={{ style: { flex: 1 }, scrollEnabled: false }}
-          />
-        </Suspense>
+        {focused ? (
+          <Suspense fallback={<ActivityIndicator color={c.safe} />}>
+            <Campus3DView
+              snapshot={snapshot} version={version} building={building} level={level} view={view} explode={explode} route={route ?? null}
+              quality={quality} resetKey={resetKey}
+              onPick={async info => { if (info.roomId) setRoom(info as PickedRoom); }}
+              dom={{ style: { flex: 1 }, scrollEnabled: false }}
+            />
+          </Suspense>
+        ) : null}
       </View>
       <Section label="Floor">
         <Chips
@@ -67,16 +78,16 @@ export function Campus3DPanel({ snapshot, building, route, height, onFullScreen 
           active={level === null ? 'all' : String(level)} onSelect={k => setLevel(k === 'all' ? null : Number(k))} />
       </Section>
       <Section label="View">
-        <Chips items={VIEWS.filter(v => v.key !== 'route' || route)} active={view} onSelect={k => setView(k as Preset)} />
+        <Chips items={VIEWS.filter(v => v.key !== 'route' || routeHere)} active={view} onSelect={k => setView(k as Preset)} />
       </Section>
       <Section label="Explode floors">
         <Host matchContents={{ vertical: true }} style={s.slider}>
-          <Slider value={explode} onValueChange={setExplode} min={0} max={3} step={0.1} />
+          <Slider value={explode} onValueChange={setExplode} min={0} max={3} step={0.1} modifiers={nativeLabel('Explode floors')} />
         </Host>
       </Section>
       <View style={s.row}>
-        <View style={s.grow}><Button label="Reset" variant="secondary" onPress={() => { setLevel(null); setView('3d'); setExplode(0); }} /></View>
-        {onFullScreen ? <View style={s.grow}><Button label="Full screen" variant="secondary" onPress={onFullScreen} /></View> : null}
+        <View style={s.grow}><Button label="Reset" variant="secondary" onPress={() => { setLevel(null); setView('3d'); setExplode(0); setResetKey(k => k + 1); }} /></View>
+        {onFullScreen ? <View style={s.grow}><Button label="Full screen" variant="secondary" onPress={() => onFullScreen({ level, view, explode })} /></View> : null}
       </View>
       <RoomSheet room={room} onClose={() => setRoom(null)} onRouteFrom={routeFrom} />
     </View>

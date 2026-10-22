@@ -10,7 +10,7 @@ import { cameraFor, floorStyles, type Focus, type Preset } from './views';
 /** The parts of THREE.WebGLRenderer the viewer uses (tests pass a stand-in; there is no WebGL in jsdom). */
 export interface RendererLike {
   domElement: HTMLCanvasElement;
-  shadowMap: { enabled: boolean; type: THREE.ShadowMapType };
+  shadowMap: { enabled: boolean; type: THREE.ShadowMapType; autoUpdate: boolean; needsUpdate: boolean };
   setPixelRatio(r: number): void;
   setSize(w: number, h: number, updateStyle?: boolean): void;
   render(scene: THREE.Scene, camera: THREE.Camera): void;
@@ -23,6 +23,7 @@ export type PickInfo = Record<string, unknown> & { roomId?: string; name?: strin
 export interface Viewer {
   /** The scene of the building in view (replaced by setBuilding). */
   readonly campus: Campus3D;
+  readonly camera: THREE.PerspectiveCamera;
   update(live: LiveState): void;
   route(route: Route | null): void;
   /** Spread the floors apart (0 = real heights); the route and pins follow. */
@@ -72,6 +73,8 @@ export function mount(
   renderer.setPixelRatio(Math.min(typeof devicePixelRatio === 'number' ? devicePixelRatio : 1, quality === 'high' ? 2 : 1.5));
   renderer.shadowMap.enabled = quality === 'high';
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false; // the sun never moves: redraw shadows only when the building changes
+  const reshadow = () => { renderer.shadowMap.needsUpdate = true; };
   el.appendChild(renderer.domElement);
   renderer.domElement.style.touchAction = 'none';
   renderer.domElement.style.display = 'block';
@@ -96,7 +99,7 @@ export function mount(
   let campus!: Campus3D;
   let lastLive: LiveState = {};
   let lastRoute: Route | null = null;
-  let refit: ReturnType<typeof setTimeout> | undefined;
+  let refitTimer: ReturnType<typeof setTimeout> | undefined;
 
   const render = () => {
     renderer.render(campus.scene, camera);
@@ -143,26 +146,46 @@ export function mount(
     else for (const f of campus.floors.values()) box.expandByObject(f);
     return box.isEmpty() ? campus.bounds.clone() : box;
   };
+  // Presets frame for a square view; a tall phone view needs the camera further back to fit the width.
+  const fitScale = () => Math.max(1, 1 / camera.aspect);
   const frameView = () => {
     const box = focusBox();
     const start = lastRoute?.nodeIds.map(id => campus.nodePos.get(id)).find(Boolean);
     const { position, target } = cameraFor(s.view, { min: box.min.toArray(), max: box.max.toArray() }, { routeStart: start?.toArray() as [number, number, number] | undefined });
     s.rotate = s.view !== 'top';
     controls.enableRotate = s.rotate;
-    fly(new THREE.Vector3(...position), new THREE.Vector3(...target));
+    const to = new THREE.Vector3(...target);
+    fly(new THREE.Vector3(...position).sub(to).multiplyScalar(fitScale()).add(to), to);
+  };
+  // Same framing distance, but from wherever the user has turned the camera.
+  const refit = () => {
+    const box = focusBox();
+    const { position, target } = cameraFor(s.view, { min: box.min.toArray(), max: box.max.toArray() });
+    const to = new THREE.Vector3(...target);
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    fly(to.clone().addScaledVector(dir, to.distanceTo(new THREE.Vector3(...position)) * fitScale()), to);
   };
 
   const applyStyles = () => {
     const floors = [...campus.floors.values()].map(g => ({ key: g.name, building: s.building, level: g.userData.level as number }));
     const styles = floorStyles(floors, { building: s.building, level: s.level }, { exploded: s.explode > 0.3 });
     campus.setFloorStyles(styles);
+    reshadow();
     campus.scene.traverse(o => {
       if (!(o instanceof CSS2DObject)) return;
       o.visible = o.userData.floor ? styles.get(o.userData.floor)?.labels === true : s.level === null;
     });
   };
 
+  let nameLabels: CSS2DObject[] = [];
+  // The building name sits just above the top floor, wherever explode has moved it.
+  const placeName = () => {
+    const box = new THREE.Box3();
+    for (const f of campus.floors.values()) box.expandByObject(f);
+    if (!box.isEmpty()) for (const o of nameLabels) o.position.y = box.max.y + 2;
+  };
   const addLabels = () => {
+    nameLabels = [];
     for (const [id, l] of campus.labels.rooms) {
       const div = document.createElement('div');
       div.className = 'evac3d-label';
@@ -179,6 +202,7 @@ export function mount(
       const obj = new CSS2DObject(div);
       obj.position.copy(pos);
       campus.scene.add(obj);
+      nameLabels.push(obj);
     }
   };
 
@@ -206,7 +230,9 @@ export function mount(
     applyStatus(campus, snap, lastLive);
     showRoute(campus, lastRoute);
     s.hasRoute = campus.overlay.route.children.length > 0;
+    if (!s.hasRoute && s.view === 'route') s.view = '3d';
     explode(campus, s.explode);
+    placeName();
     applyStyles();
   };
   build(s.building);
@@ -229,8 +255,8 @@ export function mount(
   {
     const box = focusBox();
     const { position, target } = cameraFor('3d', { min: box.min.toArray(), max: box.max.toArray() });
-    camera.position.set(...position);
     controls.target.set(...target);
+    camera.position.set(...position).sub(controls.target).multiplyScalar(fitScale()).add(controls.target);
     controls.update();
     render();
   }
@@ -261,12 +287,14 @@ export function mount(
 
   const viewer: Viewer = {
     get campus() { return campus; },
-    update(live) { lastLive = live; applyStatus(campus, snap, live); render(); },
+    camera,
+    update(live) { lastLive = live; applyStatus(campus, snap, live); reshadow(); render(); },
     route(route) {
       lastRoute = route;
       showRoute(campus, route);
       s.hasRoute = campus.overlay.route.children.length > 0;
       if (!s.hasRoute && s.view === 'route') s.view = '3d';
+      reshadow();
       render();
       kick();
       changed();
@@ -274,14 +302,15 @@ export function mount(
     explode(factor) {
       s.explode = factor;
       explode(campus, factor);
+      placeName();
       applyStatus(campus, snap, lastLive);
       showRoute(campus, lastRoute);
       applyStyles();
       render();
       changed();
       // Refit once the slider settles, so the spread-out building stays in view.
-      clearTimeout(refit);
-      refit = setTimeout(frameView, 200);
+      clearTimeout(refitTimer);
+      refitTimer = setTimeout(refit, 200);
     },
     setBuilding(id) {
       if (id === s.building) return;
@@ -316,7 +345,7 @@ export function mount(
     reset() {
       s.level = null;
       s.view = '3d';
-      if (s.explode) { s.explode = 0; explode(campus, 0); applyStatus(campus, snap, lastLive); showRoute(campus, lastRoute); }
+      if (s.explode) { s.explode = 0; explode(campus, 0); placeName(); applyStatus(campus, snap, lastLive); showRoute(campus, lastRoute); }
       applyStyles();
       frameView();
       changed();
@@ -325,7 +354,7 @@ export function mount(
     onChange(cb) { listeners.add(cb); return () => listeners.delete(cb); },
     dispose() {
       if (frame) caf(frame);
-      clearTimeout(refit);
+      clearTimeout(refitTimer);
       bar?.detach();
       observer?.disconnect();
       controls.dispose();

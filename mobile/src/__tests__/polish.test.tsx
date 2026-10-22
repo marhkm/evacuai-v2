@@ -62,7 +62,7 @@ test('sending an SOS gives a firm tap, then a success buzz when it went through'
 test('tapping the alert band opens its details in a sheet, with Evacuate now', async () => {
   alerts = [fire];
   await renderRouter('./src/app', { initialUrl: '/' });
-  await fireEvent.press(await screen.findByRole('alert'));
+  await fireEvent.press(await screen.findByRole('button', { name: /Fire on the 2nd floor. Leave now./ }));
   const sheet = await screen.findByLabelText('sheet');
   expect(sheet).toBeTruthy();
   expect(screen.getAllByText('Fire on the 2nd floor. Leave now.').length).toBeGreaterThan(1); // band + sheet
@@ -91,4 +91,14 @@ test('buttons shrink a little on press, or only dim when the phone asks for redu
   expect(style).not.toContain('scale');
   expect(style).toContain('"opacity":0.8');
   mockReduced.on = false;
+});
+
+test('the alert band is a button and is read out when it appears', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const announce = jest.spyOn(require('react-native').AccessibilityInfo, 'announceForAccessibility');
+  alerts = [fire];
+  await renderRouter('./src/app', { initialUrl: '/' });
+  const band = await screen.findByRole('button', { name: /Fire on the 2nd floor\. Leave now\./ });
+  expect(band.props.accessibilityLiveRegion).toBe('assertive');
+  expect(announce).toHaveBeenCalledWith(expect.stringContaining('Fire on the 2nd floor. Leave now.'));
 });

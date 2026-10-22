@@ -16,6 +16,8 @@ type Props = {
   explode: number;
   route?: Route | null;
   quality: 'high' | 'low';
+  /** Bumped by the native Reset button: recentres the camera even when floor, view and explode are unchanged. */
+  resetKey?: number;
   /** A tapped room or pin, handed to the native screen (bottom sheet). */
   onPick?: (info: PickInfo) => Promise<void>;
   dom?: DOMProps;
@@ -29,7 +31,7 @@ type Props = {
  * Expo DOM re-sends every prop as new JSON on each native render, so nothing here depends on object identity: the
  * scene is built when `version` changes and each setting is applied only when its value really changed.
  */
-export default function Campus3DView({ snapshot, version, building, level, view, explode, route, quality, onPick }: Props) {
+export default function Campus3DView({ snapshot, version, building, level, view, explode, route, quality, resetKey = 0, onPick }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const viewer = useRef<Viewer | null>(null);
   const latest = useRef({ snapshot, building, level, onPick });
@@ -55,6 +57,7 @@ export default function Campus3DView({ snapshot, version, building, level, view,
   useEffect(() => { if (viewer.current && viewer.current.state().explode !== explode) viewer.current.explode(explode); }, [explode, version, quality]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { viewer.current?.route(route ?? null); }, [routeKey, version, quality]);
+  useEffect(() => { if (resetKey) viewer.current?.reset(); }, [resetKey]);
 
   return (
     <div

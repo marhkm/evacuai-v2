@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, Pressable, Text, View } from 'react-native';
 import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
 
 import { AlertSheet } from '@/components/AlertSheet';
@@ -15,11 +15,15 @@ export function AlertBanner({ alert }: { alert: AlertItem }) {
   const c = useTheme();
   const drill = alert.is_drill;
   const [open, setOpen] = useState(false);
+  const spoken = [alertTitle(alert), alert.message, ...alertTranslations(alert)].join('. ');
+  // A button (it opens the details), so it is announced once when it appears instead of by an alert role.
+  useEffect(() => { AccessibilityInfo.announceForAccessibility(spoken); }, [alert.id]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
     <Pressable
-      accessibilityRole="alert"
-      accessibilityLabel={[alertTitle(alert), alert.message, ...alertTranslations(alert)].join('. ')}
+      accessibilityRole="button"
+      accessibilityLiveRegion="assertive"
+      accessibilityLabel={spoken}
       accessibilityHint="Shows the alert details"
       onPress={() => setOpen(true)}
       style={[s.banner, { backgroundColor: drill ? c.drillFill : c.dangerFill }]}
