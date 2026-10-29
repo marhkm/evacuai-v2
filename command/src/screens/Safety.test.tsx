@@ -15,18 +15,20 @@ beforeEach(() => {
     'GET /api/officer/safety': [200, {
       alert: { id: 6, hazard_type: 'fire', is_drill: true, status: 'active' },
       alerts: [{ id: 6, label: 'Drill · Fire · Oct 18', active: true }],
-      counts: { total: 3, safe: 1, needs_help: 1, unknown: 1, sos: 0 },
+      counts: { total: 3, safe: 1, unknown: 1, sos: 1 },
       occupancy: [{ name: 'Off-campus assembly area', count: 1 }],
-      people: [person(1, 'Ana Safe', 'safe'), person(2, 'Ben Help', 'needs_help'), person(3, 'Cy Unknown', 'unknown')],
+      people: [person(1, 'Ana Safe', 'safe'), person(2, 'Ben Help', 'SOS'), person(3, 'Cy Unknown', 'unknown')],
     }],
   });
 });
 
-test('the Needs help filter shows only those people', async () => {
+test('one SOS category: no Needs help counter or filter, and the SOS filter shows those people', async () => {
   renderApp('/safety');
   const table = await screen.findByRole('table');
   expect(within(table).getByText('Ana Safe')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: /Needs help/ }));
+  expect(screen.queryByText(/Needs help/)).toBeNull();
+  expect(screen.getAllByRole('button', { name: /^(Everyone|SOS|Unknown|Safe) \d+$/ }).map(b => b.textContent)).toEqual(['Everyone 3', 'SOS 1', 'Unknown 1', 'Safe 1']);
+  fireEvent.click(screen.getByRole('button', { name: 'SOS 1' }));
   expect(within(table).getByText('Ben Help')).toBeTruthy();
   expect(within(table).queryByText('Ana Safe')).toBeNull();
   expect(within(table).queryByText('Cy Unknown')).toBeNull();

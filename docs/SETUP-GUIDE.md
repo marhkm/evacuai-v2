@@ -150,11 +150,23 @@ floor tracking with the barometer, GPS check-in and **push notifications**.
 
    Also make sure Windows treats the Wi-Fi as a **Private** network (Settings → Network & internet → Wi-Fi → your
    network → **Private network**).
-6. **Point the app at your computer.** Open EvacuAI on the phone, tap **Server: …** under the **Sign in** button, enter
-   `http://<your computer's address>:8000` (for example `http://192.168.1.5:8000`), tap **Save server**, and sign in.
+6. **Point the app at your computer.**
+   1. Open EvacuAI on the phone and tap **Server: …** under the **Sign in** button.
+   2. Type your computer's address, for example `192.168.1.5`. The app adds `http://` and `:8000` for you.
+   3. Tap **Test connection**. It should say **Connected to http://192.168.1.5:8000**.
+   4. Tap **Save server**, and sign in.
 
-**Check:** the phone's browser should open `http://<your computer's address>:8000/up`. If it does not, the phone cannot
-reach the computer: check step 3 and step 5.
+   Use port **8000** only: 8081 is the web app and 8080 is live updates, and the app refuses both.
+7. **Sign in with a demo account, or read your code on the computer.** A new account's verification code goes to the
+   test mailbox, which opens only on the computer: http://localhost:8025.
+
+**If Test connection says "Can't reach":** the phone cannot reach the computer.
+- Check that both are on the same Wi-Fi (step 3).
+- Check the firewall rule and that the network is set to Private (step 5).
+- Check that you typed the Wi-Fi adapter's address, not a WSL, Hyper-V or VPN one.
+
+You can also open `http://<your computer's address>:8000/up` in the phone's browser: if that fails too, the problem is
+the network, not the app.
 
 Push notifications need internet on the computer (they go through Expo's push service). Allow notifications when the
 app asks.

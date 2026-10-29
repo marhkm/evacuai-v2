@@ -8,7 +8,7 @@ export type AlertOption = { id: number; label: string; active: boolean };
 type Board = {
   alert: { id: number } | null;
   alerts: AlertOption[];
-  counts: { total: number; safe: number; needs_help: number; unknown: number; sos: number } | null;
+  counts: { total: number; safe: number; unknown: number; sos: number } | null;
   occupancy: { name: string; count: number }[];
   people: Person[];
 };
@@ -16,11 +16,10 @@ type Board = {
 const FILTERS = [
   { value: '', label: 'Everyone' },
   { value: 'SOS', label: 'SOS' },
-  { value: 'needs_help', label: 'Needs help' },
   { value: 'unknown', label: 'Unknown' },
   { value: 'safe', label: 'Safe' },
 ];
-const LABEL: Record<string, string> = { SOS: 'SOS', needs_help: 'Needs help', unknown: 'Unknown', safe: 'Safe' };
+const LABEL: Record<string, string> = { SOS: 'SOS', unknown: 'Unknown', safe: 'Safe' }; // needing help counts as SOS
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit' }) : '–');
 
 export const useBoard = (alertId: number | null) =>
@@ -56,9 +55,8 @@ export function Safety() {
         <>
           <section className="counters wide" aria-label="Safety counters">
             <div className="counter-box safe"><span className="counter">{b.counts.safe}</span>Safe</div>
-            <div className="counter-box warning"><span className="counter">{b.counts.needs_help}</span>Needs help</div>
             <div className="counter-box"><span className="counter">{b.counts.unknown}</span>Unknown</div>
-            <div className="counter-box danger"><span className="counter">{b.counts.sos}</span>Open SOS</div>
+            <div className="counter-box danger"><span className="counter">{b.counts.sos}</span>SOS</div>
           </section>
           <section aria-label="Assembly points" className="occupancy">
             {b.occupancy.map(o => (

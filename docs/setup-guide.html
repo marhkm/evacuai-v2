@@ -304,12 +304,27 @@ adapter (for example <code>192.168.1.5</code>). macOS: System Settings → Wi-Fi
 <p>Also make sure Windows treats the Wi-Fi as a <strong>Private</strong> network (Settings → Network &amp; internet → Wi-Fi → your
 network → <strong>Private network</strong>).</p>
 </li>
-<li><p><strong>Point the app at your computer.</strong> Open EvacuAI on the phone, tap <strong>Server: …</strong> under the <strong>Sign in</strong> button, enter
-<code>http://&lt;your computer&#39;s address&gt;:8000</code> (for example <code>http://192.168.1.5:8000</code>), tap <strong>Save server</strong>, and sign in.</p>
+<li><p><strong>Point the app at your computer.</strong></p>
+<ol>
+<li>Open EvacuAI on the phone and tap <strong>Server: …</strong> under the <strong>Sign in</strong> button.</li>
+<li>Type your computer&#39;s address, for example <code>192.168.1.5</code>. The app adds <code>http://</code> and <code>:8000</code> for you.</li>
+<li>Tap <strong>Test connection</strong>. It should say <strong>Connected to <a href="http://192.168.1.5:8000">http://192.168.1.5:8000</a></strong>.</li>
+<li>Tap <strong>Save server</strong>, and sign in.</li>
+</ol>
+<p>Use port <strong>8000</strong> only: 8081 is the web app and 8080 is live updates, and the app refuses both.</p>
+</li>
+<li><p><strong>Sign in with a demo account, or read your code on the computer.</strong> A new account&#39;s verification code goes to the
+test mailbox, which opens only on the computer: <a href="http://localhost:8025">http://localhost:8025</a>.</p>
 </li>
 </ol>
-<p><strong>Check:</strong> the phone&#39;s browser should open <code>http://&lt;your computer&#39;s address&gt;:8000/up</code>. If it does not, the phone cannot
-reach the computer: check step 3 and step 5.</p>
+<p><strong>If Test connection says &quot;Can&#39;t reach&quot;:</strong> the phone cannot reach the computer.</p>
+<ul>
+<li>Check that both are on the same Wi-Fi (step 3).</li>
+<li>Check the firewall rule and that the network is set to Private (step 5).</li>
+<li>Check that you typed the Wi-Fi adapter&#39;s address, not a WSL, Hyper-V or VPN one.</li>
+</ul>
+<p>You can also open <code>http://&lt;your computer&#39;s address&gt;:8000/up</code> in the phone&#39;s browser: if that fails too, the problem is
+the network, not the app.</p>
 <p>Push notifications need internet on the computer (they go through Expo&#39;s push service). Allow notifications when the
 app asks.</p>
 <p>Officers can also open the Command Center from another computer or tablet on the same Wi-Fi at

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\SosUpdated;
+use App\Exceptions\InvalidState;
 use App\Support\Activity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,9 +54,41 @@ class SosAlert extends Model
         return in_array($this->status, self::OPEN, true);
     }
 
-    public function acknowledge(): void
+    /** The signed-in officer takes the case, unless another officer already has it (then returns that officer). */
+    public function acknowledge(): ?User
     {
-        $this->update(['status' => 'acknowledged', 'acknowledged_by' => auth()->id(), 'acknowledged_at' => now()]);
+        /** @var User $officer */
+        $officer = auth()->user();
+
+        return $this->claimFor($officer);
+    }
+
+    /**
+     * Makes $officer the owner when nobody handles the case yet. The claim is one conditional UPDATE (unowned and still
+     * open), so of two officers replying at once exactly one wins, and a case the student cancelled meanwhile stays
+     * closed. Returns the other officer who handles it, or null when $officer does.
+     *
+     * @throws InvalidState when the case closed meanwhile
+     */
+    public function claimFor(User $officer): ?User
+    {
+        if ($this->acknowledged_by === null) {
+            $wasPending = $this->status === 'pending';
+            $claimed = self::whereKey($this->id)->whereNull('acknowledged_by')->whereIn('status', self::OPEN)
+                ->update(['acknowledged_by' => $officer->id, 'status' => 'acknowledged', 'acknowledged_at' => $this->acknowledged_at ?? now()]);
+            $this->refresh();
+            if (! $this->isOpen()) {
+                throw new InvalidState('This SOS is closed.');
+            }
+            if ($claimed) { // the raw update skips model events: log and broadcast as a save would
+                if ($wasPending) {
+                    Activity::log('sos_acknowledged', ['sos_id' => $this->id]);
+                }
+                event(new SosUpdated($this));
+            }
+        }
+
+        return $this->acknowledged_by === $officer->id ? null : $this->responder;
     }
 
     public function resolve(): void

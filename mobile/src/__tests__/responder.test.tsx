@@ -34,6 +34,7 @@ let calls: { method: string; path: string; body: Record<string, unknown> }[] = [
 let sosList: object[] = [];
 let alertPosts = 0;
 let secondFloor: Promise<void> = Promise.resolve();
+let sosOver: object = {};
 const sosDetail = {
   id: 3, person: 'Juan', status: 'pending', message: 'Leg is hurt', place: 'Demo Building · Second · R201', responder: null,
   created_at: '2026-10-21T08:05:00+08:00', messages: [{ id: 1, body: 'Please hurry', mine: false, sender: 'Juan', created_at: '2026-10-21T08:06:00+08:00' }],
@@ -54,11 +55,11 @@ function serve(user: object) {
     if (path === '/api/campus-snapshot') return reply(200, JSON.parse(JSON.stringify(snapshot)));
     if (path === '/api/officer/overview') return reply(200, { stats: { open_sos: sosList.length, pending_reports: 0, blocked_paths: 0 }, active_alert: alert(7, 'active') });
     if (path === '/api/officer/sos?open=1') return reply(200, { sos: sosList, meta: { current_page: 1, last_page: 1 } });
-    if (path.startsWith('/api/officer/sos/3')) return reply(200, { sos: sosDetail });
+    if (path.startsWith('/api/officer/sos/3')) return reply(200, { sos: { ...sosDetail, ...sosOver } });
     if (path === '/api/officer/safety') {
       return reply(200, {
-        alert: alert(7, 'active'), alerts: [], counts: { total: 3, safe: 1, needs_help: 1, unknown: 1, sos: 0 }, occupancy: [],
-        people: [person(1, 'Ana Safe', 'safe'), person(2, 'Ben Help', 'needs_help'), person(3, 'Cy Unknown', 'unknown')],
+        alert: alert(7, 'active'), alerts: [], counts: { total: 3, safe: 1, unknown: 1, sos: 1 }, occupancy: [],
+        people: [person(1, 'Ana Safe', 'safe'), person(2, 'Ben Help', 'SOS'), person(3, 'Cy Unknown', 'unknown')],
       });
     }
     if (path === '/api/officer/paths?building=DEMO&level=2' && method === 'GET') {
@@ -81,6 +82,7 @@ beforeEach(() => {
   sosList = [];
   alertPosts = 0;
   secondFloor = Promise.resolve();
+  sosOver = {};
   mockConfirm.mockClear();
   mockConfirm.mockResolvedValue(true);
 });
@@ -135,6 +137,7 @@ test("Who's missing lists only people who need help or are unknown, and stores n
   expect(await screen.findByText('Ben Help')).toBeTruthy();
   expect(screen.getByText('Cy Unknown')).toBeTruthy();
   expect(screen.queryByText('Ana Safe')).toBeNull();
+  expect(screen.getByText('1 SOS · 1 unknown · 1 safe')).toBeTruthy();
   expect([...mockMem.values()].join(' ')).not.toMatch(/Ben Help|Cy Unknown/);
 });
 
@@ -175,4 +178,15 @@ test('broadcast asks for direct confirmation with too few reports; resolve asks 
   expect(posted('/api/officer/alerts/7/resolve')).toBeUndefined();
   await fireEvent.press(screen.getByRole('button', { name: 'Resolve: Alert 7' }));
   await waitFor(() => expect(posted('/api/officer/alerts/7/resolve')).toBeTruthy());
+});
+
+test('a case another officer handles can be watched or taken over', async () => {
+  serve(officer);
+  sosOver = { status: 'acknowledged', responder: 'Ben Cruz', can_reply: false };
+  await renderRouter('./src/app', { initialUrl: '/responder/sos/3' });
+  expect(await screen.findByText('Handled by Ben Cruz')).toBeTruthy();
+  expect(screen.queryByLabelText('Message')).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Take over' }));
+  expect(mockConfirm).toHaveBeenCalledWith('Ben Cruz is handling this. Take over?', expect.any(String), 'Take over');
+  await waitFor(() => expect(posted('/api/officer/sos/3/take-over')).toBeTruthy());
 });

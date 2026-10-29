@@ -17,6 +17,7 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * @property Role $role
  * @property bool $is_active
+ * @property ?array<string, string> $tabs_seen_at when the officer last opened each badged Command Center tab
  */
 // `role` is deliberately not fillable: only an admin action may change it (no self-promotion via registration).
 #[Fillable(['name', 'email', 'password', 'department', 'phone'])]
@@ -33,6 +34,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'consented_at' => 'datetime',
+            'tabs_seen_at' => 'array',
             'password' => 'hashed',
             'role' => Role::class,
             'is_active' => 'boolean',

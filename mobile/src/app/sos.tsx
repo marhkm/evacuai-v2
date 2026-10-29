@@ -1,6 +1,6 @@
 import { displayName } from '@evacuai/campus-view';
 import { Redirect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { LocationChooser } from '@/components/LocationChooser';
@@ -10,6 +10,7 @@ import { api } from '@/lib/api';
 import { medium, success } from '@/lib/haptics';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
+import { dayLabel, startsDay, timeLabel } from '@/lib/chatTime';
 import type { Observation } from '@/lib/estimator';
 import { subscribeSos } from '@/lib/realtime';
 import { useCampus } from '@/lib/useCampus';
@@ -90,11 +91,14 @@ export default function SosScreen() {
         </View>
         <Text style={styles.heading}>Chat with safety officers</Text>
         {sos.messages.length === 0 ? <Text style={styles.meta}>No messages yet.</Text> : null}
-        {sos.messages.map(m => (
-          <View key={m.id} style={[styles.bubble, m.mine ? styles.mine : styles.theirs]}>
-            <Text style={styles.sender}>{m.mine ? 'You' : m.sender}</Text>
+        {sos.messages.map((m, i) => (
+          <Fragment key={m.id}>
+          {startsDay(sos.messages, i) ? <Text accessibilityRole="header" style={styles.day}>{dayLabel(m.created_at)}</Text> : null}
+          <View style={[styles.bubble, m.mine ? styles.mine : styles.theirs]}>
+            <Text style={styles.sender}>{m.mine ? 'You' : m.sender}{timeLabel(m.created_at) ? ` · ${timeLabel(m.created_at)}` : ''}</Text>
             <Text style={styles.body}>{m.body}</Text>
           </View>
+          </Fragment>
         ))}
         <Field label="Message" value={reply} onChangeText={setReply} maxLength={500} placeholder="e.g. I'm under the table near the door" autoCapitalize="sentences" />
         <Message text={error} />
@@ -147,5 +151,6 @@ const useStyles = makeStyles(c => ({
   mine: { alignSelf: 'flex-end', backgroundColor: c.safeTint },
   theirs: { alignSelf: 'flex-start', backgroundColor: c.card },
   sender: { fontFamily: fonts.body, fontSize: 12, color: c.muted },
+  day: { alignSelf: 'center', fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 0.6, textTransform: 'uppercase', color: c.muted },
   body: { fontFamily: fonts.body, fontSize: 16, color: c.text },
 }));

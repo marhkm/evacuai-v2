@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, type FormEvent } from 'react';
+import { Fragment, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { api } from '../api';
+import { dayLabel, timeLabel } from '../chatTime';
 import { usePaged } from '../paged';
 import { useAction } from '../useAction';
 import type { SosItem } from './LiveOps';
 
 type Message = { id: number; body: string; mine: boolean; sender: string; created_at: string };
-type SosDetail = SosItem & { responder: string | null; messages: Message[] };
+type SosDetail = SosItem & { responder: string | null; can_reply?: boolean; messages: Message[] };
 
-const time = (iso: string) => new Date(iso).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit' });
+const when = (iso: string) => `${dayLabel(iso)} ${timeLabel(iso)}`;
 const OPEN = ['pending', 'acknowledged'];
 
 function Chat({ id }: { id: string }) {
@@ -31,13 +32,14 @@ function Chat({ id }: { id: string }) {
   if (sos.error) return <p className="banner danger" role="alert">Can't load this SOS. <button onClick={() => sos.refetch()}>Retry</button></p>;
   if (!s) return <p className="muted">Loading…</p>;
   const open = OPEN.includes(s.status);
+  const mineToHandle = s.can_reply !== false; // someone else handles it: watch, or take over
   return (
     <section className="chat card" aria-label={`SOS from ${s.person ?? 'someone'}`}>
       <header className="row">
         <div>
           <h2>{s.person ?? 'Someone'}</h2>
           <div>{s.place}</div>
-          <div className="muted">Sent {time(s.created_at)}{s.responder ? ` · acknowledged by ${s.responder}` : ''}</div>
+          <div className="muted">Sent {when(s.created_at)}{s.responder ? ` · Handled by ${s.responder}` : ''}</div>
         </div>
         <span className="spacer" />
         <span className={`chip ${s.status}`}>{s.status}</span>
@@ -46,16 +48,28 @@ function Chat({ id }: { id: string }) {
       </header>
       {s.message && <p className="banner danger">{s.message}</p>}
       <ol className="messages">
-        {s.messages.map(m => (
-          <li key={m.id} className={m.mine ? 'mine' : undefined}>
-            <span className="muted">{m.sender} · {time(m.created_at)}</span>
-            <p>{m.body}</p>
-          </li>
+        {s.messages.map((m, i) => (
+          <Fragment key={m.id}>
+            {(i === 0 || dayLabel(m.created_at) !== dayLabel(s.messages[i - 1].created_at)) && (
+              <li role="separator" className="day">{dayLabel(m.created_at)}</li>
+            )}
+            <li className={m.mine ? 'mine' : undefined}>
+              <span className="muted">{m.sender} · {timeLabel(m.created_at)}</span>
+              <p>{m.body}</p>
+            </li>
+          </Fragment>
         ))}
         {s.messages.length === 0 && <li className="muted">No messages yet. Tell them help is coming.</li>}
       </ol>
       {action.error && <p className="banner danger" role="alert">{action.error}</p>}
-      {open && (
+      {open && !mineToHandle && (
+        <div className="row">
+          <strong>Handled by {s.responder}</strong>
+          <span className="spacer" />
+          <button onClick={() => window.confirm(`${s.responder} is handling this. Take over?`) && post('take-over')}>Take over</button>
+        </div>
+      )}
+      {open && mineToHandle && (
         <form className="row" onSubmit={send}>
           <label className="grow">Message
             <textarea rows={2} maxLength={500} value={body} onChange={e => setBody(e.target.value)} />
@@ -89,7 +103,8 @@ export function Sos() {
           <Link key={s.id} to={`/sos/${s.id}`} className={`feed-item sos ${s.status}${String(s.id) === id ? ' selected' : ''}`}>
             <strong>{s.person ?? 'Someone'}</strong>
             <span>{s.place}</span>
-            <span className="muted">{s.status} · {time(s.created_at)}</span>
+            <span className="muted">{s.status} · {when(s.created_at)}</span>
+            {s.acknowledged_by && <span>Handled by {s.acknowledged_by}</span>}
             {s.message && <span>{s.message}</span>}
           </Link>
         ))}

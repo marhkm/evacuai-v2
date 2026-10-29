@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class CampusStats
 {
     /**
-     * @return array{people: int, pending_reports: int, open_sos: int, blocked_paths: int, congested_paths: int,
+     * @return array{people: int, pending_reports: int, open_sos: int, unowned_sos: int, blocked_paths: int, congested_paths: int,
      *     sos_response_seconds: ?float, feedback_average: ?float, feedback_count: int, latest: ?array<string, mixed>}
      */
     public static function overview(): array
@@ -25,6 +25,7 @@ class CampusStats
             'people' => DrillStats::people()->count(),
             'pending_reports' => HazardReport::where('status', 'pending')->count(),
             'open_sos' => SosAlert::whereIn('status', SosAlert::OPEN)->count(),
+            'unowned_sos' => SosAlert::whereIn('status', SosAlert::OPEN)->whereNull('acknowledged_by')->count(),
             'blocked_paths' => (int) ($paths['blocked'] ?? 0),
             'congested_paths' => (int) ($paths['congested'] ?? 0),
             'sos_response_seconds' => DrillStats::averageResponse(SosAlert::where('created_at', '>=', now()->subDays(30))->get()),

@@ -167,3 +167,24 @@ describe('profile', () => {
     expect(mockMem.has('token')).toBe(false);
   });
 });
+
+test('the server setting fixes a bare IP address and tests the connection', async () => {
+  routes['GET /api/client-config'] = () => ({ status: 200, body: { reverb: { key: 'k', port: 8080, scheme: 'http' } } });
+  await app();
+  await fireEvent.press(await screen.findByText(/^Server:/));
+  await fireEvent.changeText(screen.getByLabelText('Server address'), '192.168.1.5');
+  await fireEvent.press(screen.getByRole('button', { name: 'Test connection' }));
+  expect(await screen.findByText('Connected to http://192.168.1.5:8000')).toBeTruthy();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save server' }));
+  expect(await screen.findByText('Using http://192.168.1.5:8000')).toBeTruthy();
+  expect(mockMem.get('server_url')).toBe('http://192.168.1.5:8000');
+});
+
+test('the server setting refuses the web app port', async () => {
+  await app();
+  await fireEvent.press(await screen.findByText(/^Server:/));
+  await fireEvent.changeText(screen.getByLabelText('Server address'), '192.168.1.5:8081');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save server' }));
+  expect(await screen.findByText("That's the web app's port. Use 8000.")).toBeTruthy();
+  expect(mockMem.has('server_url')).toBe(false);
+});

@@ -5,16 +5,16 @@ import { fonts, makeStyles } from '@/theme';
 import { useOfficer } from '@/lib/officer';
 
 type Person = { id: number; name: string; role: string; status: string; place: string | null; source: string | null; phone: string | null };
-type Board = { counts: { safe: number; needs_help: number; unknown: number; sos: number } | null; people: Person[] };
+type Board = { counts: { safe: number; unknown: number; sos: number } | null; people: Person[] }; // sos includes "needs help"
 
-const LABEL: Record<string, string> = { SOS: 'SOS', needs_help: 'Needs help', unknown: 'Unknown' };
-const TONE: Record<string, Tone> = { SOS: 'danger', needs_help: 'warning', unknown: 'neutral' };
+const LABEL: Record<string, string> = { SOS: 'SOS', unknown: 'Unknown' };
+const TONE: Record<string, Tone> = { SOS: 'danger', unknown: 'neutral' };
 
 /** People with an SOS, who need help or have not checked in, for the active alert. In memory only. */
 export default function Missing() {
   const styles = useStyles();
   const { data, error } = useOfficer<Board>('/api/officer/safety');
-  const people = data?.people.filter(p => p.status in LABEL) ?? []; // already sorted: SOS, needs help, unknown
+  const people = data?.people.filter(p => p.status in LABEL) ?? []; // already sorted: SOS (incl. needs help), unknown
   const c = data?.counts;
 
   return (
@@ -23,7 +23,7 @@ export default function Missing() {
       {data && !c ? <Text style={styles.meta}>No active alert. This list fills in when an alert or drill starts.</Text> : null}
       {c ? (
         <Text style={styles.summary}>
-          {c.sos} SOS · {c.needs_help} need help · {c.unknown} unknown · {c.safe} safe
+          {c.sos} SOS · {c.unknown} unknown · {c.safe} safe
         </Text>
       ) : null}
       {c && people.length === 0 ? <Message kind="info" text="Everyone is accounted for." /> : null}

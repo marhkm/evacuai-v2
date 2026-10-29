@@ -1,13 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 
 import { api } from './api';
 import { signOut, useMe } from './auth';
 import { useRealtime } from './realtime';
 
+type Tab = 'sos' | 'reports' | 'feedback';
 type Overview = {
-  stats: { open_sos: number };
+  stats: { open_sos: number; unowned_sos?: number };
+  unseen?: Record<Tab, number>;
   active_alert: { hazard_type: string; severity_level: string; is_drill: boolean } | null;
 };
 
@@ -21,6 +23,27 @@ export const SCREENS = [
   { path: '/replay', label: 'Replay', key: 'e' },
   { path: '/feedback', label: 'Feedback', key: 'f' },
 ];
+
+// Screens with a "new" badge, and the tab name the server stamps when the officer opens them.
+const TABS: Record<string, Tab> = { '/sos': 'sos', '/reports': 'reports', '/feedback': 'feedback' };
+
+/** The badge count: unseen items; for SOS also any open SOS nobody owns yet (looking at it does not clear that). */
+function badge(o: Overview | undefined, tab: Tab): number {
+  const n = o?.unseen?.[tab] ?? 0;
+  return tab === 'sos' ? Math.max(n, o?.stats.unowned_sos ?? 0) : n;
+}
+
+/** Opening a badged tab marks it seen (only when it has something new, so no request loop). */
+function useMarkSeen(o: Overview | undefined) {
+  const { pathname } = useLocation();
+  const client = useQueryClient();
+  const tab = Object.entries(TABS).find(([path]) => pathname === path || pathname.startsWith(`${path}/`))?.[1];
+  const unseen = tab ? o?.unseen?.[tab] ?? 0 : 0;
+  useEffect(() => {
+    if (!tab || unseen === 0) return;
+    api(`/api/officer/seen/${tab}`, { method: 'POST' }).then(() => client.invalidateQueries({ queryKey: ['overview'] }), () => {});
+  }, [tab, unseen, client]);
+}
 
 const TIMEZONE = 'Asia/Manila'; // campus time, as config('evacuai.timezone')
 
@@ -56,9 +79,9 @@ export function Shell() {
   const navigate = useNavigate();
   const client = useQueryClient();
   useShortcuts();
+  useMarkSeen(overview.data);
 
   const alert = overview.data?.active_alert;
-  const openSos = overview.data?.stats.open_sos ?? 0;
 
   return (
     <div className="shell">
@@ -79,7 +102,9 @@ export function Shell() {
         {SCREENS.map(s => (
           <NavLink key={s.path} to={s.path} end={s.path === '/'}>
             {s.label}
-            {s.path === '/sos' && openSos > 0 && <span className="badge" aria-label={`${openSos} open`}>{openSos}</span>}
+            {TABS[s.path] && badge(overview.data, TABS[s.path]) > 0 && (
+              <span className="badge" aria-label={`${badge(overview.data, TABS[s.path])} new`}>{badge(overview.data, TABS[s.path])}</span>
+            )}
           </NavLink>
         ))}
       </nav>

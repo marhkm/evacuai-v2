@@ -3,11 +3,12 @@ import { Pressable, Text } from 'react-native';
 
 import { Message, Screen } from '@/components/ui';
 import { fonts, makeStyles } from '@/theme';
+import { timeLabel } from '@/lib/chatTime';
 import { useOfficer } from '@/lib/officer';
 
 export type SosItem = { id: number; person: string | null; place: string | null; status: string; message: string | null; created_at: string };
 
-export const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit' });
+export const clock = timeLabel;
 
 /** Open SOS requests, newest first; updates live. */
 export default function SosInbox() {

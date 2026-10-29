@@ -18,7 +18,7 @@ beforeEach(() => {
       roomCounts: { 'A1/1/STUDY_HALL': 3 },
       pins: [],
     }],
-    'GET /api/officer/safety': [200, { counts: { total: 16, safe: 5, needs_help: 2, unknown: 9, sos: 1 } }],
+    'GET /api/officer/safety': [200, { counts: { total: 16, safe: 5, unknown: 9, sos: 2 } }],
     'GET /api/officer/sos?open=1': [200, { sos: [{ id: 12, person: 'Sam Student', place: 'Annex 1 · Ground · Study Hall', status: 'open', message: null, created_at: '2026-10-18T02:50:00+08:00' }] }],
     'GET /api/officer/reports': [200, { reports: [{ id: 3, hazard_type: 'smoke', place: 'Annex 1 · Third', matching: 3, status: 'pending' }] }],
   });
@@ -30,12 +30,13 @@ const pickFloor = async (building: string, floor: string) => {
   fireEvent.change(screen.getByLabelText('Floor'), { target: { value: floor } });
 };
 
-test('the counters show safe, needs help and unknown for the active alert', async () => {
+test('the counters show safe, SOS and unknown for the active alert (needing help counts as SOS)', async () => {
   renderApp('/');
   const counters = await screen.findByRole('region', { name: 'Safety counters' });
   expect(await within(counters).findByText('5')).toBeTruthy();
   expect(within(counters).getByText('2')).toBeTruthy();
   expect(within(counters).getByText('9')).toBeTruthy();
+  expect(within(counters).queryByText('Needs help')).toBeNull();
 });
 
 test('the open SOS list shows the person and place, and opens the SOS', async () => {

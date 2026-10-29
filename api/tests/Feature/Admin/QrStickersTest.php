@@ -17,7 +17,7 @@ beforeEach(function () {
 });
 
 it('renders a printable sticker per QR node with a readable label', function () {
-    $this->actingAs(User::forceCreate(['name' => 'A', 'email' => 'a@example.test', 'role' => Role::SafetyOfficer, 'email_verified_at' => now()]));
+    $this->actingAs(User::forceCreate(['name' => 'A', 'email' => 'a@example.test', 'role' => Role::SafetyOfficer, 'email_verified_at' => now()]), 'admin');
     Livewire::test(QrStickers::class)
         ->assertOk()
         ->assertSee('AB12CD34')
@@ -30,6 +30,6 @@ it('generates a QR that encodes the evacuai://q/ deep link', function () {
 });
 
 it('is not available to students', function () {
-    $this->actingAs(User::forceCreate(['name' => 'S', 'email' => 's@example.test', 'email_verified_at' => now()]));
+    $this->actingAs(User::forceCreate(['name' => 'S', 'email' => 's@example.test', 'email_verified_at' => now()]), 'admin');
     $this->get(QrStickers::getUrl())->assertForbidden();
 });

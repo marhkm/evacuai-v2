@@ -9,8 +9,8 @@ import { PlanView } from '../components/PlanView';
 
 const View3D = lazy(() => import('../components/View3D'));
 
-type Counts = { total: number; safe: number; needs_help: number; unknown: number; sos: number };
-export type SosItem = { id: number; person: string | null; place: string; status: string; message: string | null; created_at: string };
+type Counts = { total: number; safe: number; unknown: number; sos: number }; // sos includes "needs help" check-ins
+export type SosItem = { id: number; person: string | null; place: string; status: string; message: string | null; created_at: string; acknowledged_by?: string | null };
 export type ReportItem = { id: number; hazard_type: string; place: string; matching: number; status: string };
 
 export function LiveOps() {
@@ -57,7 +57,7 @@ export function LiveOps() {
       <aside className="side">
         <section className="counters" aria-label="Safety counters">
           <div className="counter-box safe"><span className="counter">{counts?.safe ?? '–'}</span>Safe</div>
-          <div className="counter-box warning"><span className="counter">{counts?.needs_help ?? '–'}</span>Needs help</div>
+          <div className="counter-box danger"><span className="counter">{counts?.sos ?? '–'}</span>SOS</div>
           <div className="counter-box"><span className="counter">{counts?.unknown ?? '–'}</span>Unknown</div>
         </section>
         {safety.data && !counts && <p className="muted">No active alert.</p>}

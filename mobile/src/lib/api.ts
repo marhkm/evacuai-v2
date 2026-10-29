@@ -2,9 +2,44 @@ import { API_URL } from '@/config';
 
 let serverUrl = API_URL;
 
-/** Test builds let students point the app at their own PC (e.g. http://192.168.1.5:8000). */
+const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+
+/**
+ * Turns what a student types into a server address: "192.168.1.5" becomes "http://192.168.1.5:8000". A typed scheme
+ * or a domain is kept as typed (only a bare IP or localhost gets :8000), and the web app's and live updates' ports
+ * are refused. Parsed by hand: React Native's URL cannot set a port.
+ */
+export function normalizeServerUrl(input: string): { url: string } | { error: string } {
+  const typed = input.trim();
+  if (!typed) return { url: API_URL };
+  const m = /^(?:([a-z][a-z0-9+.-]*):\/\/)?([^/:?#\s]+)(?::(\d+))?(?:[/?#].*)?$/i.exec(typed);
+  if (!m) return { error: 'Type an address like http://192.168.1.5:8000.' };
+  const [, scheme, host, port] = m;
+  if (port === '8081') return { error: "That's the web app's port. Use 8000." };
+  if (port === '8080') return { error: "That's the live-updates port. Use 8000." };
+  const addPort = !scheme && !port && (host.toLowerCase() === 'localhost' || IPV4.test(host));
+  return { url: `${(scheme ?? 'http').toLowerCase()}://${host}${port ? `:${port}` : addPort ? ':8000' : ''}` };
+}
+
+/** Test builds let students point the app at their own PC (e.g. http://192.168.1.5:8000). A refused address keeps the old one. */
 export function setServerUrl(url: string) {
-  serverUrl = url.trim().replace(/\/+$/, '') || API_URL;
+  const r = normalizeServerUrl(url);
+  if ('url' in r) serverUrl = r.url;
+}
+
+/** "Test connection": does an EvacuAI server answer at this address within 5 seconds? */
+export async function testServer(url: string): Promise<'ok' | 'unreachable' | 'timeout' | 'not-evacuai'> {
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 5000);
+  try {
+    const res = await fetch(`${url}/api/client-config`, { headers: { Accept: 'application/json' }, signal: abort.signal });
+    const data = await res.json().catch(() => null);
+    return res.ok && data?.reverb ? 'ok' : 'not-evacuai';
+  } catch {
+    return abort.signal.aborted ? 'timeout' : 'unreachable';
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export function getServerUrl() {
@@ -41,7 +76,7 @@ export async function api<T = any>(path: string, { method = 'GET', body, token }
       body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError(`Cannot reach the server at ${serverUrl}. Check your connection or the server address.`, 0);
+    throw new ApiError(`Cannot reach the server at ${serverUrl}. Check that the phone is on the same Wi-Fi and that Windows Firewall allows port 8000 on the PC.`, 0);
   }
 
   if (res.status === 204) return null as T;

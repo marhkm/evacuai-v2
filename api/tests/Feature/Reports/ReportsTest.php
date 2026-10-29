@@ -93,7 +93,7 @@ it('accepts feedback from the app and lists it for officers with the average', f
 it('records an audit trail and shows it to admins only', function () {
     $user = User::forceCreate(['name' => 'Juan', 'email' => 'j@example.test', 'password' => 'secret-pass', 'email_verified_at' => now()]);
     $this->postJson('/api/auth/login', ['email' => 'j@example.test', 'password' => 'secret-pass', 'device_name' => 'test'])->assertOk();
-    $this->actingAs($this->admin);
+    $this->actingAs($this->admin, 'admin');
     $user->forceFill(['role' => Role::SafetyOfficer])->save();
 
     expect(DB::table('user_activity_logs')->pluck('activity_type')->all())->toContain('login', 'role_changed');
@@ -106,7 +106,7 @@ it('records an audit trail and shows it to admins only', function () {
     $user->forceFill(['role' => Role::Admin])->save(); // only admins may sign in to the panel
     Livewire::test(Login::class)->fillForm(['email' => 'j@example.test', 'password' => 'secret-pass'])->call('authenticate');
     expect(DB::table('user_activity_logs')->where('activity_type', 'login')->whereJsonContains('details->method', 'admin_panel')->exists())->toBeTrue();
-    $this->actingAs($this->officer)->get(ActivityLogResource::getUrl())->assertForbidden();
+    $this->actingAs($this->officer, 'admin')->get(ActivityLogResource::getUrl())->assertForbidden();
 });
 
 it('purges IP addresses and location events after the retention period', function () {

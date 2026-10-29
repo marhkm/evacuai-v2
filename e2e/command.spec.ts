@@ -37,6 +37,18 @@ test.describe('signed in as an officer', () => {
     await expect(bar.getByRole('button', { name: 'Top' })).toHaveAttribute('aria-pressed', 'true');
   });
 
+  test('a new hazard report puts a badge on Reports, and opening Reports clears it', async ({ page, request }) => {
+    const login = await request.post('/api/auth/login', { data: { email: demoEmail('student'), password: DEMO_PASSWORD, device_name: 'e2e' } });
+    const token = (await login.json()).token as string;
+    const sent = await request.post('/api/hazard-reports', { headers: { Authorization: `Bearer ${token}` }, data: { hazard_type: 'other', building_id: 'A1', level: 1, description: 'e2e badge check' } });
+    expect(sent.status()).toBe(201);
+
+    const reports = page.getByRole('navigation', { name: 'Screens' }).getByRole('link', { name: /^Reports/ });
+    await expect(reports.locator('.badge')).toBeVisible({ timeout: 20_000 });
+    await reports.click();
+    await expect(reports.locator('.badge')).toHaveCount(0, { timeout: 20_000 });
+  });
+
   test('broadcast a drill alert, see it listed, then resolve it', async ({ page }) => {
     const message = `E2E drill ${Date.now()}`;
     await page.getByRole('link', { name: 'Alerts' }).click();

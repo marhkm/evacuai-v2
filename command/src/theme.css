@@ -176,6 +176,7 @@ tr.drill-row td:first-child { box-shadow: inset 4px 0 var(--evac-info); }
 .messages { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 50vh; overflow: auto; }
 .messages li { max-width: 75%; padding: 8px 12px; border-radius: 12px; background: var(--evac-surface3); }
 .messages li.mine { justify-self: end; background: #1d3a6e; }
+.messages li.day { justify-self: center; max-width: none; background: none; padding: 2px 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--evac-muted, #9aa4b2); }
 .messages p { margin: 2px 0 0; }
 
 /* Paths, Safety, Replay */

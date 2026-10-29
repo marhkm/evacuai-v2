@@ -91,3 +91,25 @@ it('serves the single-page app for deep links, with a content security policy', 
         }
     }
 });
+
+it('signing out of the Command Center keeps the admin panel signed in', function () {
+    $officer = officerWithPassword();
+    asSpa($this)->postJson('/command/session', ['email' => $officer->email, 'password' => 'correct-horse-battery'])->assertNoContent();
+    auth()->guard('admin')->login(officerUser(Role::Admin)); // writes the admin guard's key into the same session
+
+    asSpa($this)->deleteJson('/command/session')->assertNoContent();
+
+    expect(session()->has(auth()->guard('admin')->getName()))->toBeTrue()
+        ->and(session()->has(auth()->guard('web')->getName()))->toBeFalse();
+});
+
+it('lets an officer be signed in on two phones at once', function () {
+    $officer = officerWithPassword();
+    $login = fn () => $this->postJson('/api/auth/login', ['email' => $officer->email, 'password' => 'correct-horse-battery', 'device_name' => 'phone'])->assertOk()->json('token');
+    [$a, $b] = [$login(), $login()];
+    app('auth')->forgetGuards();
+
+    $this->withToken($a)->getJson('/api/officer/me')->assertOk();
+    app('auth')->forgetGuards();
+    $this->withToken($b)->getJson('/api/officer/me')->assertOk();
+});

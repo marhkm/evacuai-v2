@@ -33,3 +33,19 @@ test('an admin sees only the admin tools, and the officer pages are gone', async
     expect(res?.status()).toBe(404);
   }
 });
+
+test('an officer in the Command Center and an admin in the admin panel at once, in one browser', async ({ page }) => {
+  await page.goto('/command/sign-in');
+  await page.getByLabel('Email').fill(demoEmail('safety_officer'));
+  await page.getByLabel('Password').fill(DEMO_PASSWORD);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.getByRole('heading', { name: 'Live Ops' })).toBeVisible({ timeout: 45_000 });
+
+  await page.goto('/admin');
+  await expect(page).toHaveURL(/\/admin\/login$/); // the login page, not "403 | Forbidden"
+  await signIn(page, 'admin');
+  await expect(page.getByRole('link', { name: 'Command Center' })).toBeVisible({ timeout: 45_000 });
+
+  await page.goto('/command');
+  await expect(page.getByRole('heading', { name: 'Live Ops' })).toBeVisible({ timeout: 45_000 }); // still signed in
+});

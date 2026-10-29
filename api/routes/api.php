@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\SafetyController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\SosController;
 use App\Http\Controllers\Officer;
+use App\Support\Unseen;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok']);
@@ -58,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(function () {
     Route::get('overview', Officer\OverviewController::class);
     Route::get('me', Officer\MeController::class);
+    Route::post('seen/{tab}', Officer\SeenController::class)->whereIn('tab', Unseen::TABS);
 
     Route::get('alerts', [Officer\AlertController::class, 'index']);
     Route::get('alerts/{alert}/report.csv', [Officer\AlertController::class, 'report']);
@@ -80,6 +82,7 @@ Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(functio
         Route::patch('paths/{edge}', [Officer\PathController::class, 'update'])->where('edge', '.+'); // ids contain "/" and "->"
         Route::post('sos/{sos}/acknowledge', [Officer\SosController::class, 'acknowledge']);
         Route::post('sos/{sos}/resolve', [Officer\SosController::class, 'resolve']);
+        Route::post('sos/{sos}/take-over', [Officer\SosController::class, 'takeOver']);
         foreach (['verify', 'dismiss', 'resolve', 'summary'] as $action) {
             Route::post("reports/{report}/{$action}", [Officer\ReportController::class, $action]);
         }

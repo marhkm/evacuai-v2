@@ -59,7 +59,7 @@ describe('schedules', function () {
     });
 
     it('imports a schedule CSV, matching registrar room codes and reporting bad rows', function () {
-        $this->actingAs(officer());
+        $this->actingAs(officer(), 'admin');
         $csv = "email,subject,room_code,days,time_start,time_end\n"
             ."stu@example.test,IT 101,R101,MWF,08:00,09:30\n"
             ."stu@example.test,IT 102,R201,TTH,13:00,14:30\n"

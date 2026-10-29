@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->authGuard('admin') // its own sign-in, separate from the Command Center's (config/auth.php)
             ->passwordReset()
             ->databaseNotifications()
             ->databaseNotificationsPolling('10s')

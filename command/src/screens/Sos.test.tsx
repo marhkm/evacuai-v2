@@ -63,3 +63,39 @@ test('acknowledge and resolve post', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Resolve' }));
   await waitFor(() => expect(posted(fetch, '/api/officer/sos/12/resolve')).toBeTruthy());
 });
+
+test('shows a day separator before the first message of each day, and each message time', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-29T04:00:00Z')); // noon in Manila
+  const msgs = [
+    { id: 1, body: 'Yesterday one', mine: false, sender: 'Sam Student', created_at: '2026-10-28T02:00:00Z' },
+    { id: 2, body: 'Yesterday two', mine: true, sender: 'Olive Officer', created_at: '2026-10-28T03:00:00Z' },
+    { id: 3, body: 'Today one', mine: false, sender: 'Sam Student', created_at: '2026-10-29T06:41:00Z' },
+  ];
+  setup({ 'GET /api/officer/sos/12': [200, { sos: { ...detail, messages: msgs } }] });
+  renderApp('/sos/12');
+  await screen.findByText('Today one');
+  expect(screen.getAllByRole('separator').map(s => s.textContent)).toEqual(['Yesterday', 'Today']);
+  expect(screen.getByText(/2:41 PM/)).toBeTruthy();
+  vi.useRealTimers();
+});
+
+test('offers Take over instead of the reply box when someone else handles the case', async () => {
+  const fetch = setup({
+    'GET /api/officer/sos/12': [200, { sos: { ...detail, status: 'acknowledged', responder: 'Ben Cruz', can_reply: false } }],
+    'POST /api/officer/sos/12/take-over': [200, { sos: { ...detail, status: 'acknowledged', responder: 'Olive Officer', can_reply: true } }],
+  });
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+  renderApp('/sos/12');
+  expect((await screen.findAllByText('Handled by Ben Cruz')).length).toBeGreaterThan(0);
+  expect(screen.queryByLabelText('Message')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Take over' }));
+  expect(confirm).toHaveBeenCalledWith('Ben Cruz is handling this. Take over?');
+  await waitFor(() => expect(posted(fetch, '/api/officer/sos/12/take-over')).toBeTruthy());
+});
+
+test('the list shows who handles each SOS', async () => {
+  setup({ 'GET /api/officer/sos?open=1': [200, { sos: [{ ...item, status: 'acknowledged', acknowledged_by: 'Ben Cruz' }], meta: { current_page: 1, last_page: 1, per_page: 50, total: 1 } }] });
+  renderApp('/sos');
+  expect(await screen.findByText('Handled by Ben Cruz')).toBeTruthy();
+});

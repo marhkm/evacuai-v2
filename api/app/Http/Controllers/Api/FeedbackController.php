@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\FeedbackSubmitted;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use App\Support\Activity;
@@ -18,6 +19,7 @@ class FeedbackController extends Controller
         ]);
         $feedback = Feedback::create($data + ['user_id' => $request->user()->id]);
         Activity::log('feedback_submitted', ['feedback_id' => $feedback->id, 'rating' => $feedback->rating]);
+        rescue(fn () => event(new FeedbackSubmitted($feedback))); // live refresh only; never fail the feedback
 
         return response()->json(['message' => 'Thank you for your feedback.'], 201);
     }

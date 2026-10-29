@@ -16,21 +16,31 @@ it('redirects guests to the admin login', function () {
 });
 
 it('lets only admins into the panel', function () use ($make) {
-    $this->actingAs($make(Role::Admin))->get('/admin')->assertOk();
+    $this->actingAs($make(Role::Admin), 'admin')->get('/admin')->assertOk();
 });
 
 it('keeps everyone else out, safety officers included (they use the Command Center)', function (Role $role) use ($make) {
-    $this->actingAs($make($role))->get('/admin')->assertForbidden();
+    $this->actingAs($make($role), 'admin')->get('/admin')->assertForbidden();
 })->with([Role::SafetyOfficer, Role::Student, Role::Faculty, Role::Staff]);
+
+it('shows the admin login, not 403, when only the Command Center is signed in', function () use ($make) {
+    $this->actingAs($make(Role::SafetyOfficer), 'web')->get('/admin')->assertRedirect('/admin/login');
+});
+
+it('lets an admin and an officer be signed in side by side', function () use ($make) {
+    $this->actingAs($make(Role::Admin), 'admin')->actingAs($make(Role::SafetyOfficer), 'web');
+    $this->get('/admin')->assertOk();
+    $this->getJson('/api/officer/me')->assertOk();
+});
 
 it('keeps only the admin tools, with a way to the Command Center', function () use ($make) {
     $admin = $make(Role::Admin);
-    $this->actingAs($admin)->get('/admin')->assertOk()
+    $this->actingAs($admin, 'admin')->get('/admin')->assertOk()
         ->assertSee('Command Center')->assertSee('/command', false)
         ->assertSee('Users')->assertSee('Activity log')->assertSee('Import class schedules')->assertSee('QR stickers')
         ->assertDontSee('Safety Monitor')->assertDontSee('Hazard Reports');
     foreach (['/admin/alerts', '/admin/hazard-reports', '/admin/paths', '/admin/sos-alerts', '/admin/safety-monitor', '/admin/campus-3d', '/admin/feedback'] as $gone) {
-        $this->actingAs($admin)->get($gone)->assertNotFound();
+        $this->actingAs($admin, 'admin')->get($gone)->assertNotFound();
     }
 });
 

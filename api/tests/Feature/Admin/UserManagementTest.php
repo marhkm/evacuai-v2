@@ -20,7 +20,7 @@ function person(Role $role, string $email): User
 it('lets an admin promote a student and records it in the activity log', function () {
     $admin = person(Role::Admin, 'admin@example.test');
     $student = person(Role::Student, 'stu@example.test');
-    $this->actingAs($admin);
+    $this->actingAs($admin, 'admin');
 
     Livewire::test(EditUser::class, ['record' => $student->getRouteKey()])
         ->fillForm(['role' => Role::SafetyOfficer->value])
@@ -34,7 +34,7 @@ it('lets an admin promote a student and records it in the activity log', functio
 });
 
 it('lets an admin create a user with a role', function () {
-    $this->actingAs(person(Role::Admin, 'admin@example.test'));
+    $this->actingAs(person(Role::Admin, 'admin@example.test'), 'admin');
     Livewire::test(CreateUser::class)
         ->fillForm(['name' => 'New Officer', 'email' => 'officer@example.test', 'role' => Role::SafetyOfficer->value, 'is_active' => true])
         ->call('create')
@@ -44,7 +44,7 @@ it('lets an admin create a user with a role', function () {
 
 it('does not let an admin demote or disable their own account', function () {
     $admin = person(Role::Admin, 'admin@example.test');
-    $this->actingAs($admin);
+    $this->actingAs($admin, 'admin');
     Livewire::test(EditUser::class, ['record' => $admin->getRouteKey()])
         ->fillForm(['role' => Role::Student->value, 'is_active' => false])
         ->call('save');
@@ -52,7 +52,7 @@ it('does not let an admin demote or disable their own account', function () {
 });
 
 it('keeps the password when the field is left blank', function () {
-    $this->actingAs(person(Role::Admin, 'admin@example.test'));
+    $this->actingAs(person(Role::Admin, 'admin@example.test'), 'admin');
     $student = person(Role::Student, 'stu@example.test');
     Livewire::test(EditUser::class, ['record' => $student->getRouteKey()])
         ->fillForm(['name' => 'Renamed', 'password' => ''])
@@ -64,7 +64,7 @@ it('keeps the password when the field is left blank', function () {
 it('gives safety officers a read-only user list', function () {
     $officer = person(Role::SafetyOfficer, 'so@example.test');
     $student = person(Role::Student, 'stu@example.test');
-    $this->actingAs($officer);
+    $this->actingAs($officer, 'admin');
 
     Livewire::test(ListUsers::class)->assertOk()->assertCanSeeTableRecords([$student]);
     $this->get(EditUser::getUrl(['record' => $student]))->assertForbidden();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Officer\SosController as OfficerSosController;
 use App\Jobs\SendOfficerPush;
 use App\Models\Alert;
 use App\Models\SosAlert;
@@ -66,6 +67,10 @@ class SosController extends Controller
         if (! $sos->isOpen()) {
             throw ValidationException::withMessages(['body' => 'This SOS is closed.']);
         }
+        // An officer here (e.g. from Responder mode) follows the desk's rule: one officer handles each case.
+        if ($sos->user_id !== $user->id && ($owner = $sos->claimFor($user))) {
+            return OfficerSosController::handledBy($owner);
+        }
 
         $sos->messages()->create(['sender_id' => $user->id, 'body' => trim($data['body'])]);
 
@@ -92,6 +97,8 @@ class SosController extends Controller
             'message' => $sos->message,
             'place' => Places::label($sos->building_id, $sos->level, $sos->node_id),
             'responder' => $sos->responder?->name,
+            // The sender always may; an officer only when nobody else handles the case.
+            'can_reply' => $sos->isOpen() && ($sos->user_id === $viewer->id || $sos->acknowledged_by === null || $sos->acknowledged_by === $viewer->id),
             'created_at' => $sos->created_at->toIso8601String(),
             'messages' => $sos->messages()->with('sender:id,name')->get()->map(fn ($m) => [
                 'id' => $m->id,

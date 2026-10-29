@@ -41,8 +41,8 @@ class SessionController extends Controller
     public function destroy(Request $request): Response
     {
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->session()->regenerateToken(); // not invalidate(): that would also sign the admin panel out
+        $request->session()->migrate(true);
 
         return response()->noContent();
     }

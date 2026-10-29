@@ -6,8 +6,9 @@ import { connectSocket, type Socket } from './socket';
 
 // Which queries each broadcast makes stale. Events carry no data we patch in: queries simply refetch.
 const TABLE: [channel: string, event: string, keys: string[][], isPrivate: boolean][] = [
-  ['officers', '.sos.updated', [['sos'], ['live'], ['overview']], true], // overview: the rail's open-SOS badge
-  ['officers', '.report.submitted', [['reports'], ['live']], true],
+  ['officers', '.sos.updated', [['sos'], ['live'], ['overview']], true], // overview: the rail's badges
+  ['officers', '.report.submitted', [['reports'], ['live'], ['overview']], true],
+  ['officers', '.feedback.submitted', [['feedback'], ['overview']], true],
   ['officers', '.checkin.updated', [['safety'], ['live']], true],
   ['alerts', '.alert.updated', [['alerts'], ['overview'], ['live'], ['safety']], false], // the active alert changed
   ['campus', '.campus.updated', [['paths'], ['live']], false],

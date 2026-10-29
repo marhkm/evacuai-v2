@@ -160,3 +160,20 @@ test('GPS inside the assembly point radius offers a one-tap check-in', async () 
   expect(await screen.findByText('You checked in safe at Demo Building · Ground · AP.')).toBeTruthy();
   expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ status: 'safe', node_id: 'DEMO/1/AP' });
 });
+
+test('the chat shows each message time and a day separator', async () => {
+  jest.useFakeTimers({ now: new Date('2026-10-29T04:00:00Z'), doNotFake: ['nextTick', 'setImmediate', 'clearImmediate', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'queueMicrotask', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'performance', 'hrtime'] }); // only the clock is fake
+  sos = sosWith({ status: 'acknowledged', responder: 'Officer Cruz', messages: [
+    { id: 1, body: 'Are you hurt?', mine: false, sender: 'Officer Cruz', created_at: '2026-10-28T02:00:00Z' },
+    { id: 2, body: 'Yes, my leg', mine: true, sender: 'Juan', created_at: '2026-10-29T06:41:00Z' },
+  ] });
+  try {
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    expect(await screen.findByText('Yes, my leg')).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Yesterday' })).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Today' })).toBeTruthy();
+    expect(screen.getByText(/2:41 PM/)).toBeTruthy();
+  } finally {
+    jest.useRealTimers();
+  }
+});

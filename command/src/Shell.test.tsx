@@ -38,11 +38,66 @@ test('the top bar shows LIVE while the socket is connected and RECONNECTING othe
   expect(screen.getByText('RECONNECTING')).toBeTruthy();
 });
 
-test('shows the officer, the active alert and the open SOS count', async () => {
+test('shows the officer and the active alert', async () => {
   renderApp('/');
   expect(await screen.findByText('Olive Officer')).toBeTruthy();
   expect(await screen.findByText(/DRILL · fire · high/i)).toBeTruthy();
-  expect(screen.getByRole('link', { name: /SOS 2 open/ })).toBeTruthy();
+});
+
+const overview = (unseen: object, unowned = 0) => [200, { stats: { open_sos: unowned, unowned_sos: unowned }, active_alert: null, unseen }] as [number, unknown];
+
+test('shows unseen counts on SOS, Reports and Feedback', async () => {
+  mockFetch({ 'GET /api/officer/me': [200, { id: 1, name: 'Olive Officer', role: 'safety_officer' }], 'GET /api/officer/overview': overview({ sos: 1, reports: 3, feedback: 2 }) });
+  renderApp('/');
+  expect(await screen.findByRole('link', { name: 'SOS 1 new' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Reports 3 new' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Feedback 2 new' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Alerts' })).toBeTruthy(); // no badge
+});
+
+test('keeps the SOS badge while an SOS has no owner', async () => {
+  mockFetch({ 'GET /api/officer/me': [200, { id: 1, name: 'Olive Officer', role: 'safety_officer' }], 'GET /api/officer/overview': overview({ sos: 0, reports: 0, feedback: 0 }, 2) });
+  renderApp('/');
+  expect(await screen.findByRole('link', { name: 'SOS 2 new' })).toBeTruthy();
+});
+
+test('marks a tab seen when it is opened, only when it has unseen items', async () => {
+  const seen = vi.fn(() => [204] as [number]);
+  const fetch = mockFetch({
+    'GET /api/officer/me': [200, { id: 1, name: 'Olive Officer', role: 'safety_officer' }],
+    'GET /api/officer/overview': overview({ sos: 0, reports: 3, feedback: 0 }),
+    'POST /api/officer/seen/reports': seen,
+  });
+  renderApp('/reports');
+  await screen.findByRole('link', { name: 'Reports 3 new' });
+  await vi.waitFor(() => expect(seen).toHaveBeenCalledTimes(1));
+  expect(fetch.mock.calls.some(([url]) => url === '/api/officer/seen/feedback')).toBe(false);
+});
+
+test('does not mark a tab seen when it has nothing new', async () => {
+  const seen = vi.fn(() => [204] as [number]);
+  mockFetch({
+    'GET /api/officer/me': [200, { id: 1, name: 'Olive Officer', role: 'safety_officer' }],
+    'GET /api/officer/overview': overview({ sos: 0, reports: 0, feedback: 0 }),
+    'POST /api/officer/seen/reports': seen,
+  });
+  renderApp('/reports');
+  await screen.findByText('Olive Officer');
+  await new Promise(r => setTimeout(r, 50));
+  expect(seen).not.toHaveBeenCalled();
+});
+
+test('a new report or feedback refreshes the badges', async () => {
+  const client = makeQueryClient();
+  const invalidate = vi.spyOn(client, 'invalidateQueries');
+  renderApp('/', client);
+  await screen.findByText('Olive Officer');
+  await act(async () => fake.handlers.get('officers .report.submitted')!());
+  expect(invalidate).toHaveBeenCalledWith({ queryKey: ['overview'] });
+  invalidate.mockClear();
+  await act(async () => fake.handlers.get('officers .feedback.submitted')!());
+  expect(invalidate).toHaveBeenCalledWith({ queryKey: ['feedback'] });
+  expect(invalidate).toHaveBeenCalledWith({ queryKey: ['overview'] });
 });
 
 test('queries poll every 15 seconds only while the socket is down', async () => {

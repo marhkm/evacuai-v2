@@ -42,6 +42,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // The admin panel's own sign-in, so an officer in the Command Center and an admin in /admin can be signed in
+        // side by side in one browser (both share the session cookie).
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     /*
