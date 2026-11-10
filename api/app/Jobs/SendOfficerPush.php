@@ -23,7 +23,7 @@ class SendOfficerPush implements ShouldQueue
 
     public static function forSos(SosAlert $sos): void
     {
-        $place = Places::label($sos->building_id, $sos->level, $sos->node_id) ?? 'location not shared';
+        $place = Places::label($sos->building_id, $sos->level, $sos->node_id, $sos->room_id) ?? 'location not shared';
         self::dispatch("SOS: {$place}", $sos->message ? mb_strimwidth($sos->message, 0, 80, '…') : 'Needs help', ['sos_id' => $sos->id]);
     }
 

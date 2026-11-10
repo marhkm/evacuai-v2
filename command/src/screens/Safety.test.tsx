@@ -49,3 +49,23 @@ test('with no active alert, the latest alert is picked so its report can be down
   renderApp('/safety');
   expect((await screen.findByRole('link', { name: /Drill report/ })).getAttribute('href')).toBe('/api/officer/alerts/6/report.csv');
 });
+
+test('safe zone bars show the head count against capacity, and Full', async () => {
+  mockFetch({
+    'GET /api/officer/me': [200, { id: 1, name: 'Olive Officer', role: 'safety_officer' }],
+    'GET /api/officer/overview': [200, { stats: { open_sos: 0 }, active_alert: null }],
+    'GET /api/officer/safety': [200, {
+      alert: { id: 6, hazard_type: 'fire', is_drill: true, status: 'active' }, alerts: [], counts: { total: 0, safe: 0, unknown: 0, sos: 0 }, people: [],
+      occupancy: [
+        { node_id: 'BE/1/AP_Field', name: 'Open ground', count: 300, capacity: 300, full: true },
+        { node_id: 'A1/1/AP_Outside', name: 'Off-campus assembly area', count: 4, capacity: null, full: false },
+      ],
+    }],
+  });
+  renderApp('/safety');
+  const zones = await screen.findByRole('region', { name: 'Safe zones' });
+  expect(within(zones).getByText('Open ground')).toBeTruthy();
+  expect(within(zones).getByText('300 / 300')).toBeTruthy();
+  expect(within(zones).getByText('Full')).toBeTruthy();
+  expect(within(zones).getByText('4')).toBeTruthy();
+});

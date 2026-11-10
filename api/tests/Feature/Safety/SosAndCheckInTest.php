@@ -115,7 +115,6 @@ it('checks in safe at an assembly point for the active alert, once per alert', f
     $alert = activeAlert();
     $this->getJson('/api/check-in')->assertJsonPath('check_in.status', null)->assertJsonPath('check_in.alert_id', $alert->id);
     $this->postJson('/api/check-in', ['status' => 'safe', 'node_id' => 'DEMO/1/R101'])->assertJsonValidationErrors('node_id'); // not an assembly point
-    $this->postJson('/api/check-in', ['status' => 'needs_help'])->assertOk()->assertJsonPath('check_in.status', 'needs_help');
     $this->postJson('/api/check-in', ['status' => 'safe', 'node_id' => 'DEMO/1/AP'])
         ->assertOk()->assertJsonPath('check_in.status', 'safe')->assertJsonPath('check_in.place', 'Demo Building · Ground · AP');
 
@@ -148,4 +147,97 @@ it('lists safe, needs help and unknown people with their last known place for of
     $people = $this->actingAs($this->officer)->getJson('/api/officer/safety')->assertOk()->json('people');
     expect(array_column($people, 'id'))->toBe([$help->id, $this->student->id, $safe->id]) // needs help, unknown, safe; no officers
         ->and(array_column($people, 'place'))->toContain('Demo Building · Ground · AP', 'Demo Building · Second · R201');
+});
+
+describe('SOS location', function () {
+    it('keeps a picked room even when it has no map point, and records where the place came from', function () {
+        Sanctum::actingAs($this->student);
+        DB::table('evac_nodes')->where('room_id', 'DEMO/2/R201')->update(['room_id' => null]); // a room with no node
+
+        $this->postJson('/api/sos', ['room_id' => 'DEMO/2/R201', 'location_source' => 'manual'])->assertCreated()
+            ->assertJsonPath('sos.place', 'Demo Building · Second · R201')
+            ->assertJsonPath('sos.location_source', 'manual');
+    });
+
+    it('lets the sender change the place of an open SOS, and tells officers', function () {
+        Sanctum::actingAs($this->student);
+        $id = $this->postJson('/api/sos', ['node_id' => 'DEMO/2/R201', 'location_source' => 'schedule'])->json('sos.id');
+        Event::fake([SosUpdated::class]);
+
+        $this->patchJson("/api/sos/{$id}/location", ['node_id' => 'DEMO/1/R101', 'location_source' => 'qr'])->assertOk()
+            ->assertJsonPath('sos.place', 'Demo Building · Ground · R101')->assertJsonPath('sos.location_source', 'qr');
+        Event::assertDispatched(SosUpdated::class);
+    });
+
+    it('confirms a schedule place by marking it chosen by the student', function () {
+        Sanctum::actingAs($this->student);
+        $id = $this->postJson('/api/sos', ['node_id' => 'DEMO/2/R201', 'location_source' => 'schedule'])->json('sos.id');
+
+        $this->patchJson("/api/sos/{$id}/location", ['node_id' => 'DEMO/2/R201', 'location_source' => 'manual'])
+            ->assertOk()->assertJsonPath('sos.location_source', 'manual');
+    });
+
+    it('refuses other people and closed SOS', function () {
+        Sanctum::actingAs($this->student);
+        $sos = SosAlert::create(['user_id' => $this->student->id, 'status' => 'pending']);
+
+        Sanctum::actingAs(User::forceCreate(['name' => 'Ana', 'email' => 'ana@example.test', 'email_verified_at' => now()]));
+        $this->patchJson("/api/sos/{$sos->id}/location", ['node_id' => 'DEMO/1/R101', 'location_source' => 'qr'])->assertNotFound();
+
+        $sos->update(['status' => 'resolved']);
+        Sanctum::actingAs($this->student);
+        $this->patchJson("/api/sos/{$sos->id}/location", ['node_id' => 'DEMO/1/R101', 'location_source' => 'qr'])->assertUnprocessable();
+        expect($sos->fresh()->node_id)->toBeNull();
+    });
+});
+
+describe('check-in history', function () {
+    beforeEach(function () {
+        $this->alert = activeAlert();
+        Sanctum::actingAs($this->student);
+    });
+
+    it('keeps every check-in, and asks before replacing the current one', function () {
+        $this->postJson('/api/check-in', ['node_id' => 'DEMO/1/AP', 'source' => 'list'])->assertOk()
+            ->assertJsonPath('check_in.status', 'safe')->assertJsonPath('zones.0.count', 1);
+        expect(DB::table('check_ins')->count())->toBe(1);
+
+        $this->postJson('/api/check-in', ['source' => 'none'])->assertStatus(409)
+            ->assertJsonPath('error', 'already_checked_in')->assertJsonPath('place', 'Demo Building · Ground · AP');
+        expect(DB::table('check_ins')->count())->toBe(1)
+            ->and(DB::table('evacuation_logs')->value('assembly_node_id'))->toBe('DEMO/1/AP');
+
+        $this->postJson('/api/check-in', ['source' => 'none', 'replace' => true])->assertOk()->assertJsonPath('check_in.place', null);
+        expect(DB::table('check_ins')->count())->toBe(2)
+            ->and(DB::table('evacuation_logs')->count())->toBe(1)
+            ->and(DB::table('evacuation_logs')->value('assembly_node_id'))->toBeNull();
+    });
+
+    it('lists the history newest first', function () {
+        $this->postJson('/api/check-in', ['node_id' => 'DEMO/1/AP', 'source' => 'qr'])->assertOk();
+        $this->travel(5)->minutes();
+        $this->postJson('/api/check-in', ['source' => 'none', 'replace' => true])->assertOk();
+
+        $history = $this->getJson('/api/check-in')->assertOk()->json('check_in.history');
+        expect($history)->toHaveCount(2)
+            ->and($history[0]['place'])->toBeNull()
+            ->and($history[1]['place'])->toBe('Demo Building · Ground · AP');
+    });
+
+    it('no longer takes "I need help": SOS is the only emergency option', function () {
+        $this->postJson('/api/check-in', ['status' => 'needs_help'])->assertUnprocessable()->assertJsonValidationErrors('status');
+        expect(DB::table('check_ins')->count())->toBe(0);
+    });
+
+    it('suggests another safe zone when the one just used is full', function () {
+        DB::table('assembly_points')->update(['capacity' => 1]);
+        $this->postJson('/api/check-in', ['node_id' => 'DEMO/1/AP', 'source' => 'list'])->assertOk()
+            ->assertJsonPath('zones.0.full', true)->assertJsonPath('suggest', null); // the demo campus has no other zone
+    });
+});
+
+it('accepts a place the phone only estimated (floor change, GPS), for the student to confirm', function () {
+    Sanctum::actingAs($this->student);
+    $this->postJson('/api/sos', ['node_id' => 'DEMO/2/R201', 'location_source' => 'estimate'])->assertCreated()
+        ->assertJsonPath('sos.location_source', 'estimate');
 });

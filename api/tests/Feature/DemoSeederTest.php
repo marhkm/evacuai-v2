@@ -42,3 +42,19 @@ it('adds one finished sample drill with check-ins, movement, an SOS and feedback
         ->and(DB::table('feedback')->count())->toBe(3)
         ->and(DB::table('users')->where('email', 'like', 'sample%')->whereNotNull('password')->count())->toBe(0); // nobody can sign in as them
 });
+
+it('uses the server\'s own demo password when one is set (a public test server)', function () {
+    config(['evacuai.demo_password' => 'server-only-secret']);
+    $this->seed(DemoSeeder::class);
+    $hash = User::where('email', 'admin@evacuai.test')->value('password');
+
+    expect(Hash::check('server-only-secret', $hash))->toBeTrue()
+        ->and(Hash::check('evacuai-demo', $hash))->toBeFalse();
+});
+
+it('falls back to the default demo password when the setting is left empty', function () {
+    config(['evacuai.demo_password' => '']);
+    $this->seed(DemoSeeder::class);
+
+    expect(Hash::check(DemoSeeder::PASSWORD, User::where('email', 'admin@evacuai.test')->value('password')))->toBeTrue();
+});

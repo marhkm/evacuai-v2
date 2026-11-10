@@ -9,7 +9,7 @@ type Board = {
   alert: { id: number } | null;
   alerts: AlertOption[];
   counts: { total: number; safe: number; unknown: number; sos: number } | null;
-  occupancy: { name: string; count: number }[];
+  occupancy: { node_id: string; name: string; count: number; capacity: number | null; full: boolean }[];
   people: Person[];
 };
 
@@ -33,7 +33,7 @@ export function Safety() {
   const id = alertId ?? b?.alert?.id ?? b?.alerts[0]?.id ?? null; // no active alert: the latest one
   const count = (status: string) => (status ? b?.people.filter(p => p.status === status).length ?? 0 : b?.people.length ?? 0);
   const people = b?.people.filter(p => !filter || p.status === filter) ?? [];
-  const most = Math.max(1, ...(b?.occupancy.map(o => o.count) ?? []));
+  const most = Math.max(1, ...(b?.occupancy.map(o => o.capacity ?? o.count) ?? [])); // a zone's bar fills towards its capacity
 
   return (
     <div className="stack">
@@ -58,12 +58,13 @@ export function Safety() {
             <div className="counter-box"><span className="counter">{b.counts.unknown}</span>Unknown</div>
             <div className="counter-box danger"><span className="counter">{b.counts.sos}</span>SOS</div>
           </section>
-          <section aria-label="Assembly points" className="occupancy">
+          <section aria-label="Safe zones" className="occupancy">
             {b.occupancy.map(o => (
-              <div key={o.name} className="bar-row">
+              <div key={o.node_id} className={`bar-row${o.full ? ' full' : ''}`}>
                 <span>{o.name}</span>
-                <span className="bar"><span style={{ width: `${(o.count / most) * 100}%` }} /></span>
-                <strong>{o.count}</strong>
+                <span className="bar"><span style={{ width: `${(Math.min(o.count, o.capacity ?? o.count) / Math.max(1, o.capacity ?? most)) * 100}%` }} /></span>
+                <strong>{o.capacity === null ? o.count : `${o.count} / ${o.capacity}`}</strong>
+                {o.full && <span className="chip danger">Full</span>}
               </div>
             ))}
           </section>

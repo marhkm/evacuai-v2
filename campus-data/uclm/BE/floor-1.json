@@ -578,6 +578,7 @@
     {
       "id": "AP_Field",
       "type": "assembly_point",
+      "name": "Open ground",
       "x": 8.126,
       "y": 60,
       "safe_for": [

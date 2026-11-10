@@ -20,6 +20,8 @@ jest.mock('@/lib/realtime', () => ({
   subscribeSos: async (_id: number, _token: string, cb: () => void) => { mockLive.sos = cb; return () => undefined; },
 }));
 jest.mock('@/lib/push', () => ({ registerForPush: async () => undefined }));
+const mockConfirm = jest.fn(async (..._a: unknown[]) => true);
+jest.mock('@/lib/confirm', () => ({ confirm: (...a: unknown[]) => mockConfirm(...a) }));
 let mockGps: { latitude: number; longitude: number; accuracy: number } | null = null;
 jest.mock('expo-location', () => ({
   Accuracy: { High: 4 },
@@ -51,7 +53,13 @@ snapshot.nodes.find(n => n.id === 'DEMO/2/S2')!.qr_id = 'S2STICKR';
 let alerts: object[] = [];
 let sos: object | null = null;
 let checkIn: object | null = null;
+// The class in session for /api/me/schedule/now (null: none).
+let schedule: object | null = null;
 let posts: { path: string; body: Record<string, unknown> }[] = [];
+const zone = (count: number, capacity: number | null, full = false) => ({ node_id: 'DEMO/1/AP', name: 'AP', count, capacity, full });
+let zones = [zone(2, 300)];
+// The next check-in POST replies with this instead of succeeding (409 "already checked in").
+let checkInReply: ((body: Record<string, unknown>) => { status: number; body: unknown } | null) | null = null;
 
 const sosWith = (over: object) => ({
   id: 3, status: 'pending', message: null, place: 'Demo Building · Second · R201', responder: null, created_at: '2026-10-14T08:05:00+08:00', messages: [], ...over,
@@ -66,6 +74,11 @@ beforeEach(() => {
   sos = null;
   checkIn = null;
   posts = [];
+  zones = [zone(2, 300)];
+  schedule = null;
+  checkInReply = null;
+  mockConfirm.mockClear();
+  mockConfirm.mockResolvedValue(true);
   mockQr = 'evacuai://q/APSTICKR';
   mockGps = null;
   snapshot.assemblyPoints[0].lat = null;
@@ -75,12 +88,23 @@ beforeEach(() => {
     if (init?.method === 'POST') {
       const body = init.body ? JSON.parse(init.body as string) : {};
       posts.push({ path, body });
-      if (path === '/api/sos') sos = sosWith({ message: body.message });
+      if (path === '/api/sos') sos = sosWith({ message: body.message, location_source: body.location_source ?? null, place: body.node_id || body.room_id ? 'Demo Building · Second · R201' : null });
+      if (path === '/api/sos' && body.location_source === 'estimate') sos = { ...sos!, location_source: 'estimate' };
       if (path === '/api/sos/3/messages') sos = sosWith({ messages: [{ id: 1, body: body.body, mine: true, sender: 'Juan', created_at: '' }] });
       if (path === '/api/sos/3/cancel') sos = sosWith({ status: 'cancelled' });
-      if (path === '/api/check-in') checkIn = { alert_id: 7, status: body.status, place: body.node_id ? 'Demo Building · Ground · AP' : null, checked_in_at: '2026-10-14T08:20:00+08:00' };
+      if (path === '/api/check-in') {
+        const special = checkInReply?.(body);
+        if (special) return { ok: false, status: special.status, json: async () => special.body, headers: { get: () => null } } as unknown as Response;
+        checkIn = { alert_id: 7, status: 'safe', place: body.node_id ? 'Demo Building · Ground · AP' : null, checked_in_at: '2026-10-14T08:20:00+08:00', zones, history: [] };
+      }
+    }
+    if (init?.method === 'PATCH') {
+      const body = init.body ? JSON.parse(init.body as string) : {};
+      posts.push({ path: `PATCH ${path}`, body });
+      sos = sosWith({ status: 'pending', location_source: body.location_source, place: 'Demo Building · Second · R201' });
     }
     const body = path === '/api/me' ? { user }
+      : path === '/api/me/schedule/now' ? { class: schedule }
       : path === '/api/alerts' ? { alerts }
       : path.startsWith('/api/sos') ? { sos }
       : path === '/api/check-in' ? { check_in: checkIn }
@@ -99,7 +123,7 @@ test('sends an SOS from a picked room and chats live with the officer', async ()
   await fireEvent.press(screen.getByRole('button', { name: 'Send SOS' }));
 
   expect(await screen.findByText('Waiting for a safety officer…')).toBeTruthy();
-  expect(posts.find(p => p.path === '/api/sos')!.body).toEqual({ node_id: 'DEMO/2/R201', message: 'Leg is hurt' });
+  expect(posts.find(p => p.path === '/api/sos')!.body).toEqual({ node_id: 'DEMO/2/R201', room_id: 'DEMO/2/R201', location_source: 'manual', message: 'Leg is hurt' });
   expect(posts.some(p => p.path === '/api/location')).toBe(false); // no active alert: location stays on the phone
 
   sos = sosWith({ status: 'acknowledged', responder: 'Officer Cruz', messages: [{ id: 9, body: 'Stay where you are, we are coming', mine: false, sender: 'Officer Cruz', created_at: '' }] });
@@ -130,24 +154,21 @@ test('scanning the assembly point checks the user in safe and reports their loca
   alerts = [alert];
   checkIn = { alert_id: 7, status: null, place: null, checked_in_at: null };
   await renderRouter('./src/app', { initialUrl: '/checkin' });
-  await fireEvent.press(await screen.findByRole('button', { name: 'Scan assembly point QR' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Scan safe zone QR' }));
   expect(await screen.findByText('You checked in safe at Demo Building · Ground · AP.')).toBeTruthy();
-  expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ status: 'safe', node_id: 'DEMO/1/AP' });
+  expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ node_id: 'DEMO/1/AP', source: 'qr' });
   expect(posts.find(p => p.path === '/api/location')!.body).toMatchObject({ source: 'qr', node_id: 'DEMO/1/AP' });
 });
 
-test('a sticker that is not an assembly point is rejected; "I need help" offers SOS', async () => {
+test('a sticker that is not a safe zone is rejected, and "I need help" is gone (SOS is the way to ask)', async () => {
   alerts = [alert];
   checkIn = { alert_id: 7, status: null, place: null, checked_in_at: null };
   mockQr = 'evacuai://q/S2STICKR';
   await renderRouter('./src/app', { initialUrl: '/checkin' });
-  await fireEvent.press(await screen.findByRole('button', { name: 'Scan assembly point QR' }));
-  expect(await screen.findByText(/That sticker is not at an assembly point/)).toBeTruthy();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Scan safe zone QR' }));
+  expect(await screen.findByText(/That sticker is not at a safe zone/)).toBeTruthy();
   expect(posts.some(p => p.path === '/api/check-in')).toBe(false);
-
-  await fireEvent.press(screen.getByRole('button', { name: 'I need help' }));
-  expect(await screen.findByText('You said you need help.')).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Send SOS' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'I need help' })).toBeNull();
 });
 
 test('GPS inside the assembly point radius offers a one-tap check-in', async () => {
@@ -158,7 +179,73 @@ test('GPS inside the assembly point radius offers a one-tap check-in', async () 
   await renderRouter('./src/app', { initialUrl: '/checkin' });
   await fireEvent.press(await screen.findByRole('button', { name: 'Check in safe at AP' }));
   expect(await screen.findByText('You checked in safe at Demo Building · Ground · AP.')).toBeTruthy();
-  expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ status: 'safe', node_id: 'DEMO/1/AP' });
+  expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ node_id: 'DEMO/1/AP', source: 'gps' });
+});
+
+describe('safe zones and check-in history', () => {
+  const ready = () => {
+    alerts = [alert];
+    checkIn = { alert_id: 7, status: null, place: null, checked_in_at: null, zones, history: [] };
+  };
+
+  test('lists each safe zone with its head count and capacity, and checks in from the list', async () => {
+    zones = [zone(2, 300), { node_id: 'DEMO/1/X1', name: 'Gate', count: 0, capacity: null, full: false }];
+    ready();
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    expect(await screen.findByRole('button', { name: 'AP · 2 of 300' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Gate · 0 here' })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'AP · 2 of 300' }));
+    expect(await screen.findByText('You checked in safe at Demo Building · Ground · AP.')).toBeTruthy();
+    expect(posts.find(p => p.path === '/api/check-in')!.body).toEqual({ node_id: 'DEMO/1/AP', source: 'list' });
+  });
+
+  test('a full zone says so', async () => {
+    zones = [zone(300, 300, true)];
+    ready();
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    expect(await screen.findByRole('button', { name: 'AP · 300 of 300 · Full' })).toBeTruthy();
+  });
+
+  test('checking in again asks first, and only replaces the status when the user says Update', async () => {
+    ready();
+    checkInReply = body => (body.replace ? null : { status: 409, body: { error: 'already_checked_in', place: 'Demo Building · Ground · AP', checked_in_at: '2026-10-29T06:41:00Z', message: 'You already checked in. Update your status?' } });
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    mockConfirm.mockResolvedValueOnce(false);
+    await fireEvent.press(await screen.findByRole('button', { name: "I'm safe (not at a safe zone)" }));
+    await screen.findByRole('button', { name: "I'm safe (not at a safe zone)" });
+    expect(mockConfirm).toHaveBeenCalledWith('You already checked in at Demo Building · Ground · AP at 2:41 PM. Update your status?', expect.any(String), 'Update');
+    expect(posts.filter(p => p.path === '/api/check-in')).toHaveLength(1); // Keep: nothing re-sent
+
+    await fireEvent.press(screen.getByRole('button', { name: "I'm safe (not at a safe zone)" }));
+    expect(await screen.findByText('You checked in safe.')).toBeTruthy();
+    expect(posts.filter(p => p.path === '/api/check-in').at(-1)!.body).toEqual({ node_id: null, source: 'none', replace: true });
+  });
+
+  test('when the chosen zone is full, another one with space is suggested', async () => {
+    ready();
+    const fullZone = zone(300, 300, true);
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    const real = (global.fetch as jest.Mock).getMockImplementation()!;
+    (global.fetch as jest.Mock).mockImplementation(async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/api/check-in') && init?.method === 'POST') {
+        return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({
+          check_in: { alert_id: 7, status: 'safe', place: 'Demo Building · Ground · AP', checked_in_at: '2026-10-29T06:41:00Z', zones: [fullZone], history: [] },
+          zones: [fullZone], suggest: { node_id: 'DEMO/1/X1', name: 'Gate', count: 1, capacity: 50, full: false },
+        }) } as unknown as Response;
+      }
+      return real(url, init);
+    });
+    await fireEvent.press(await screen.findByRole('button', { name: 'AP · 2 of 300' }));
+    expect(await screen.findByText('AP is full. Gate has space.')).toBeTruthy();
+  });
+
+  test('shows earlier check-ins', async () => {
+    ready();
+    checkIn = { ...checkIn!, status: 'safe', place: null, checked_in_at: '2026-10-29T06:50:00Z',
+      history: [{ place: null, at: '2026-10-29T06:50:00Z' }, { place: 'Demo Building · Ground · AP', at: '2026-10-29T06:41:00Z' }] };
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    expect(await screen.findByText('2:41 PM · Demo Building · Ground · AP')).toBeTruthy();
+  });
 });
 
 test('the chat shows each message time and a day separator', async () => {
@@ -176,4 +263,62 @@ test('the chat shows each message time and a day separator', async () => {
   } finally {
     jest.useRealTimers();
   }
+});
+
+describe('SOS location', () => {
+  const nowHHMM = () => { const d = new Date(Date.now() - 10 * 60_000); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+
+  test('a class in session fills in the place, and the student confirms it', async () => {
+    schedule = { subject: 'IT 101', room_id: 'DEMO/2/R201', room_name: 'R201', building: 'DEMO', level: 2, time_start: nowHHMM() };
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    expect(await screen.findByText(/Your location: R201/)).toBeTruthy();
+    expect(screen.getByText(/from your class schedule/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Send SOS' }));
+    expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ location_source: 'schedule' });
+
+    expect(await screen.findByText('We sent your class room: Demo Building · Second · R201. Are you there?')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Yes' }));
+    expect(posts.find(p => p.path.startsWith('PATCH /api/sos/3/location'))!.body).toMatchObject({ location_source: 'manual' });
+    expect(screen.queryByText(/Are you there\?/)).toBeNull();
+  });
+
+  test('"No, change" lets the student pick the right room', async () => {
+    schedule = { subject: 'IT 101', room_id: 'DEMO/2/R201', room_name: 'R201', building: 'DEMO', level: 2, time_start: nowHHMM() };
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'No, change' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Ground' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'R101' }));
+    expect(posts.find(p => p.path.startsWith('PATCH /api/sos/3/location'))!.body).toMatchObject({ location_source: 'manual' });
+  });
+
+  test('without any known place the SOS still goes out, then asks where they are', async () => {
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
+    expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ node_id: null, room_id: null });
+    expect(await screen.findByText('Location unknown. Pick your room or scan a sticker so officers can find you.')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Pick my room' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Second' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'R201' }));
+    expect(posts.find(p => p.path.startsWith('PATCH /api/sos/3/location'))!.body).toMatchObject({ location_source: 'manual' });
+  });
+});
+
+describe('SOS location: guesses are never sent as facts', () => {
+  test('a class that ended hours ago is not sent as the SOS place', async () => {
+    mockMem.set('whereabouts', JSON.stringify({ roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2, source: 'schedule', confidence: 'likely', at: Date.now() - 5 * 3_600_000 }));
+    schedule = null; // no class now
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    expect(await screen.findByText(/Location unknown/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Send SOS' }));
+    expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ node_id: null, room_id: null, location_source: null });
+  });
+
+  test('a floor-change guess is sent as an estimate, and the student is asked to confirm it', async () => {
+    mockMem.set('whereabouts', JSON.stringify({ nodeId: 'DEMO/2/R201', roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2, source: 'barometer', confidence: 'likely', at: Date.now() - 60_000 }));
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
+    expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ location_source: 'estimate' });
+  });
 });

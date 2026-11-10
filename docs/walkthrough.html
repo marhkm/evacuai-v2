@@ -131,6 +131,7 @@
 <a class="toc-3" href="#a4-import-a-class-schedule">A4. Import a class schedule</a>
 <a class="toc-3" href="#a5-qr-stickers">A5. QR stickers</a>
 <a class="toc-2" href="#6-full-drills-start-to-finish">6. Full drills, start to finish</a>
+<a class="toc-3" href="#a6-safe-zone-capacity">A6. Safe zone capacity</a>
 <a class="toc-3" href="#d1-fire-drill">D1. Fire drill</a>
 <a class="toc-3" href="#d2-a-fire-reported-by-students-no-officer-yet">D2. A fire reported by students (no officer yet)</a>
 <a class="toc-3" href="#d3-a-whole-drill-with-simulated-people">D3. A whole drill with simulated people</a>
@@ -167,6 +168,7 @@
 <a class="toc-3" href="#a4-import-a-class-schedule">A4. Import a class schedule</a>
 <a class="toc-3" href="#a5-qr-stickers">A5. QR stickers</a>
 <a class="toc-2" href="#6-full-drills-start-to-finish">6. Full drills, start to finish</a>
+<a class="toc-3" href="#a6-safe-zone-capacity">A6. Safe zone capacity</a>
 <a class="toc-3" href="#d1-fire-drill">D1. Fire drill</a>
 <a class="toc-3" href="#d2-a-fire-reported-by-students-no-officer-yet">D2. A fire reported by students (no officer yet)</a>
 <a class="toc-3" href="#d3-a-whole-drill-with-simulated-people">D3. A whole drill with simulated people</a>
@@ -205,6 +207,7 @@ is different, write it in the <a href="#7-results">results table</a> at the end.
 person in the app at the same time (each window keeps its own sign-in).</p>
 <p><strong>Drills are practice.</strong> Always tick <strong>Drill</strong> when you broadcast a test alert, so everyone can tell it is not real.
 Resolve your drills when you finish a scenario, so the next one starts clean.</p>
+<p><strong>On a shared test server</strong> (<code>http://&lt;server IP&gt;</code>), use the password your teacher gives you instead of <code>evacuai-demo</code>, and use the APK for QR scans and GPS check-in: browsers only allow the camera and location on <code>https://</code> or <code>localhost</code>.</p>
 <p><strong>Colours mean the same everywhere</strong> (like the safety signs on campus): red is danger and SOS, green is the way out and
 safe, amber is a warning or a drill, and blue is information.</p>
 <hr>
@@ -303,8 +306,10 @@ building&#39;s name.</li>
 <p><strong>Steps</strong></p>
 <ol>
 <li>In the app, tap the red <strong>SOS</strong> button.</li>
-<li>Tap <strong>Pick my room</strong> and choose your room. Under <strong>What happened? (optional)</strong> write &quot;Twisted ankle&quot;.</li>
-<li>Tap <strong>Send SOS</strong>.</li>
+<li>Tap <strong>Pick my room</strong> and choose your room. Under <strong>What happened? (optional)</strong> write &quot;Twisted ankle&quot;.
+(If you have a class right now, the app already shows its room with <strong>(from your class schedule)</strong>.)</li>
+<li>Tap <strong>Send SOS</strong>. If the place came from your class schedule, answer <strong>We sent your class room… Are you there?</strong>
+with <strong>Yes</strong>, or <strong>No, change</strong> to pick another room.</li>
 <li>In the Command Center, open <strong>SOS</strong>, click the request, click <strong>Acknowledge</strong> and reply &quot;Stay where you are, we are
 coming.&quot; with <strong>Send</strong>.</li>
 <li>In the app, reply &quot;Thank you&quot; with <strong>Send message</strong>.</li>
@@ -313,6 +318,9 @@ coming.&quot; with <strong>Send</strong>.</li>
 <p><strong>Expected result</strong></p>
 <ul>
 <li><input type="checkbox" class="check" aria-label="Done">The app shows <strong>Waiting for a safety officer…</strong>, then <strong><officer> is responding</strong> after Acknowledge.</li>
+<li><input type="checkbox" class="check" aria-label="Done">Sending without picking a room (and with no class now) still sends the SOS, then shows <strong>Location unknown…</strong> with
+<strong>Pick my room</strong> and <strong>Scan QR</strong>. Picking a room updates the place in the Command Center within seconds.</li>
+<li><input type="checkbox" class="check" aria-label="Done">Messages show their time, with <strong>Today</strong> above the first one.</li>
 <li><input type="checkbox" class="check" aria-label="Done">Messages appear on the other side within seconds, without refreshing.</li>
 <li><input type="checkbox" class="check" aria-label="Done">The Command Center&#39;s <strong>SOS</strong> menu shows a red count while the SOS is open.</li>
 <li><input type="checkbox" class="check" aria-label="Done">After Resolve, the app says your last SOS was resolved.</li>
@@ -324,9 +332,9 @@ coming.&quot; with <strong>Send</strong>.</li>
 <li>In the Command Center, open <strong>Alerts</strong>. Choose <strong>Fire</strong>, severity <strong>high</strong>, tick <strong>Drill</strong>, write the message &quot;Fire
 drill. Leave the building by the nearest stairs.&quot; and click <strong>Broadcast</strong>.</li>
 <li>Watch the app&#39;s home screen.</li>
-<li>In the app, tap <strong>EVACUATE NOW</strong>, then go back and tap <strong>Check in safe</strong>. Choose
-<strong>I&#39;m safe (not at an assembly point)</strong> (on a phone near an assembly point, <strong>Check in safe at …</strong> or
-<strong>Scan assembly point QR</strong>).</li>
+<li>In the app, tap <strong>EVACUATE NOW</strong>, then go back and tap <strong>Check in safe</strong>. Under <strong>I&#39;m safe at a safe zone</strong>, tap
+<strong>Open ground · …</strong> (or <strong>Scan safe zone QR</strong>, or <strong>I&#39;m safe (not at a safe zone)</strong>).</li>
+<li>Tap <strong>Open ground · …</strong> again.</li>
 <li>Tap <strong>Alerts</strong> on the home screen.</li>
 </ol>
 <p><strong>Expected result</strong></p>
@@ -334,7 +342,12 @@ drill. Leave the building by the nearest stairs.&quot; and click <strong>Broadca
 <li><input type="checkbox" class="check" aria-label="Done">Within seconds, the app shows an amber striped <strong>[DRILL] FIRE ALERT</strong> band, without refreshing.</li>
 <li><input type="checkbox" class="check" aria-label="Done">The home then leads with a big green <strong>EVACUATE NOW</strong> button, with <strong>SOS</strong> and <strong>Check in safe</strong> under it.</li>
 <li><input type="checkbox" class="check" aria-label="Done"><strong>EVACUATE NOW</strong> opens the evacuation route already set for fire.</li>
-<li><input type="checkbox" class="check" aria-label="Done">Check-in confirms <strong>You checked in safe.</strong></li>
+<li><input type="checkbox" class="check" aria-label="Done">Each safe zone shows how many people are there, for example <strong>Open ground · 1 of 300</strong> (or <strong>· 1 here</strong> when an
+admin has not set a capacity, A6).</li>
+<li><input type="checkbox" class="check" aria-label="Done">Check-in confirms <strong>You checked in safe at … Open ground.</strong> There is no <strong>I need help</strong> button: SOS is the way
+to ask for help.</li>
+<li><input type="checkbox" class="check" aria-label="Done">Checking in again asks <strong>You already checked in at … Update your status?</strong> <strong>Keep</strong> changes nothing; <strong>Update</strong>
+changes it, and <strong>Earlier check-ins</strong> lists the first one.</li>
 <li><input type="checkbox" class="check" aria-label="Done"><strong>Alerts</strong> lists the drill as active.</li>
 </ul>
 <p>Leave the drill active for section 3, or resolve it in the Command Center (<strong>Alerts → Resolve</strong>).</p>
@@ -440,13 +453,15 @@ the plan). In the panel, click <strong>Blocked</strong>.</li>
 <ol>
 <li>With a drill active (S7, or run <code>docker compose -f docker/compose.yml exec app php artisan evacuai:simulate drill</code>), open
 <strong>Safety</strong>.</li>
-<li>Click the filters <strong>SOS</strong>, <strong>Needs help</strong>, <strong>Unknown</strong>, <strong>Safe</strong> and <strong>Everyone</strong>.</li>
+<li>Click the filters <strong>SOS</strong>, <strong>Unknown</strong>, <strong>Safe</strong> and <strong>Everyone</strong>.</li>
 <li>Click <strong>Drill report (CSV)</strong> and open the file in Excel or Google Sheets.</li>
 </ol>
 <p><strong>Expected result</strong></p>
 <ul>
 <li><input type="checkbox" class="check" aria-label="Done">The counters and the list change as people check in.</li>
-<li><input type="checkbox" class="check" aria-label="Done">Each filter shows only those people.</li>
+<li><input type="checkbox" class="check" aria-label="Done">Each filter shows only those people. Someone who checked in &quot;needs help&quot; on an older app counts as <strong>SOS</strong>.</li>
+<li><input type="checkbox" class="check" aria-label="Done">The <strong>Safe zones</strong> bars show each zone&#39;s count, as <strong>count / capacity</strong> with <strong>Full</strong> when an admin has set a
+capacity (A6).</li>
 <li><input type="checkbox" class="check" aria-label="Done">The CSV has a summary (check-in rate, evacuation times, SOS) and one row per person.</li>
 </ul>
 <h3 id="o7-replay-and-feedback"><a class="anchor" href="#o7-replay-and-feedback" aria-hidden="true">#</a>O7. Replay and feedback</h3>
@@ -573,6 +588,20 @@ student@evacuai.test,IT 101,BE301,MTWTHFSSU,00:00,23:59</code></pre><button type
 <hr>
 <h2 id="6-full-drills-start-to-finish"><a class="anchor" href="#6-full-drills-start-to-finish" aria-hidden="true">#</a>6. Full drills, start to finish</h2>
 <p>Each drill uses both windows (and a phone if you have one). Resolve it at the end.</p>
+<h3 id="a6-safe-zone-capacity"><a class="anchor" href="#a6-safe-zone-capacity" aria-hidden="true">#</a>A6. Safe zone capacity</h3>
+<p><strong>Steps</strong></p>
+<ol>
+<li>In the <strong>Admin panel</strong>, open <strong>Safe zones</strong>.</li>
+<li>Type <strong>300</strong> for <strong>Open ground</strong>, leave <strong>Off-campus assembly area</strong> blank, and click <strong>Save</strong>.</li>
+<li>During a drill, open the app&#39;s <strong>Check in safe</strong> screen.</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li><input type="checkbox" class="check" aria-label="Done"><strong>Safe zone capacities saved</strong> appears, and the numbers are still there after a reload.</li>
+<li><input type="checkbox" class="check" aria-label="Done">The app shows <strong>Open ground · … of 300</strong>, and <strong>Off-campus assembly area · … here</strong> (no limit).</li>
+<li><input type="checkbox" class="check" aria-label="Done">With a capacity smaller than the people checked in, the zone shows <strong>Full</strong>, and checking in there suggests the
+other zone.</li>
+</ul>
 <h3 id="d1-fire-drill"><a class="anchor" href="#d1-fire-drill" aria-hidden="true">#</a>D1. Fire drill</h3>
 <p><strong>Steps</strong></p>
 <ol>
@@ -741,6 +770,11 @@ the nearest stairs to the field.&quot;, <strong>Broadcast</strong>.</li>
 </tr>
 <tr>
 <td>A5 QR stickers</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>A6 Safe zone capacity</td>
 <td></td>
 <td></td>
 </tr>

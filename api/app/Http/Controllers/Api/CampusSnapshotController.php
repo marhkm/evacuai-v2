@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alert;
+use App\Support\SafeZones;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,6 +31,7 @@ class CampusSnapshotController extends Controller
     public function build(): array
     {
         $floors = DB::table('floors')->orderBy('level')->get()->groupBy('building_id');
+        $zones = collect(SafeZones::forAlert(Alert::current()?->id))->keyBy('node_id');
 
         return [
             'name' => json_decode((string) DB::table('system_configurations')->where('key', 'campus_name')->value('value')) ?? config('app.name'),
@@ -53,7 +56,11 @@ class CampusSnapshotController extends Controller
                 'id' => $n->id, 'building' => $n->building_id, 'level' => $n->level, 'type' => $n->type,
                 'x' => self::num($n->x), 'y' => self::num($n->y),
                 'name' => $n->name, 'room_id' => $n->room_id, 'safe_for' => json_decode($n->safe_for),
-                'qr_id' => $n->qr_id, 'capacity' => $n->capacity, 'occupancy' => $n->capacity === null ? null : $n->occupancy,
+                'qr_id' => $n->qr_id,
+                // Safe zones: the admin's capacity, so routing avoids a full zone.
+                'capacity' => $zones[$n->id]['capacity'] ?? $n->capacity,
+                // Full or not only: exact counts would change this 1 MB map (and its ETag) on every check-in.
+                'occupancy' => isset($zones[$n->id]['capacity']) ? ($zones[$n->id]['full'] ? $zones[$n->id]['capacity'] : 0) : ($n->capacity === null ? null : $n->occupancy),
             ], fn ($v) => $v !== null)),
             'edges' => DB::table('evac_edges')->orderBy('id')->get()->map(fn ($e) => [
                 'id' => $e->id, 'from' => $e->from_node_id, 'to' => $e->to_node_id, 'type' => $e->type,

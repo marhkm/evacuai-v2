@@ -81,3 +81,27 @@ export function forgetWhereabouts() {
   restored = null;
   storage.remove(KEY).catch(() => undefined);
 }
+
+type ScheduleNow = { subject: string; room_id: string; room_name: string; building: string; level: number; time_start: string } | null;
+
+/** Class start today, in this phone's clock (campus time). */
+function startsAt(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d.getTime();
+}
+
+/**
+ * Where the user is, with no tap: today's saved location, or the class in session (unless they located themselves
+ * since it began). Used by the Route and SOS screens.
+ */
+export async function loadEstimate(token: string | null, alertActive: boolean): Promise<Estimate | null> {
+  const [, cls] = await Promise.all([
+    restoreWhereabouts(),
+    token ? api<{ class: ScheduleNow }>('/api/me/schedule/now', { token }).then(r => r.class).catch(() => null) : Promise.resolve(null),
+  ]);
+  // A place guessed from a class only holds while that class is in session: hours later it must not be sent as fact.
+  if (!cls && last?.source === 'schedule') save(null, token, alertActive);
+  return applyClass(cls && { roomId: cls.room_id, building: cls.building, floor: cls.level, startsAt: startsAt(cls.time_start) }, token, alertActive);
+}

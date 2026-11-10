@@ -22,7 +22,7 @@ class SosRaised extends Notification
     /** @return array<string, mixed> */
     public function toDatabase(object $notifiable): array
     {
-        $where = Places::label($this->sos->building_id, $this->sos->level, $this->sos->node_id) ?? 'unknown location';
+        $where = Places::label($this->sos->building_id, $this->sos->level, $this->sos->node_id, $this->sos->room_id) ?? 'unknown location';
 
         return FilamentNotification::make()
             ->title('SOS: someone needs help')

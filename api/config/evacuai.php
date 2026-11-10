@@ -25,6 +25,9 @@ return [
     // Class schedules are in local campus time.
     'timezone' => env('CAMPUS_TIMEZONE', 'Asia/Manila'),
 
+    // Demo accounts' password (SEED_DEMO=true). A test server reachable from the internet sets its own.
+    'demo_password' => env('DEMO_PASSWORD'), // empty: evacuai-demo (DemoSeeder::PASSWORD)
+
     // Data Privacy Act: IP/device in the activity log and location events are purged after this many days.
     'retention_days' => (int) env('PRIVACY_RETENTION_DAYS', 30),
 

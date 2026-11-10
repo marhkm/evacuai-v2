@@ -17,6 +17,7 @@ This guide covers, in order:
 9. [Optional features](#9-optional-features)
 10. [Privacy and data](#10-privacy-and-data)
 11. [Troubleshooting](#11-troubleshooting)
+12. [A shared test server (teacher)](#12-a-shared-test-server-teacher)
 
 **Where each person works**
 
@@ -295,3 +296,76 @@ EvacuAI follows the Data Privacy Act of 2012 (RA 10173):
 
 Found a bug? Write down the steps you took, what you expected, what happened, and add a screenshot. Then open a GitHub
 issue or give it to your teacher.
+
+## 12. A shared test server (teacher)
+
+For a test round where students use one server on the internet instead of their own PCs. This is still a **test**
+setup (plain `http://`, demo accounts, test mailbox), not production. A Linux VPS with 2 CPUs and 4–8 GB of memory
+(Ubuntu 24.04) is enough.
+
+1. **Open the ports** in the VPS provider's firewall: TCP **22** (SSH), **8000** (API, Command Center, Admin panel),
+   **8080** (live updates) and **8081** (web app).
+2. **Sign in to the server** from your computer:
+
+   ```bash
+   ssh root@<server IP>
+   ```
+
+3. **Install Docker** (skip if the server image already has it):
+
+   ```bash
+   curl -fsSL https://get.docker.com | sh
+   ```
+
+4. **Get the code and the settings file:**
+
+   ```bash
+   git clone https://github.com/marhkm/evacuai-v2.git && cd evacuai-v2/docker && cp .env.example .env
+   ```
+
+5. **Make new secrets.** The keys in `.env.example` are public, so a server on the internet needs its own:
+
+   ```bash
+   for n in REVERB_APP_KEY REVERB_APP_SECRET DB_PASSWORD; do echo "$n=$(openssl rand -hex 16)"; done
+   ```
+
+6. **Edit `.env`** (`nano .env`; save with Ctrl+O, Enter, Ctrl+X):
+
+   | Setting | Value |
+   |---|---|
+   | `APP_DEBUG` | `false` (error pages must not show settings to the internet) |
+   | `APP_URL` and `PUBLIC_API_URL` | `http://<server IP>:8000` |
+   | `DEMO_PASSWORD` | a password only you and the testers know (the guide's `evacuai-demo` is public) |
+   | `REVERB_APP_KEY` and `VITE_REVERB_APP_KEY` | the same new key from step 5 |
+   | `REVERB_APP_SECRET`, `DB_PASSWORD` | the new values from step 5 |
+
+7. **Make the app key** and put the printed value after `APP_KEY=` in `.env`:
+
+   ```bash
+   docker compose run --rm app php artisan key:generate --show
+   ```
+
+8. **Start it** (the first build takes 15–25 minutes):
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+9. **Check it:** `curl http://localhost:8000/api/health` prints `{"status":"ok"}`. Then, from any computer or phone:
+   the Command Center at `http://<server IP>:8000/command`, the Admin panel at `http://<server IP>:8000/admin`, and the
+   web app at `http://<server IP>:8081`. Phones use an APK built with this server's address, or type it under
+   **Server: …** on the sign-in screen.
+
+**Camera and GPS need the APK on a server.** Browsers only allow the camera and location on `https://` or
+`localhost`, so on `http://<server IP>:8081` the web app cannot scan QR stickers or check in by GPS. Testers use the
+APK for those steps, or **Pick my room** and the safe zone list in the web app.
+
+**Update** after new code is pushed: `cd evacuai-v2/docker && git pull && docker compose up -d --build`.
+**Stop** at the end of the round: `docker compose down` (keeps the data; `docker compose down -v` deletes it).
+
+Verification codes for new accounts go to the test mailbox, which only opens on the server itself. To read it from
+your computer, tunnel it over SSH, then open http://localhost:8025:
+
+```bash
+ssh -L 8025:localhost:8025 root@<server IP>
+```

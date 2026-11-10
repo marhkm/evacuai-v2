@@ -21,7 +21,7 @@ export default defineConfig({
     launchOptions: { args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] },
   },
   projects: [
-    { name: 'app', testMatch: 'app.spec.ts', use: { ...devices['Pixel 7'], baseURL: process.env.E2E_APP_URL ?? 'http://localhost:8081' } },
+    { name: 'app', testMatch: ['app.spec.ts', 'app-checkin.spec.ts'], use: { ...devices['Pixel 7'], baseURL: process.env.E2E_APP_URL ?? 'http://localhost:8081' } },
     { name: 'admin', testMatch: 'admin.spec.ts', use: { ...devices['Desktop Chrome'], baseURL: process.env.E2E_API_URL ?? 'http://localhost:8000' } },
     { name: 'command', testMatch: 'command.spec.ts', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, baseURL: process.env.E2E_API_URL ?? 'http://localhost:8000' } },
   ],

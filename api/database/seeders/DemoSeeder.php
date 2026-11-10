@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 /** Local/student testing accounts only (SEED_DEMO=true). Listed in docs/SETUP-GUIDE.md. Never run in production. */
 class DemoSeeder extends Seeder
 {
+    /** The default for students' own PCs; a test server on the internet sets DEMO_PASSWORD instead. */
     public const PASSWORD = 'evacuai-demo';
 
     public function run(): void
@@ -17,13 +18,14 @@ class DemoSeeder extends Seeder
         if (app()->isProduction()) {
             return; // demo accounts must never exist in production
         }
+        $password = (string) config('evacuai.demo_password') ?: self::PASSWORD; // empty setting: never an empty password
 
         foreach (Role::cases() as $role) {
             $user = User::firstOrNew(['email' => "{$role->value}@evacuai.test"]);
             $user->forceFill([
                 'name' => 'Demo '.str($role->value)->replace('_', ' ')->title(),
                 // Rehashing on every boot would change the hash and sign officers out of the admin panel.
-                'password' => $user->password && Hash::check(self::PASSWORD, $user->password) ? $user->password : self::PASSWORD,
+                'password' => $user->password && Hash::check($password, $user->password) ? $user->password : $password,
                 'role' => $role,
                 'email_verified_at' => $user->email_verified_at ?? now(),
                 'consented_at' => $user->consented_at ?? now(),

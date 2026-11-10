@@ -40,17 +40,6 @@ class SafetyBoard
         return ['total' => (int) $row->total, 'safe' => (int) $row->safe, 'unknown' => (int) $row->unknown, 'sos' => (int) $row->sos];
     }
 
-    /** @return list<array{name: string, count: int}> */
-    public static function occupancy(int $alertId): array
-    {
-        $counts = DB::table('evacuation_logs')->where(['alert_id' => $alertId, 'status' => 'safe'])
-            ->whereNotNull('assembly_node_id')->groupBy('assembly_node_id')->selectRaw('assembly_node_id, count(*) as n')->pluck('n', 'assembly_node_id');
-
-        return DB::table('assembly_points')->orderBy('id')->pluck('node_id')
-            ->map(fn (string $node) => ['name' => Places::label(null, null, $node) ?? $node, 'count' => (int) ($counts[$node] ?? 0)])
-            ->values()->all();
-    }
-
     /**
      * People with their check-in for the alert, last shared location and open SOS count (unsorted).
      *

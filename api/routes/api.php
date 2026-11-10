@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sos/current', [SosController::class, 'current']);
     Route::post('/sos', [SosController::class, 'store'])->middleware('throttle:5,1,sos');
     Route::post('/sos/{sos}/messages', [SosController::class, 'message'])->middleware('throttle:30,1,sos-chat');
+    Route::patch('/sos/{sos}/location', [SosController::class, 'location'])->middleware('throttle:30,1,sos-chat');
     Route::post('/sos/{sos}/cancel', [SosController::class, 'cancel']);
     Route::get('/check-in', [SafetyController::class, 'status']);
     Route::post('/check-in', [SafetyController::class, 'checkIn'])->middleware('throttle:10,1,check-in');

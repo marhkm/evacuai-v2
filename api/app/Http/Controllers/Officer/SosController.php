@@ -25,7 +25,7 @@ class SosController extends Controller
             'sos' => collect($sos->items())->map(fn (SosAlert $s) => [
                 'id' => $s->id,
                 'person' => $s->user?->name,
-                'place' => Places::label($s->building_id, $s->level, $s->node_id),
+                'place' => Places::label($s->building_id, $s->level, $s->node_id, $s->room_id),
                 'message' => $s->message,
                 'status' => $s->status,
                 'created_at' => $s->created_at->toIso8601String(),

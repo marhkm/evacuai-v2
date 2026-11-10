@@ -31,6 +31,8 @@ person in the app at the same time (each window keeps its own sign-in).
 **Drills are practice.** Always tick **Drill** when you broadcast a test alert, so everyone can tell it is not real.
 Resolve your drills when you finish a scenario, so the next one starts clean.
 
+**On a shared test server** (`http://<server IP>`), use the password your teacher gives you instead of `evacuai-demo`, and use the APK for QR scans and GPS check-in: browsers only allow the camera and location on `https://` or `localhost`.
+
 **Colours mean the same everywhere** (like the safety signs on campus): red is danger and SOS, green is the way out and
 safe, amber is a warning or a drill, and blue is information.
 
@@ -140,7 +142,9 @@ safe, amber is a warning or a drill, and blue is information.
 
 1. In the app, tap the red **SOS** button.
 2. Tap **Pick my room** and choose your room. Under **What happened? (optional)** write "Twisted ankle".
-3. Tap **Send SOS**.
+   (If you have a class right now, the app already shows its room with **(from your class schedule)**.)
+3. Tap **Send SOS**. If the place came from your class schedule, answer **We sent your class room… Are you there?**
+   with **Yes**, or **No, change** to pick another room.
 4. In the Command Center, open **SOS**, click the request, click **Acknowledge** and reply "Stay where you are, we are
    coming." with **Send**.
 5. In the app, reply "Thank you" with **Send message**.
@@ -149,6 +153,9 @@ safe, amber is a warning or a drill, and blue is information.
 **Expected result**
 
 - [ ] The app shows **Waiting for a safety officer…**, then **<officer> is responding** after Acknowledge.
+- [ ] Sending without picking a room (and with no class now) still sends the SOS, then shows **Location unknown…** with
+      **Pick my room** and **Scan QR**. Picking a room updates the place in the Command Center within seconds.
+- [ ] Messages show their time, with **Today** above the first one.
 - [ ] Messages appear on the other side within seconds, without refreshing.
 - [ ] The Command Center's **SOS** menu shows a red count while the SOS is open.
 - [ ] After Resolve, the app says your last SOS was resolved.
@@ -162,17 +169,22 @@ safe, amber is a warning or a drill, and blue is information.
 1. In the Command Center, open **Alerts**. Choose **Fire**, severity **high**, tick **Drill**, write the message "Fire
    drill. Leave the building by the nearest stairs." and click **Broadcast**.
 2. Watch the app's home screen.
-3. In the app, tap **EVACUATE NOW**, then go back and tap **Check in safe**. Choose
-   **I'm safe (not at an assembly point)** (on a phone near an assembly point, **Check in safe at …** or
-   **Scan assembly point QR**).
-4. Tap **Alerts** on the home screen.
+3. In the app, tap **EVACUATE NOW**, then go back and tap **Check in safe**. Under **I'm safe at a safe zone**, tap
+   **Open ground · …** (or **Scan safe zone QR**, or **I'm safe (not at a safe zone)**).
+4. Tap **Open ground · …** again.
+5. Tap **Alerts** on the home screen.
 
 **Expected result**
 
 - [ ] Within seconds, the app shows an amber striped **[DRILL] FIRE ALERT** band, without refreshing.
 - [ ] The home then leads with a big green **EVACUATE NOW** button, with **SOS** and **Check in safe** under it.
 - [ ] **EVACUATE NOW** opens the evacuation route already set for fire.
-- [ ] Check-in confirms **You checked in safe.**
+- [ ] Each safe zone shows how many people are there, for example **Open ground · 1 of 300** (or **· 1 here** when an
+      admin has not set a capacity, A6).
+- [ ] Check-in confirms **You checked in safe at … Open ground.** There is no **I need help** button: SOS is the way
+      to ask for help.
+- [ ] Checking in again asks **You already checked in at … Update your status?** **Keep** changes nothing; **Update**
+      changes it, and **Earlier check-ins** lists the first one.
 - [ ] **Alerts** lists the drill as active.
 
 Leave the drill active for section 3, or resolve it in the Command Center (**Alerts → Resolve**).
@@ -295,13 +307,15 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
 
 1. With a drill active (S7, or run `docker compose -f docker/compose.yml exec app php artisan evacuai:simulate drill`), open
    **Safety**.
-2. Click the filters **SOS**, **Needs help**, **Unknown**, **Safe** and **Everyone**.
+2. Click the filters **SOS**, **Unknown**, **Safe** and **Everyone**.
 3. Click **Drill report (CSV)** and open the file in Excel or Google Sheets.
 
 **Expected result**
 
 - [ ] The counters and the list change as people check in.
-- [ ] Each filter shows only those people.
+- [ ] Each filter shows only those people. Someone who checked in "needs help" on an older app counts as **SOS**.
+- [ ] The **Safe zones** bars show each zone's count, as **count / capacity** with **Full** when an admin has set a
+      capacity (A6).
 - [ ] The CSV has a summary (check-in rate, evacuation times, SOS) and one row per person.
 
 ### O7. Replay and feedback
@@ -449,6 +463,21 @@ QR stickers. Emergencies are handled in the Command Center (there is a **Command
 
 Each drill uses both windows (and a phone if you have one). Resolve it at the end.
 
+### A6. Safe zone capacity
+
+**Steps**
+
+1. In the **Admin panel**, open **Safe zones**.
+2. Type **300** for **Open ground**, leave **Off-campus assembly area** blank, and click **Save**.
+3. During a drill, open the app's **Check in safe** screen.
+
+**Expected result**
+
+- [ ] **Safe zone capacities saved** appears, and the numbers are still there after a reload.
+- [ ] The app shows **Open ground · … of 300**, and **Off-campus assembly area · … here** (no limit).
+- [ ] With a capacity smaller than the people checked in, the zone shows **Full**, and checking in there suggests the
+      other zone.
+
 ### D1. Fire drill
 
 **Steps**
@@ -528,6 +557,7 @@ Copy this table into your report and fill it in. Use **Pass**, **Fail** or **Ski
 | A3 Activity log | | |
 | A4 Import a class schedule | | |
 | A5 QR stickers | | |
+| A6 Safe zone capacity | | |
 | D1 Fire drill | | |
 | D2 Fire reported by students | | |
 | D3 Drill with simulated people | | |

@@ -115,6 +115,7 @@
 <a class="toc-2" href="#9-optional-features">9. Optional features</a>
 <a class="toc-2" href="#10-privacy-and-data">10. Privacy and data</a>
 <a class="toc-2" href="#11-troubleshooting">11. Troubleshooting</a>
+<a class="toc-2" href="#12-a-shared-test-server-teacher">12. A shared test server (teacher)</a>
   </nav>
   <main>
     <details class="toc-mobile"><summary>Contents</summary>
@@ -131,6 +132,7 @@
 <a class="toc-2" href="#9-optional-features">9. Optional features</a>
 <a class="toc-2" href="#10-privacy-and-data">10. Privacy and data</a>
 <a class="toc-2" href="#11-troubleshooting">11. Troubleshooting</a>
+<a class="toc-2" href="#12-a-shared-test-server-teacher">12. A shared test server (teacher)</a>
     </details>
     <section class="welcome">
 <p>EvacuAI warns people on campus about emergencies, shows each person a safe way out, and gives safety officers a live
@@ -511,6 +513,76 @@ the UCLM Data Protection Officer.</li>
 </tbody></table>
 </div><p>Found a bug? Write down the steps you took, what you expected, what happened, and add a screenshot. Then open a GitHub
 issue or give it to your teacher.</p>
+<h2 id="12-a-shared-test-server-teacher"><a class="anchor" href="#12-a-shared-test-server-teacher" aria-hidden="true">#</a>12. A shared test server (teacher)</h2>
+<p>For a test round where students use one server on the internet instead of their own PCs. This is still a <strong>test</strong>
+setup (plain <code>http://</code>, demo accounts, test mailbox), not production. A Linux VPS with 2 CPUs and 4–8 GB of memory
+(Ubuntu 24.04) is enough.</p>
+<ol>
+<li><p><strong>Open the ports</strong> in the VPS provider&#39;s firewall: TCP <strong>22</strong> (SSH), <strong>8000</strong> (API, Command Center, Admin panel),
+<strong>8080</strong> (live updates) and <strong>8081</strong> (web app).</p>
+</li>
+<li><p><strong>Sign in to the server</strong> from your computer:</p>
+<div class="code"><pre><code data-lang="bash">ssh root@&lt;server IP></code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p><strong>Install Docker</strong> (skip if the server image already has it):</p>
+<div class="code"><pre><code data-lang="bash">curl -fsSL https://get.docker.com | sh</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p><strong>Get the code and the settings file:</strong></p>
+<div class="code"><pre><code data-lang="bash">git clone https://github.com/marhkm/evacuai-v2.git &amp;&amp; cd evacuai-v2/docker &amp;&amp; cp .env.example .env</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p><strong>Make new secrets.</strong> The keys in <code>.env.example</code> are public, so a server on the internet needs its own:</p>
+<div class="code"><pre><code data-lang="bash">for n in REVERB_APP_KEY REVERB_APP_SECRET DB_PASSWORD; do echo "$n=$(openssl rand -hex 16)"; done</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p><strong>Edit <code>.env</code></strong> (<code>nano .env</code>; save with Ctrl+O, Enter, Ctrl+X):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>APP_DEBUG</code></td>
+<td><code>false</code> (error pages must not show settings to the internet)</td>
+</tr>
+<tr>
+<td><code>APP_URL</code> and <code>PUBLIC_API_URL</code></td>
+<td><code>http://&lt;server IP&gt;:8000</code></td>
+</tr>
+<tr>
+<td><code>DEMO_PASSWORD</code></td>
+<td>a password only you and the testers know (the guide&#39;s <code>evacuai-demo</code> is public)</td>
+</tr>
+<tr>
+<td><code>REVERB_APP_KEY</code> and <code>VITE_REVERB_APP_KEY</code></td>
+<td>the same new key from step 5</td>
+</tr>
+<tr>
+<td><code>REVERB_APP_SECRET</code>, <code>DB_PASSWORD</code></td>
+<td>the new values from step 5</td>
+</tr>
+</tbody></table>
+</div></li>
+<li><p><strong>Make the app key</strong> and put the printed value after <code>APP_KEY=</code> in <code>.env</code>:</p>
+<div class="code"><pre><code data-lang="bash">docker compose run --rm app php artisan key:generate --show</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p><strong>Start it</strong> (the first build takes 15–25 minutes):</p>
+<div class="code"><pre><code data-lang="bash">docker compose up -d --build</code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+</li>
+<li><p><strong>Check it:</strong> <code>curl http://localhost:8000/api/health</code> prints <code>{&quot;status&quot;:&quot;ok&quot;}</code>. Then, from any computer or phone:
+the Command Center at <code>http://&lt;server IP&gt;:8000/command</code>, the Admin panel at <code>http://&lt;server IP&gt;:8000/admin</code>, and the
+web app at <code>http://&lt;server IP&gt;:8081</code>. Phones use an APK built with this server&#39;s address, or type it under
+<strong>Server: …</strong> on the sign-in screen.</p>
+</li>
+</ol>
+<p><strong>Camera and GPS need the APK on a server.</strong> Browsers only allow the camera and location on <code>https://</code> or
+<code>localhost</code>, so on <code>http://&lt;server IP&gt;:8081</code> the web app cannot scan QR stickers or check in by GPS. Testers use the
+APK for those steps, or <strong>Pick my room</strong> and the safe zone list in the web app.</p>
+<p><strong>Update</strong> after new code is pushed: <code>cd evacuai-v2/docker &amp;&amp; git pull &amp;&amp; docker compose up -d --build</code>.
+<strong>Stop</strong> at the end of the round: <code>docker compose down</code> (keeps the data; <code>docker compose down -v</code> deletes it).</p>
+<p>Verification codes for new accounts go to the test mailbox, which only opens on the server itself. To read it from
+your computer, tunnel it over SSH, then open <a href="http://localhost:8025">http://localhost:8025</a>:</p>
+<div class="code"><pre><code data-lang="bash">ssh -L 8025:localhost:8025 root@&lt;server IP></code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
 
     <footer>Generated from docs/SETUP-GUIDE.md. EvacuAI, UCLM capstone project.</footer>
   </main>

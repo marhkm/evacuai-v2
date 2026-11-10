@@ -7,6 +7,7 @@ use App\Http\Resources\AlertResource;
 use App\Models\Alert;
 use App\Models\User;
 use App\Support\SafetyBoard;
+use App\Support\SafeZones;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -34,7 +35,7 @@ class SafetyController extends Controller
             'alert' => (new AlertResource($alert))->resolve(),
             'alerts' => SafetyBoard::alerts(),
             'counts' => SafetyBoard::counts($alert->id),
-            'occupancy' => SafetyBoard::occupancy($alert->id),
+            'occupancy' => SafeZones::forAlert($alert->id),
             'people' => $people->values(),
         ]);
     }

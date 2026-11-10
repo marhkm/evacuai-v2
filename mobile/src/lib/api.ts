@@ -52,6 +52,7 @@ export class ApiError extends Error {
     public status: number,
     public errors: Record<string, string[]> = {},
     public reason?: string,
+    public body: Record<string, unknown> = {}, // the whole error reply (e.g. a 409 says what is already there)
   ) {
     super(message);
   }
@@ -83,7 +84,7 @@ export async function api<T = any>(path: string, { method = 'GET', body, token }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = res.status === 429 ? 'Too many attempts. Wait a minute and try again.' : data.message ?? `Request failed (${res.status}).`;
-    throw new ApiError(message, res.status, data.errors ?? {}, data.reason);
+    throw new ApiError(message, res.status, data.errors ?? {}, data.reason, data);
   }
   return data as T;
 }

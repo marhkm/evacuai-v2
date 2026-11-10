@@ -10,28 +10,17 @@ import { LocationChooser } from '@/components/LocationChooser';
 import { Message, Screen } from '@/components/ui';
 import { fonts, makeStyles } from '@/theme';
 import { useAlerts } from '@/lib/alerts';
-import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { current, routeOrigin, type Estimate, type Observation } from '@/lib/estimator';
 import { useCampus } from '@/lib/useCampus';
 import { toHazard } from '@/lib/useEvacRoute';
 import { watchFloorChanges } from '@/lib/barometer';
-import { applyClass, lastEstimate, moveFloors, restoreWhereabouts, updateWhereabouts } from '@/lib/whereabouts';
+import { lastEstimate, loadEstimate, moveFloors, updateWhereabouts } from '@/lib/whereabouts';
 
 const HAZARD_CHOICES: { key: Hazard; label: string }[] = [
   { key: 'earthquake', label: 'Earthquake' }, { key: 'fire', label: 'Fire' }, { key: 'flood', label: 'Flood' },
 ];
 // Alert types the router has no special rules for are routed like an earthquake (leave via stairs to an exit).
-
-type ScheduleNow = { subject: string; room_id: string; room_name: string; building: string; level: number; time_start: string } | null;
-
-/** Class start today, in this phone's clock (campus time). */
-function startsAt(hhmm: string): number {
-  const [h, m] = hhmm.split(':').map(Number);
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d.getTime();
-}
 
 export default function RouteScreen() {
   const styles = useStyles();
@@ -55,13 +44,7 @@ export default function RouteScreen() {
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
-    Promise.all([
-      restoreWhereabouts(),
-      api<{ class: ScheduleNow }>('/api/me/schedule/now', { token }).then(r => r.class).catch(() => null),
-    ]).then(([, cls]) => {
-      if (cancelled) return;
-      setEstimate(applyClass(cls && { roomId: cls.room_id, building: cls.building, floor: cls.level, startsAt: startsAt(cls.time_start) }, token, alertActive));
-    });
+    loadEstimate(token, alertActive).then(e => { if (!cancelled) setEstimate(e); });
     return () => { cancelled = true; };
   }, [token, alertActive]);
 
