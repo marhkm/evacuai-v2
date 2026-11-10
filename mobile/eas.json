@@ -10,7 +10,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_SHOW_SERVER_SETTING": "true"
+        "EXPO_PUBLIC_SHOW_SERVER_SETTING": "true",
+        "EXPO_PUBLIC_API_URL": "https://evacuai.tech"
       }
     },
     "production": {
