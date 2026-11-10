@@ -356,9 +356,22 @@ setup (plain `http://`, demo accounts, test mailbox), not production. A Linux VP
    web app at `http://<server IP>:8081`. Phones use an APK built with this server's address, or type it under
    **Server: …** on the sign-in screen.
 
-**Camera and GPS need the APK on a server.** Browsers only allow the camera and location on `https://` or
-`localhost`, so on `http://<server IP>:8081` the web app cannot scan QR stickers or check in by GPS. Testers use the
-APK for those steps, or **Pick my room** and the safe zone list in the web app.
+**Camera and GPS need HTTPS.** Browsers only allow the camera and location on `https://` or `localhost`, so on
+`http://<server IP>:8081` the web app cannot scan QR stickers or check in by GPS (the APK can). A domain fixes this:
+
+**With a domain (HTTPS).** Caddy, an optional part of the stack, gets free Let's Encrypt certificates by itself.
+1. In the domain's DNS, add two **A** records to the server's IP: `@` (the domain itself) and `app`. Wait until
+   `ping <domain>` shows the server's IP (minutes, sometimes an hour).
+2. Open TCP **80** and **443** in the firewall (80 is needed for the certificates).
+3. On the server, run the setup script with the domain (it checks the DNS first, then sets everything):
+
+   ```bash
+   bash evacuai-v2/scripts/setup-test-server.sh <domain>
+   ```
+
+   Then: Command Center `https://<domain>/command`, Admin panel `https://<domain>/admin`, web app
+   `https://app.<domain>`, and phones use `https://<domain>` (typing just `<domain>` under **Server: …** works).
+   Ports 8000, 8080 and 8081 can then be closed in the firewall.
 
 **Update** after new code is pushed: `cd evacuai-v2/docker && git pull && docker compose up -d --build`.
 **Stop** at the end of the round: `docker compose down` (keeps the data; `docker compose down -v` deletes it).

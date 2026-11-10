@@ -575,9 +575,22 @@ web app at <code>http://&lt;server IP&gt;:8081</code>. Phones use an APK built w
 <strong>Server: …</strong> on the sign-in screen.</p>
 </li>
 </ol>
-<p><strong>Camera and GPS need the APK on a server.</strong> Browsers only allow the camera and location on <code>https://</code> or
-<code>localhost</code>, so on <code>http://&lt;server IP&gt;:8081</code> the web app cannot scan QR stickers or check in by GPS. Testers use the
-APK for those steps, or <strong>Pick my room</strong> and the safe zone list in the web app.</p>
+<p><strong>Camera and GPS need HTTPS.</strong> Browsers only allow the camera and location on <code>https://</code> or <code>localhost</code>, so on
+<code>http://&lt;server IP&gt;:8081</code> the web app cannot scan QR stickers or check in by GPS (the APK can). A domain fixes this:</p>
+<p><strong>With a domain (HTTPS).</strong> Caddy, an optional part of the stack, gets free Let&#39;s Encrypt certificates by itself.</p>
+<ol>
+<li><p>In the domain&#39;s DNS, add two <strong>A</strong> records to the server&#39;s IP: <code>@</code> (the domain itself) and <code>app</code>. Wait until
+<code>ping &lt;domain&gt;</code> shows the server&#39;s IP (minutes, sometimes an hour).</p>
+</li>
+<li><p>Open TCP <strong>80</strong> and <strong>443</strong> in the firewall (80 is needed for the certificates).</p>
+</li>
+<li><p>On the server, run the setup script with the domain (it checks the DNS first, then sets everything):</p>
+<div class="code"><pre><code data-lang="bash">bash evacuai-v2/scripts/setup-test-server.sh &lt;domain></code></pre><button type="button" class="copy" aria-label="Copy">Copy</button></div>
+<p>Then: Command Center <code>https://&lt;domain&gt;/command</code>, Admin panel <code>https://&lt;domain&gt;/admin</code>, web app
+<code>https://app.&lt;domain&gt;</code>, and phones use <code>https://&lt;domain&gt;</code> (typing just <code>&lt;domain&gt;</code> under <strong>Server: …</strong> works).
+Ports 8000, 8080 and 8081 can then be closed in the firewall.</p>
+</li>
+</ol>
 <p><strong>Update</strong> after new code is pushed: <code>cd evacuai-v2/docker &amp;&amp; git pull &amp;&amp; docker compose up -d --build</code>.
 <strong>Stop</strong> at the end of the round: <code>docker compose down</code> (keeps the data; <code>docker compose down -v</code> deletes it).</p>
 <p>Verification codes for new accounts go to the test mailbox, which only opens on the server itself. To read it from

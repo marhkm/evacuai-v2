@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['officer' => EnsureOfficer::class]);
         $middleware->statefulApi(); // the Command Center (same origin) authenticates with the web session cookie
+        // Behind the HTTPS proxy (Caddy, docker compose --profile https): trust its X-Forwarded-* so links and cookies
+        // say https. Unset on a student's PC, where nothing sits in front.
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

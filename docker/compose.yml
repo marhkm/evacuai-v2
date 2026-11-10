@@ -88,7 +88,22 @@ services:
     volumes: [ollama:/root/.ollama]
     restart: unless-stopped
 
+  caddy: # optional HTTPS for a server with a domain: docker compose --profile https up -d (set EVACUAI_DOMAIN)
+    image: caddy:2.10-alpine
+    profiles: [https]
+    environment:
+      EVACUAI_DOMAIN: ${EVACUAI_DOMAIN:-localhost}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # certificates: keep them, Let's Encrypt limits how often they are issued
+      - caddy_config:/config
+    depends_on: [app, reverb, mobile-web]
+    restart: unless-stopped
+
 volumes:
   pgdata:
   ollama:
   uploads:
+  caddy_data:
+  caddy_config:

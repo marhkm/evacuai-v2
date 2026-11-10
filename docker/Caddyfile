@@ -1,0 +1,15 @@
+# HTTPS in front of EvacuAI for a server with a domain (docker compose --profile https up -d).
+# Caddy gets and renews Let's Encrypt certificates by itself; DNS for the domain and app.<domain> must point here.
+
+# API, Command Center, Admin panel, and live updates on the same address (Reverb's WebSocket path is /app/<key>).
+{$EVACUAI_DOMAIN} {
+	encode gzip
+	reverse_proxy /app/* reverb:8080
+	reverse_proxy app:8000
+}
+
+# The web version of the phone app.
+app.{$EVACUAI_DOMAIN} {
+	encode gzip
+	reverse_proxy mobile-web:80
+}

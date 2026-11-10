@@ -55,7 +55,8 @@ describe('the server address a student types', () => {
     [' localhost ', 'http://localhost:8000'],
     ['http://10.0.0.2', 'http://10.0.0.2'], // a typed scheme means they chose the port too
     ['https://evac.example.com', 'https://evac.example.com'],
-    ['evac.example.com', 'http://evac.example.com'], // a domain gets no :8000
+    ['evac.example.com', 'https://evac.example.com'], // a domain is a real server: https, no :8000
+    ['http://evac.example.com', 'http://evac.example.com'], // unless they typed http themselves
     ['http://192.168.1.5:8000/command', 'http://192.168.1.5:8000'],
   ])('%s becomes %s', (typed, url) => {
     expect(normalizeServerUrl(typed)).toEqual({ url });

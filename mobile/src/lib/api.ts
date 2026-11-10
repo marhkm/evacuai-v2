@@ -5,9 +5,9 @@ let serverUrl = API_URL;
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/;
 
 /**
- * Turns what a student types into a server address: "192.168.1.5" becomes "http://192.168.1.5:8000". A typed scheme
- * or a domain is kept as typed (only a bare IP or localhost gets :8000), and the web app's and live updates' ports
- * are refused. Parsed by hand: React Native's URL cannot set a port.
+ * Turns what a student types into a server address: "192.168.1.5" becomes "http://192.168.1.5:8000" (a PC on the
+ * Wi-Fi) and "evacuai.tech" becomes "https://evacuai.tech" (a real server). A typed scheme or port is kept, and the
+ * web app's and live updates' ports are refused. Parsed by hand: React Native's URL cannot set a port.
  */
 export function normalizeServerUrl(input: string): { url: string } | { error: string } {
   const typed = input.trim();
@@ -17,8 +17,9 @@ export function normalizeServerUrl(input: string): { url: string } | { error: st
   const [, scheme, host, port] = m;
   if (port === '8081') return { error: "That's the web app's port. Use 8000." };
   if (port === '8080') return { error: "That's the live-updates port. Use 8000." };
-  const addPort = !scheme && !port && (host.toLowerCase() === 'localhost' || IPV4.test(host));
-  return { url: `${(scheme ?? 'http').toLowerCase()}://${host}${port ? `:${port}` : addPort ? ':8000' : ''}` };
+  const local = host.toLowerCase() === 'localhost' || IPV4.test(host); // a PC on the Wi-Fi: http and :8000
+  const addPort = !scheme && !port && local;
+  return { url: `${(scheme ?? (local ? 'http' : 'https')).toLowerCase()}://${host}${port ? `:${port}` : addPort ? ':8000' : ''}` }; // a domain: https
 }
 
 /** Test builds let students point the app at their own PC (e.g. http://192.168.1.5:8000). A refused address keeps the old one. */
