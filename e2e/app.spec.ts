@@ -4,7 +4,9 @@ import { DEMO_PASSWORD, demoEmail, expect, test } from './fixtures';
 test.beforeEach(async ({ page }) => {
   await page.goto('/login');
   await page.getByLabel('Email').fill(demoEmail('student'));
-  await page.getByLabel('Password').fill(DEMO_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(DEMO_PASSWORD);
+  await page.getByRole('button', { name: 'Show password' }).click();
+  await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Welcome, Demo Student')).toBeVisible({ timeout: 45_000 }); // first request after a cold start is slow
 });
@@ -36,16 +38,23 @@ test('campus map: floor plan, all floors and 3D', async ({ page }) => {
 
 test('SOS, report, check-in, alerts, feedback and profile screens open', async ({ page }) => {
   // Screens stay mounted (hidden) in the stack, so check each screen's own heading.
-  for (const [button, heading] of [['SOS', 'SOS'], ['Alerts', 'Alerts'], ['Send feedback', 'Feedback'], ['Profile', 'Profile']] as const) {
+  // The home SOS button sends an SOS on one tap, so the tour opens the SOS screen by its address instead.
+  await page.goto('/sos');
+  await expect(page.getByRole('button', { name: 'Send SOS' })).toBeVisible();
+  await page.goBack();
+  for (const [button, heading] of [['Alerts', 'Alerts'], ['Send feedback', 'Feedback'], ['Profile', 'Profile']] as const) {
     await page.getByRole('button', { name: button, exact: true }).click();
     await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
     await page.goBack();
   }
   await page.getByRole('button', { name: 'Report a hazard' }).click();
-  await expect(page.getByRole('button', { name: 'Choose photo' })).toBeVisible(); // photo attach (nothing is sent)
+  await expect(page.getByRole('button', { name: 'Take photo' })).toBeVisible(); // a photo is required, camera only (nothing is sent)
+  await expect(page.getByRole('button', { name: 'Choose photo' })).toHaveCount(0);
   await page.goBack();
   await page.goto('/checkin');
   await expect(page.getByRole('heading', { name: 'Check in' })).toBeVisible();
+  await page.goto('/profile');
+  await expect(page.getByRole('button', { name: 'Download template' })).toBeVisible(); // students upload their own schedule
 });
 
 test.describe('Responder mode (safety officer on the app)', () => {
@@ -55,7 +64,7 @@ test.describe('Responder mode (safety officer on the app)', () => {
     await page.evaluate(() => localStorage.clear());
     await page.goto('/login');
     await page.getByLabel('Email').fill(demoEmail('safety_officer'));
-    await page.getByLabel('Password').fill(DEMO_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(DEMO_PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page.getByText('Responder', { exact: true })).toBeVisible({ timeout: 45_000 });
     for (const [button, title] of [['SOS inbox', 'SOS inbox'], ["Who's missing", "Who's missing"], ['Paths', 'Paths'], ['Alerts', 'Alerts']] as const) {

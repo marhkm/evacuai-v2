@@ -8,6 +8,8 @@ import { dayLabel, startsDay, timeLabel } from '@/lib/chatTime';
 import { confirm } from '@/lib/confirm';
 import { useOfficer, useOfficerAction } from '@/lib/officer';
 
+import { withSource } from '@/lib/sosSource';
+
 import { type SosItem } from './index';
 
 type Sos = SosItem & { responder: string | null; can_reply?: boolean; messages: { id: number; body: string; mine: boolean; sender: string; created_at: string }[] };
@@ -34,7 +36,7 @@ export default function SosChat() {
   return (
     <Screen title={`SOS: ${s.person ?? 'Someone'}`}>
       <View style={[styles.card, s.status === 'pending' ? styles.pending : styles.responding]}>
-        <Text style={styles.place}>{s.place ?? 'Location not shared. Ask where they are.'}</Text>
+        <Text style={styles.place}>{s.place ? withSource(s.place, s.location_source) : 'Location not shared. Ask where they are.'}</Text>
         {s.message ? <Text style={styles.body}>“{s.message}”</Text> : null}
         <Text style={styles.meta}>
           {s.status} · sent {dayLabel(s.created_at)} {timeLabel(s.created_at)}{s.responder ? ` · Handled by ${s.responder}` : ''}

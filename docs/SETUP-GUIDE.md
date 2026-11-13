@@ -373,6 +373,12 @@ setup (plain `http://`, demo accounts, test mailbox), not production. A Linux VP
    `https://app.<domain>`, and phones use `https://<domain>` (typing just `<domain>` under **Server: …** works).
    Ports 8000, 8080 and 8081 can then be closed in the firewall.
 
+**The AI photo check** runs on the server itself (photos never leave it): the setup script turns on the optional
+`ollama` service and downloads the small Moondream model (about 1.7 GB, once). It only advises officers; without it,
+reports still work and show **AI: not available**. On your own PC it is off unless you run
+`docker compose -f docker/compose.yml --profile ai-local up -d`, set `OLLAMA_URL=http://ollama:11434` in
+`docker/.env`, and run `docker compose -f docker/compose.yml exec ollama ollama pull moondream`.
+
 **Update** after new code is pushed: `cd evacuai-v2/docker && git pull && docker compose up -d --build`.
 **Stop** at the end of the round: `docker compose down` (keeps the data; `docker compose down -v` deletes it).
 

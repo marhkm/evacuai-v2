@@ -10,6 +10,7 @@ import { makeStyles } from '@/theme';
 import { ApiError, api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { loadSnapshot } from '@/lib/campus';
+import { lastEstimate } from '@/lib/whereabouts';
 
 const HAZARDS = [
   { key: 'fire', label: 'Fire' },
@@ -31,7 +32,8 @@ export default function Report() {
   const [error, setError] = useState<ApiError | string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [photo, setPhoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  // Taken in the app just now (the server refuses photos older than 10 minutes): a reused picture is the easiest fake.
+  const [photo, setPhoto] = useState<{ asset: ImagePicker.ImagePickerAsset; takenAt: string } | null>(null);
 
   useEffect(() => {
     if (state.status !== 'signedIn') return;
@@ -47,15 +49,11 @@ export default function Report() {
     ? snapshot.rooms.filter(r => r.building === building.id && r.level === floor.level && r.type !== 'corridor')
     : [];
 
-  async function addPhoto(source: 'camera' | 'library') {
+  async function takePhoto() {
     setError(null);
-    const allowed = source === 'camera'
-      ? (await ImagePicker.requestCameraPermissionsAsync()).granted
-      : (await ImagePicker.requestMediaLibraryPermissionsAsync()).granted;
-    if (!allowed) return setError(`Allow ${source === 'camera' ? 'camera' : 'photo'} access to add a photo, or send the report without one.`);
-    const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.7, exif: false };
-    const result = source === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
-    if (!result.canceled) setPhoto(result.assets[0]);
+    if (!(await ImagePicker.requestCameraPermissionsAsync()).granted) return setError('Allow camera access to take a photo of the hazard.');
+    const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7, exif: false });
+    if (!result.canceled) setPhoto({ asset: result.assets[0], takenAt: new Date().toISOString() });
   }
 
   async function submit() {
@@ -63,18 +61,19 @@ export default function Report() {
     setSent(null);
     if (!hazard) return setError('Choose what kind of hazard it is.');
     if (!building || !floor) return setError('Choose the floor where you see it.');
+    if (!photo) return setError('Take a photo of the hazard.');
     setBusy(true);
     try {
-      const fields = { hazard_type: hazard, building_id: building.id, level: String(floor.level), room_id: roomId, description: description.trim() || null };
-      if (photo) {
-        // Multipart only when there is a photo; the server strips its metadata and shrinks it.
-        const form = new FormData();
-        for (const [k, v] of Object.entries(fields)) if (v !== null) form.append(k, v);
-        form.append('photo', await photoPart(photo));
-        await api('/api/hazard-reports', { method: 'POST', token, body: form });
-      } else {
-        await api('/api/hazard-reports', { method: 'POST', token, body: { ...fields, level: floor.level } });
-      }
+      const here = lastEstimate(); // where the app last placed you: a hint for officers, never a reason to refuse
+      const fields = {
+        hazard_type: hazard, building_id: building.id, level: String(floor.level), room_id: roomId, description: description.trim() || null,
+        at_building: here?.building ?? null, at_level: here?.floor !== undefined ? String(here.floor) : null,
+      };
+      const form = new FormData(); // the server strips the photo's metadata and shrinks it
+      for (const [k, v] of Object.entries(fields)) if (v !== null) form.append(k, v);
+      form.append('photo', await photoPart(photo.asset));
+      form.append('taken_at', photo.takenAt);
+      await api('/api/hazard-reports', { method: 'POST', token, body: form });
       setPhoto(null);
       setSent('Report sent. Safety officers have been notified. Move away from the hazard.');
       setDescription('');
@@ -111,20 +110,17 @@ export default function Report() {
       ) : null}
       <Field label="What do you see?" value={description} onChangeText={setDescription} multiline maxLength={500}
         placeholder="e.g. Smoke coming from the door. No names or phone numbers." autoCapitalize="sentences" error={apiError?.fieldError('description')} />
-      <Section label="Photo (optional)">
+      <Section label="Photo (required)">
         {photo ? (
           <View style={styles.photoRow}>
-            <Image source={{ uri: photo.uri }} style={styles.thumb} accessibilityLabel="Photo to send with the report" />
-            <View style={styles.flex}><Button label="Remove photo" variant="secondary" onPress={() => setPhoto(null)} /></View>
+            <Image source={{ uri: photo.asset.uri }} style={styles.thumb} accessibilityLabel="Photo to send with the report" />
+            <View style={styles.flex}><Button label="Take again" variant="secondary" onPress={takePhoto} /></View>
           </View>
         ) : (
-          <View style={styles.photoRow}>
-            {Platform.OS !== 'web' ? <View style={styles.flex}><Button label="Take photo" variant="secondary" onPress={() => addPhoto('camera')} /></View> : null}
-            <View style={styles.flex}><Button label="Choose photo" variant="secondary" onPress={() => addPhoto('library')} /></View>
-          </View>
+          <Button label="Take photo" variant="secondary" onPress={takePhoto} />
         )}
       </Section>
-      <Message text={typeof error === 'string' ? error : apiError ? apiError.fieldError('photo') ?? apiError.fieldError('room_id') ?? apiError.fieldError('level') ?? apiError.message : null} />
+      <Message text={typeof error === 'string' ? error : apiError ? apiError.fieldError('photo') ?? apiError.fieldError('taken_at') ?? apiError.fieldError('room_id') ?? apiError.fieldError('level') ?? apiError.message : null} />
       <Message text={sent} kind="info" />
       <Button label="Send report" variant="danger" onPress={submit} busy={busy} />
     </Screen>

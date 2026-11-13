@@ -190,3 +190,13 @@ test('a case another officer handles can be watched or taken over', async () => 
   expect(mockConfirm).toHaveBeenCalledWith('Ben Cruz is handling this. Take over?', expect.any(String), 'Take over');
   await waitFor(() => expect(posted('/api/officer/sos/3/take-over')).toBeTruthy());
 });
+
+test('the SOS inbox and chat say when the place is a guess', async () => {
+  serve(officer);
+  sosList = [{ id: 3, person: 'Juan', place: 'Demo Building', location_source: 'gps', status: 'pending', message: null, created_at: '2026-10-21T08:05:00+08:00' }];
+  sosOver = { place: 'Demo Building', location_source: 'gps' };
+  await renderRouter('./src/app', { initialUrl: '/responder/sos' });
+  expect(await screen.findByText('Demo Building · from GPS')).toBeTruthy();
+  await fireEvent.press(screen.getByRole('button', { name: /Juan/ }));
+  expect(await screen.findByText('Demo Building · from GPS')).toBeTruthy();
+});

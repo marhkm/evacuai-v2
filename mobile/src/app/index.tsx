@@ -1,12 +1,14 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { AlertBanner } from '@/components/AlertBanner';
-import { Button, Screen } from '@/components/ui';
+import { Button, Message, Screen } from '@/components/ui';
 import { useAlerts } from '@/lib/alerts';
 import { getServerUrl } from '@/lib/api';
 import { isOfficer, useAuth } from '@/lib/auth';
-import { light } from '@/lib/haptics';
+import { light, medium, success } from '@/lib/haptics';
+import { sendSos } from '@/lib/sendSos';
 import { fonts, makeStyles, useTheme } from '@/theme';
 
 /**
@@ -16,9 +18,31 @@ import { fonts, makeStyles, useTheme } from '@/theme';
 export default function Home() {
   const s = useStyles();
   const c = useTheme();
-  const { state } = useAuth();
+  const { state, token } = useAuth();
   const { active } = useAlerts();
   const { student } = useLocalSearchParams<{ student?: string }>();
+  const [sending, setSending] = useState(false);
+  const [sosError, setSosError] = useState<string | null>(null);
+  const inFlight = useRef(false); // a second tap before the re-render must not send another SOS
+
+  /** SOS goes out on the first tap; the place is added by itself (sendSos), and the chat opens. */
+  async function sos() {
+    if (inFlight.current || !token) return;
+    inFlight.current = true;
+    medium();
+    setSending(true);
+    setSosError(null);
+    try {
+      await sendSos(token);
+      success();
+      router.push('/sos');
+    } catch {
+      setSosError("Couldn't send. Tap to retry");
+    } finally {
+      inFlight.current = false;
+      setSending(false);
+    }
+  }
 
   if (state.status === 'loading') {
     return (
@@ -46,9 +70,10 @@ export default function Home() {
         </View>
       )}
       <View style={s.row}>
-        <View style={s.grow}><Button hero={alert} variant="danger" label="SOS" onPress={() => router.push('/sos')} /></View>
+        <View style={s.grow}><Button hero={alert} variant="danger" label="SOS" busy={sending} onPress={sos} /></View>
         {alert ? <View style={s.grow}><Button hero variant="primary" label="Check in safe" onPress={() => router.push('/checkin')} /></View> : null}
       </View>
+      <Message text={sosError} />
       {!alert ? <Button variant="safe" label="Evacuation route" onPress={() => router.push('/route')} /> : null}
       {officer ? <Button label="Responder mode" onPress={() => router.replace('/responder')} /> : null}
       <View style={s.tiles}>

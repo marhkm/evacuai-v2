@@ -28,9 +28,10 @@ class ReportClusters
         return HazardReport::query()
             ->join('users', 'users.id', '=', 'hazard_reports.reported_by')
             ->whereIn('hazard_reports.status', ['pending', 'verified'])
-            ->where('hazard_reports.created_at', '>=', now()->subMinutes(config('evacuai.report_cluster_minutes')))
+            ->where('hazard_reports.created_at', '>=', now()->subMinutes(ReportVerification::minutes()))
             ->whereNotNull('users.email_verified_at')
             ->where('users.is_active', true)
+            ->tap(fn ($q) => ReportVerification::independentOnly($q)) // no re-sent photos, no flagged reporters
             ->groupBy('hazard_reports.hazard_type', 'hazard_reports.building_id', 'hazard_reports.level')
             ->selectRaw('hazard_reports.hazard_type, hazard_reports.building_id, hazard_reports.level, count(distinct hazard_reports.reported_by) as n')
             ->toBase()->get()
@@ -46,9 +47,10 @@ class ReportClusters
             ->where('hazard_reports.building_id', $buildingId)
             ->where('hazard_reports.level', $level)
             ->whereIn('hazard_reports.status', ['pending', 'verified'])
-            ->where('hazard_reports.created_at', '>=', now()->subMinutes(config('evacuai.report_cluster_minutes')))
+            ->where('hazard_reports.created_at', '>=', now()->subMinutes(ReportVerification::minutes()))
             ->whereNotNull('users.email_verified_at')
             ->where('users.is_active', true)
+            ->tap(fn ($q) => ReportVerification::independentOnly($q)) // no re-sent photos, no flagged reporters
             ->distinct()
             ->count('hazard_reports.reported_by');
     }
@@ -65,9 +67,10 @@ class ReportClusters
             ->where('hazard_reports.hazard_type', $hazard)
             ->when($buildingId, fn ($q) => $q->where('hazard_reports.building_id', $buildingId))
             ->whereIn('hazard_reports.status', ['pending', 'verified'])
-            ->where('hazard_reports.created_at', '>=', now()->subMinutes(config('evacuai.report_cluster_minutes')))
+            ->where('hazard_reports.created_at', '>=', now()->subMinutes(ReportVerification::minutes()))
             ->whereNotNull('users.email_verified_at')
             ->where('users.is_active', true)
+            ->tap(fn ($q) => ReportVerification::independentOnly($q)) // no re-sent photos, no flagged reporters
             ->select('hazard_reports.*');
     }
 
@@ -79,9 +82,9 @@ class ReportClusters
     /** Called after each new report: auto-broadcasts one UNVERIFIED alert per incident and pages admins. */
     public static function evaluate(HazardReport $report): ?Alert
     {
-        $since = now()->subMinutes(config('evacuai.report_cluster_minutes'));
+        $since = now()->subMinutes(ReportVerification::minutes());
         $count = self::reporterCount($report->hazard_type, $report->building_id, $report->level);
-        if ($count < config('evacuai.report_cluster_threshold')) {
+        if ($count < ReportVerification::threshold()) {
             return null;
         }
 

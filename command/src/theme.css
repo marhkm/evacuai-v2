@@ -50,6 +50,8 @@ label { display: grid; gap: 4px; font-weight: 600; }
 .signin { display: grid; place-items: center; min-height: 100%; padding: 16px; }
 .signin form { display: grid; gap: 16px; width: min(380px, 100%); }
 .signin .brand { font-size: 32px; color: var(--evac-danger); }
+.reveal { display: flex; gap: 8px; margin-top: -12px; }
+.reveal input { flex: 1; min-width: 0; }
 
 /* Shell */
 .shell { display: grid; grid-template: 'top top' 56px 'rail main' 1fr / 200px 1fr; height: 100%; }
@@ -192,3 +194,7 @@ tr.drill-row td:first-child { box-shadow: inset 4px 0 var(--evac-info); }
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 @media (max-width: 1100px) { .sos-screen, .paths-layout { grid-template-columns: 1fr; } }
 .feed-item .badge { justify-self: start; }
+.signals { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.signals .chip { font-size: 12px; }
+.chip.ai-match, .chip.place-match { background: var(--evac-safe-tint, #12392a); }
+.chip.ai-no_match, .chip.place-elsewhere { background: var(--evac-warning-tint, #3d3212); }

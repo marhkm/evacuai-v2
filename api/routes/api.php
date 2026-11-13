@@ -53,8 +53,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('consent', [MeController::class, 'consent']);
         Route::put('password', [MeController::class, 'password']);
         Route::get('schedule/now', [ScheduleController::class, 'now']);
+        Route::get('schedule', [ScheduleController::class, 'index']);
+        Route::post('schedule', [ScheduleController::class, 'upload'])->middleware('throttle:10,1,schedule');
+        Route::delete('schedule', [ScheduleController::class, 'clear']);
+        Route::get('schedule/template-link', [ScheduleController::class, 'templateLink']);
     });
 });
+
+// The schedule template, opened in a browser from a short-lived signed link (no token).
+Route::get('/schedule-template', [ScheduleController::class, 'template'])->middleware('signed')->name('schedule.template');
 
 // Safety officers and admins (Command Center and the app's Responder mode). Everyone else gets 404.
 Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(function () {
@@ -87,5 +94,6 @@ Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(functio
         foreach (['verify', 'dismiss', 'resolve', 'summary'] as $action) {
             Route::post("reports/{report}/{$action}", [Officer\ReportController::class, $action]);
         }
+        Route::post('reports/{report}/reject-false', [Officer\ReportController::class, 'rejectFalse']);
     });
 });

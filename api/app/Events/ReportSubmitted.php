@@ -24,7 +24,7 @@ class ReportSubmitted implements ShouldBroadcastNow
         return 'report.submitted';
     }
 
-    /** @return array{id: int, hazard_type: string, place: ?string, matching: int} */
+    /** @return array{id: int, hazard_type: string, place: ?string, matching: int, auto_verified: bool} */
     public function broadcastWith(): array
     {
         $r = $this->report;
@@ -34,6 +34,7 @@ class ReportSubmitted implements ShouldBroadcastNow
             'hazard_type' => $r->hazard_type,
             'place' => Places::label($r->building_id, $r->level, $r->node_id, $r->room_id),
             'matching' => ReportClusters::reporterCount($r->hazard_type, $r->building_id, $r->level),
+            'auto_verified' => (bool) $r->auto_verified,
         ];
     }
 }

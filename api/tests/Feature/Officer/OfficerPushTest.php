@@ -43,6 +43,15 @@ it('queues an officer push for a new SOS', function () {
         && str_starts_with($job->title, 'SOS: ') && $job->body === 'Smoke everywhere, cannot see the exit');
 });
 
+it('says in the push when the SOS place is a guess', function () {
+    Bus::fake([SendOfficerPush::class]);
+    Sanctum::actingAs(officerUser(Role::Student));
+
+    $this->postJson('/api/sos', ['building_id' => 'DEMO', 'level' => 1, 'location_source' => 'estimate'])->assertCreated();
+
+    Bus::assertDispatched(SendOfficerPush::class, fn (SendOfficerPush $job) => str_ends_with($job->title, '(approximate)'));
+});
+
 it('pushes only to active officers and admins', function () {
     withDevice(officerUser(), 'ExponentPushToken[officer]');
     withDevice(officerUser(Role::Admin), 'ExponentPushToken[admin]');

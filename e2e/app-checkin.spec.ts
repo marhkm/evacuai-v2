@@ -11,7 +11,7 @@ test('check in at a safe zone, then asked before updating', async ({ page, reque
 
   await page.goto('/login');
   await page.getByLabel('Email').fill(demoEmail('student'));
-  await page.getByLabel('Password').fill(DEMO_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(DEMO_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Welcome, Demo Student')).toBeVisible({ timeout: 45_000 });
 

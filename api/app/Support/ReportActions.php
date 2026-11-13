@@ -17,10 +17,23 @@ class ReportActions
         return $report;
     }
 
+    /** Not needed any more (old, already handled, a duplicate): does not count against the reporter. */
     public static function dismiss(HazardReport $report, User $by): HazardReport
     {
         self::expect(in_array($report->status, ['pending', 'verified'], true), 'Only open reports can be dismissed.');
-        $report->update(['status' => 'dismissed', 'verified_by' => $by->id]);
+        $report->update(['status' => 'dismissed', 'dismiss_reason' => 'other', 'verified_by' => $by->id]);
+        ReportVerification::clearGroup($report, $by->id);
+
+        return $report;
+    }
+
+    /** The report was false: counts against the reporter (3 in 30 days and their reports stop counting). */
+    public static function rejectFalse(HazardReport $report, User $by): HazardReport
+    {
+        self::expect(in_array($report->status, ['pending', 'verified'], true), 'Only open reports can be rejected.');
+        $report->update(['status' => 'dismissed', 'dismiss_reason' => 'false', 'verified_by' => $by->id]);
+        ReportVerification::clearGroup($report, $by->id);
+        Activity::log('report_rejected_false', ['report_id' => $report->id, 'reporter_id' => $report->reported_by]);
 
         return $report;
     }

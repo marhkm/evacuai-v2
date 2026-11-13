@@ -1,6 +1,7 @@
 import type { CampusNode, CampusSnapshot } from '@evacuai/routing';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
@@ -22,7 +23,11 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
   const [error, setError] = useState<string | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
 
-  async function startScan() {
+  // The camera closes when the user leaves the screen (another screen on top, or back).
+  useFocusEffect(useCallback(() => () => setMode(m => (m === 'scan' ? 'none' : m)), []));
+
+  async function toggleScan() {
+    if (mode === 'scan') return setMode('none');
     if (!permission?.granted && !(await requestPermission()).granted) return setError('Camera permission is needed to scan stickers. You can pick your room instead.');
     setMode('scan');
   }
@@ -46,10 +51,10 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
       {onRoom ? (
         <>
           <Button label="Pick my room" onPress={() => setMode('pick')} />
-          <Link label={`${scanLabel} instead`} onPress={startScan} />
+          <Link label={mode === 'scan' ? 'Close scanner' : `${scanLabel} instead`} onPress={toggleScan} />
         </>
       ) : (
-        <Button label={scanLabel} variant="secondary" onPress={startScan} />
+        <Button label={mode === 'scan' ? 'Close scanner' : scanLabel} variant="secondary" onPress={toggleScan} />
       )}
       <Message text={error} />
 
@@ -57,6 +62,7 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
         <View style={styles.camera}>
           <CameraView style={StyleSheet.absoluteFill} facing="back" barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
             onBarcodeScanned={r => onScanned(r.data)} />
+          <View style={styles.close}><Button label="Close" variant="secondary" onPress={() => setMode('none')} /></View>
         </View>
       ) : null}
 
@@ -86,4 +92,5 @@ export function LocationChooser({ snapshot, onNode, onRoom, scanLabel = 'Scan QR
 
 const styles = StyleSheet.create({
   camera: { height: 280, borderRadius: 12, overflow: 'hidden', backgroundColor: '#000' },
+  close: { position: 'absolute', right: 8, bottom: 8 },
 });

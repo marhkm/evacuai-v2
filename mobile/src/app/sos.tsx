@@ -1,4 +1,3 @@
-import { displayName } from '@evacuai/campus-view';
 import { Redirect } from 'expo-router';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -8,20 +7,20 @@ import { Button, Field, Message, Screen } from '@/components/ui';
 import { fonts, makeStyles } from '@/theme';
 import { api } from '@/lib/api';
 import { medium, success } from '@/lib/haptics';
+import { sendSos, type SosSource } from '@/lib/sendSos';
 import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { dayLabel, startsDay, timeLabel } from '@/lib/chatTime';
-import type { Estimate, Observation } from '@/lib/estimator';
 import { subscribeSos } from '@/lib/realtime';
 import { useCampus } from '@/lib/useCampus';
-import { lastNode, loadEstimate, updateWhereabouts } from '@/lib/whereabouts';
+import { updateWhereabouts } from '@/lib/whereabouts';
 
 type Sos = {
   id: number;
   status: 'pending' | 'acknowledged' | 'resolved' | 'cancelled';
   message: string | null;
   place: string | null;
-  location_source?: 'qr' | 'manual' | 'schedule' | 'estimate' | null;
+  location_source?: SosSource | null;
   node_id?: string | null;
   room_id?: string | null;
   responder: string | null;
@@ -30,6 +29,8 @@ type Sos = {
 };
 
 const isOpen = (s: Sos) => (s.status === 'pending' || s.status === 'acknowledged');
+const MISTAKE_MS = 10_000; // "Cancel (sent by mistake)" is offered this long after sending
+const sinceSent = (s: Sos) => Date.now() - Date.parse(s.created_at);
 
 export default function SosScreen() {
   const styles = useStyles();
@@ -37,16 +38,12 @@ export default function SosScreen() {
   const { active } = useAlerts();
   const { snapshot } = useCampus();
   const [sos, setSos] = useState<Sos | null>(null);
-  const [note, setNote] = useState('');
   const [reply, setReply] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  // A place picked or scanned on this screen; otherwise the estimate (today's pick, scan or class in session).
-  const [picked, setPicked] = useState<{ nodeId: string | null; roomId: string | null; source: 'qr' | 'manual' } | null>(null);
-  const [estimate, setEstimate] = useState<Estimate | null>(null);
   const [changing, setChanging] = useState(false);
+  const [, rerender] = useState(0);
   const alertActive = !!active[0];
-  useEffect(() => { loadEstimate(token, alertActive).then(setEstimate).catch(() => undefined); }, [token, alertActive]);
 
   const refresh = useCallback(
     () => (token ? api<{ sos: Sos | null }>('/api/sos/current', { token }).then(r => setSos(r.sos)).catch(() => undefined) : Promise.resolve()),
@@ -64,15 +61,16 @@ export default function SosScreen() {
     return () => { cancelled = true; unsubscribe?.(); clearInterval(poll); };
   }, [openId, token, refresh]);
 
+  // Hide "Cancel (sent by mistake)" once its 10 seconds are up.
+  const mistakeLeft = sos && sos.status === 'pending' ? MISTAKE_MS - sinceSent(sos) : 0;
+  useEffect(() => {
+    if (mistakeLeft <= 0) return;
+    const t = setTimeout(() => rerender(n => n + 1), mistakeLeft + 50);
+    return () => clearTimeout(t);
+  }, [mistakeLeft > 0]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (state.status === 'loading') return null;
   if (state.status === 'signedOut') return <Redirect href="/login" />;
-
-  const live = estimate; // as loaded: its source is all this screen needs
-  const here = picked ? picked.nodeId : lastNode(snapshot);
-  const hereRoom = picked ? picked.roomId : live?.roomId ?? null;
-  // What the place is based on: a schedule guess asks the student to confirm it once the SOS is out.
-  // Only a scan or a pick is a fact; a floor change or GPS reading is an estimate the student confirms after sending.
-  const source = picked?.source ?? (live ? ({ schedule: 'schedule', qr: 'qr', manual: 'manual' } as const)[live.source as 'schedule'] ?? 'estimate' : null);
 
   async function run(action: () => Promise<{ sos: Sos }>) {
     setError(null);
@@ -86,11 +84,6 @@ export default function SosScreen() {
     } finally {
       setBusy(false);
     }
-  }
-
-  function locate(obs: Observation, node: string | null) {
-    updateWhereabouts(obs, token, alertActive);
-    setPicked({ nodeId: node, roomId: obs.roomId ?? null, source: obs.source === 'qr' ? 'qr' : 'manual' });
   }
 
   /** After sending: move or confirm the open SOS's place; officers see it live. */
@@ -120,7 +113,11 @@ export default function SosScreen() {
           </Text>
           <Text style={styles.meta}>{sos.place ? `Your location: ${sos.place}` : 'Location not shared yet.'}</Text>
         </View>
-        {sos.place && (sos.location_source === 'schedule' || sos.location_source === 'estimate') && !changing ? (
+        {sos.place && (sos.location_source === 'gps' || (sos.location_source === 'estimate' && !sos.room_id && !sos.node_id)) && !changing ? (
+          <Message kind="info" text={`Officers know your building${sos.location_source === 'gps' ? ' from GPS' : ' (approximate)'}: ${sos.place}. Pick your room or scan a sticker so they find you faster.`} />
+        ) : null}
+        {sos.place && (sos.location_source === 'gps' || (sos.location_source === 'estimate' && !sos.room_id && !sos.node_id)) && !changing ? chooser(sos.id) : null}
+        {sos.place && (sos.room_id || sos.node_id) && (sos.location_source === 'schedule' || sos.location_source === 'estimate') && !changing ? (
           <View style={styles.confirm}>
             <Text style={styles.body}>
               {`We sent ${sos.location_source === 'schedule' ? 'your class room' : 'your last known place'}: ${sos.place}. Are you there?`}
@@ -149,7 +146,8 @@ export default function SosScreen() {
           if (await run(() => api(`/api/sos/${sos.id}/messages`, { method: 'POST', token, body: { body: reply } }))) setReply('');
         }} />
         {sos.status === 'pending' ? (
-          <Button label="Cancel SOS (I'm safe now)" variant="secondary" onPress={() => run(() => api(`/api/sos/${sos.id}/cancel`, { method: 'POST', token }))} />
+          <Button label={sinceSent(sos) < MISTAKE_MS ? 'Cancel (sent by mistake)' : "Cancel SOS (I'm safe now)"} variant="secondary"
+            onPress={() => run(() => api(`/api/sos/${sos.id}/cancel`, { method: 'POST', token }))} />
         ) : null}
       </Screen>
     );
@@ -158,25 +156,12 @@ export default function SosScreen() {
   return (
     <Screen title="SOS">
       {sos?.status === 'resolved' ? <Message kind="info" text="Your last SOS was resolved by a safety officer." /> : null}
-      <Text style={styles.intro}>Hurt, trapped or in danger? Send an SOS. Safety officers see your location and can chat with you.</Text>
-      <Text style={styles.where}>
-        {here && snapshot ? `Your location: ${displayName(snapshot, here)}${source === 'schedule' ? ' (from your class schedule)' : ''}`
-          : 'Location unknown. Scan a sticker or pick your room so officers can find you.'}
-      </Text>
-      <LocationChooser snapshot={snapshot}
-        onNode={n => locate({ source: 'qr', nodeId: n.id, building: n.building, floor: n.level }, n.id)}
-        onRoom={id => {
-          const room = snapshot!.rooms.find(r => r.id === id)!;
-          const node = snapshot!.nodes.find(n => n.room_id === id && n.type !== 'hallway')?.id ?? null;
-          locate({ source: 'manual', roomId: id, building: room.building, floor: room.level }, node);
-        }} />
-      <Field label="What happened? (optional)" value={note} onChangeText={setNote} multiline maxLength={500} autoCapitalize="sentences" />
+      <Text style={styles.intro}>Hurt, trapped or in danger? Tap Send SOS. Safety officers see where you are and can chat with you.</Text>
       <Message text={error} />
       <Button label="Send SOS" variant="danger" busy={busy}
         onPress={async () => {
           medium();
-          const body = { node_id: here ?? null, room_id: hereRoom, location_source: here || hereRoom ? source : null, message: note.trim() || null };
-          if (await run(() => api('/api/sos', { method: 'POST', token, body }))) success(); // sent at once, even without a place
+          if (await run(async () => { await sendSos(token!); return api<{ sos: Sos }>('/api/sos/current', { token }); })) success();
         }} />
     </Screen>
   );

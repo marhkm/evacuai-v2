@@ -34,9 +34,9 @@ function submitReport(User $u, array $over = []): TestResponse
 {
     Sanctum::actingAs($u);
 
-    return test()->postJson('/api/hazard-reports', array_merge([
+    return test()->post('/api/hazard-reports', array_merge([
         'hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1, 'room_id' => 'DEMO/1/R101', 'description' => 'Smoke from the room',
-    ], $over));
+    ], photoFields($u->id), $over), ['Accept' => 'application/json']); // each reporter their own photo
 }
 
 it('stores a report from the signed-in user', function () {

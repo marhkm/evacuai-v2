@@ -38,7 +38,7 @@ function Chat({ id }: { id: string }) {
       <header className="row">
         <div>
           <h2>{s.person ?? 'Someone'}</h2>
-          <div>{s.place}</div>
+          <div>{placeWithSource(s)}</div>
           <div className="muted">Sent {when(s.created_at)}{s.responder ? ` · Handled by ${s.responder}` : ''}</div>
         </div>
         <span className="spacer" />
@@ -102,7 +102,7 @@ export function Sos() {
         {list.items.map(s => (
           <Link key={s.id} to={`/sos/${s.id}`} className={`feed-item sos ${s.status}${String(s.id) === id ? ' selected' : ''}`}>
             <strong>{s.person ?? 'Someone'}</strong>
-            <span>{s.place}</span>
+            <span>{placeWithSource(s)}</span>
             <span className="muted">{s.status} · {when(s.created_at)}</span>
             {s.acknowledged_by && <span>Handled by {s.acknowledged_by}</span>}
             {s.message && <span>{s.message}</span>}
@@ -114,3 +114,13 @@ export function Sos() {
     </div>
   );
 }
+
+const SOURCES: Record<string, string> = {
+  schedule: 'from class schedule', gps: 'from GPS', estimate: 'approximate (last known)', qr: 'scanned sticker', manual: 'picked by student',
+};
+
+/** Where an SOS location came from, so officers know how far to trust it. */
+const sourceLabel = (source?: string | null) => (source ? SOURCES[source] ?? null : null);
+
+const placeWithSource = (s: { place: string | null; location_source?: string | null }) =>
+  s.place ? [s.place, sourceLabel(s.location_source)].filter(Boolean).join(' · ') : 'Location unknown';

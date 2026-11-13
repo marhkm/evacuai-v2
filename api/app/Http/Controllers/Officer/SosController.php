@@ -26,6 +26,7 @@ class SosController extends Controller
                 'id' => $s->id,
                 'person' => $s->user?->name,
                 'place' => Places::label($s->building_id, $s->level, $s->node_id, $s->room_id),
+                'location_source' => $s->location_source,
                 'message' => $s->message,
                 'status' => $s->status,
                 'created_at' => $s->created_at->toIso8601String(),

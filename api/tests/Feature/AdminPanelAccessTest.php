@@ -37,9 +37,9 @@ it('keeps only the admin tools, with a way to the Command Center', function () u
     $admin = $make(Role::Admin);
     $this->actingAs($admin, 'admin')->get('/admin')->assertOk()
         ->assertSee('Command Center')->assertSee('/command', false)
-        ->assertSee('Users')->assertSee('Activity log')->assertSee('Import class schedules')->assertSee('QR stickers')
+        ->assertSee('Users')->assertSee('Activity log')->assertSee('QR stickers')->assertDontSee('Import class schedules')
         ->assertDontSee('Safety Monitor')->assertDontSee('Hazard Reports');
-    foreach (['/admin/alerts', '/admin/hazard-reports', '/admin/paths', '/admin/sos-alerts', '/admin/safety-monitor', '/admin/campus-3d', '/admin/feedback'] as $gone) {
+    foreach (['/admin/alerts', '/admin/hazard-reports', '/admin/paths', '/admin/sos-alerts', '/admin/safety-monitor', '/admin/campus-3d', '/admin/feedback', '/admin/import-schedules'] as $gone) {
         $this->actingAs($admin, 'admin')->get($gone)->assertNotFound();
     }
 });
@@ -51,4 +51,8 @@ it('defaults new users to student', function () {
 
 it('offers password reset on the admin login', function () {
     $this->get('/admin/password-reset/request')->assertOk();
+});
+
+it('lets admins reveal the password on sign-in', function () {
+    expect(filament()->getPanel('admin')->arePasswordsRevealable())->toBeTrue();
 });

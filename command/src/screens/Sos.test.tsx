@@ -99,3 +99,10 @@ test('the list shows who handles each SOS', async () => {
   renderApp('/sos');
   expect(await screen.findByText('Handled by Ben Cruz')).toBeTruthy();
 });
+
+test('says where the SOS location came from', async () => {
+  setup({ 'GET /api/officer/sos?open=1': [200, { sos: [{ ...item, place: 'Annex 1', location_source: 'gps' }], meta: { current_page: 1, last_page: 1, per_page: 50, total: 1 } }],
+    'GET /api/officer/sos/12': [200, { sos: { ...detail, place: 'Annex 1', location_source: 'gps' } }] });
+  renderApp('/sos/12');
+  expect((await screen.findAllByText('Annex 1 · from GPS')).length).toBeGreaterThan(0);
+});

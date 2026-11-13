@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 import { forgetWhereabouts } from '@/lib/whereabouts';
@@ -24,19 +25,21 @@ const mockConfirm = jest.fn(async (..._a: unknown[]) => true);
 jest.mock('@/lib/confirm', () => ({ confirm: (...a: unknown[]) => mockConfirm(...a) }));
 let mockGps: { latitude: number; longitude: number; accuracy: number } | null = null;
 jest.mock('expo-location', () => ({
-  Accuracy: { High: 4 },
+  Accuracy: { High: 4, Balanced: 3 },
   requestForegroundPermissionsAsync: async () => ({ granted: mockGps !== null }),
   getCurrentPositionAsync: async () => ({ coords: mockGps }),
 }));
 let mockQr = 'evacuai://q/APSTICKR';
 jest.mock('expo-camera', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useEffect } = require('react');
+  const { createElement, useEffect } = require('react');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native');
   return {
     useCameraPermissions: () => [{ granted: true }, async () => ({ granted: true })],
     CameraView: ({ onBarcodeScanned }: { onBarcodeScanned: (r: { data: string }) => void }) => {
-      useEffect(() => { onBarcodeScanned({ data: mockQr }); }, [onBarcodeScanned]);
-      return null;
+      useEffect(() => { if (mockQr) onBarcodeScanned({ data: mockQr }); }, [onBarcodeScanned]);
+      return createElement(View, { testID: 'camera' });
     },
   };
 });
@@ -60,6 +63,7 @@ const zone = (count: number, capacity: number | null, full = false) => ({ node_i
 let zones = [zone(2, 300)];
 // The next check-in POST replies with this instead of succeeding (409 "already checked in").
 let checkInReply: ((body: Record<string, unknown>) => { status: number; body: unknown } | null) | null = null;
+let sosFails = false;
 
 const sosWith = (over: object) => ({
   id: 3, status: 'pending', message: null, place: 'Demo Building · Second · R201', responder: null, created_at: '2026-10-14T08:05:00+08:00', messages: [], ...over,
@@ -77,6 +81,7 @@ beforeEach(() => {
   zones = [zone(2, 300)];
   schedule = null;
   checkInReply = null;
+  sosFails = false;
   mockConfirm.mockClear();
   mockConfirm.mockResolvedValue(true);
   mockQr = 'evacuai://q/APSTICKR';
@@ -88,8 +93,15 @@ beforeEach(() => {
     if (init?.method === 'POST') {
       const body = init.body ? JSON.parse(init.body as string) : {};
       posts.push({ path, body });
-      if (path === '/api/sos') sos = sosWith({ message: body.message, location_source: body.location_source ?? null, place: body.node_id || body.room_id ? 'Demo Building · Second · R201' : null });
-      if (path === '/api/sos' && body.location_source === 'estimate') sos = { ...sos!, location_source: 'estimate' };
+      if (path === '/api/sos' && sosFails) return { ok: false, status: 500, json: async () => ({ message: 'Server error' }), headers: { get: () => null } } as unknown as Response;
+      // Like the server: a fresh scan or pick wins, else the class in session, else what the phone sent.
+      const exact = body.location_source === 'qr' || body.location_source === 'manual';
+      if (path === '/api/sos') sos = sosWith({
+        created_at: new Date().toISOString(),
+        location_source: exact ? body.location_source : schedule ? 'schedule' : body.location_source ?? null,
+        place: exact || schedule || body.node_id || body.room_id ? 'Demo Building · Second · R201' : null,
+        room_id: exact || schedule || body.room_id ? 'DEMO/2/R201' : null,
+      });
       if (path === '/api/sos/3/messages') sos = sosWith({ messages: [{ id: 1, body: body.body, mine: true, sender: 'Juan', created_at: '' }] });
       if (path === '/api/sos/3/cancel') sos = sosWith({ status: 'cancelled' });
       if (path === '/api/check-in') {
@@ -101,7 +113,7 @@ beforeEach(() => {
     if (init?.method === 'PATCH') {
       const body = init.body ? JSON.parse(init.body as string) : {};
       posts.push({ path: `PATCH ${path}`, body });
-      sos = sosWith({ status: 'pending', location_source: body.location_source, place: 'Demo Building · Second · R201' });
+      sos = sosWith({ status: 'pending', location_source: body.location_source, place: 'Demo Building · Second · R201', room_id: 'DEMO/2/R201' });
     }
     const body = path === '/api/me' ? { user }
       : path === '/api/me/schedule/now' ? { class: schedule }
@@ -113,17 +125,13 @@ beforeEach(() => {
   }) as jest.Mock;
 });
 
-test('sends an SOS from a picked room and chats live with the officer', async () => {
+test('sends an SOS with a room picked a moment ago and chats live with the officer', async () => {
+  mockMem.set('whereabouts', JSON.stringify({ nodeId: 'DEMO/2/R201', roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2, source: 'manual', confidence: 'exact', at: Date.now() - 60_000 }));
   await renderRouter('./src/app', { initialUrl: '/sos' });
-  await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
-  await fireEvent.press(await screen.findByRole('button', { name: 'Second' }));
-  await fireEvent.press(screen.getByRole('button', { name: 'R201' }));
-  expect(await screen.findByText('Your location: R201')).toBeTruthy();
-  await fireEvent.changeText(screen.getByLabelText('What happened? (optional)'), 'Leg is hurt');
-  await fireEvent.press(screen.getByRole('button', { name: 'Send SOS' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
 
   expect(await screen.findByText('Waiting for a safety officer…')).toBeTruthy();
-  expect(posts.find(p => p.path === '/api/sos')!.body).toEqual({ node_id: 'DEMO/2/R201', room_id: 'DEMO/2/R201', location_source: 'manual', message: 'Leg is hurt' });
+  expect(posts.find(p => p.path === '/api/sos')!.body).toEqual({ node_id: 'DEMO/2/R201', room_id: 'DEMO/2/R201', building_id: 'DEMO', level: 2, location_source: 'manual' });
   expect(posts.some(p => p.path === '/api/location')).toBe(false); // no active alert: location stays on the phone
 
   sos = sosWith({ status: 'acknowledged', responder: 'Officer Cruz', messages: [{ id: 9, body: 'Stay where you are, we are coming', mine: false, sender: 'Officer Cruz', created_at: '' }] });
@@ -271,10 +279,7 @@ describe('SOS location', () => {
   test('a class in session fills in the place, and the student confirms it', async () => {
     schedule = { subject: 'IT 101', room_id: 'DEMO/2/R201', room_name: 'R201', building: 'DEMO', level: 2, time_start: nowHHMM() };
     await renderRouter('./src/app', { initialUrl: '/sos' });
-    expect(await screen.findByText(/Your location: R201/)).toBeTruthy();
-    expect(screen.getByText(/from your class schedule/)).toBeTruthy();
-    await fireEvent.press(screen.getByRole('button', { name: 'Send SOS' }));
-    expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ location_source: 'schedule' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
 
     expect(await screen.findByText('We sent your class room: Demo Building · Second · R201. Are you there?')).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: 'Yes' }));
@@ -310,9 +315,15 @@ describe('SOS location: guesses are never sent as facts', () => {
     mockMem.set('whereabouts', JSON.stringify({ roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2, source: 'schedule', confidence: 'likely', at: Date.now() - 5 * 3_600_000 }));
     schedule = null; // no class now
     await renderRouter('./src/app', { initialUrl: '/sos' });
-    expect(await screen.findByText(/Location unknown/)).toBeTruthy();
-    await fireEvent.press(screen.getByRole('button', { name: 'Send SOS' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
     expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ node_id: null, room_id: null, location_source: null });
+  });
+
+  test('the room of a class that ended a few minutes ago is sent as approximate', async () => {
+    mockMem.set('whereabouts', JSON.stringify({ roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2, source: 'schedule', confidence: 'likely', at: Date.now() - 50 * 60_000 }));
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
+    expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ room_id: 'DEMO/2/R201', location_source: 'estimate' });
   });
 
   test('a floor-change guess is sent as an estimate, and the student is asked to confirm it', async () => {
@@ -320,5 +331,74 @@ describe('SOS location: guesses are never sent as facts', () => {
     await renderRouter('./src/app', { initialUrl: '/sos' });
     await fireEvent.press(await screen.findByRole('button', { name: 'Send SOS' }));
     expect(posts.find(p => p.path === '/api/sos')!.body).toMatchObject({ location_source: 'estimate' });
+  });
+});
+
+describe('one-tap SOS', () => {
+  test('the home SOS button sends at once and opens the chat', async () => {
+    await renderRouter('./src/app', { initialUrl: '/' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'SOS' }));
+    expect(await screen.findByText('Waiting for a safety officer…')).toBeTruthy();
+    expect(posts.filter(p => p.path === '/api/sos')).toHaveLength(1);
+    expect(posts[0].path).toBe('/api/sos'); // nothing (no location call) goes before the SOS
+  });
+
+  test('shows retry when sending fails', async () => {
+    sosFails = true;
+    await renderRouter('./src/app', { initialUrl: '/' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'SOS' }));
+    expect(await screen.findByText("Couldn't send. Tap to retry")).toBeTruthy();
+  });
+
+  test('adds a GPS fix after the SOS when there is no class or known place', async () => {
+    mockGps = { latitude: 10.327, longitude: 123.95, accuracy: 12 };
+    await renderRouter('./src/app', { initialUrl: '/' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'SOS' }));
+    await screen.findByText('Waiting for a safety officer…');
+    await act(async () => undefined);
+    expect(posts.find(p => p.path === 'PATCH /api/sos/3/location')!.body).toEqual({ lat: 10.327, lng: 123.95, accuracy: 12 });
+  });
+
+  test('offers Cancel (sent by mistake) only in the first 10 seconds', async () => {
+    sos = sosWith({ created_at: new Date().toISOString() });
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Cancel (sent by mistake)' }));
+    expect(posts.map(p => p.path)).toContain('/api/sos/3/cancel');
+  });
+
+  test('after 10 seconds only the normal cancel is offered', async () => {
+    sos = sosWith({ created_at: new Date(Date.now() - 11_000).toISOString() });
+    await renderRouter('./src/app', { initialUrl: '/sos' });
+    expect(await screen.findByRole('button', { name: "Cancel SOS (I'm safe now)" })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Cancel (sent by mistake)' })).toBeNull();
+  });
+});
+
+describe('QR scanner closes', () => {
+  beforeEach(() => { alerts = [alert]; mockQr = ''; checkIn = { alert_id: 7, status: null, place: null, checked_in_at: null }; }); // no sticker in view: the camera stays open
+
+  test('the scan button toggles the camera', async () => {
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Scan safe zone QR' }));
+    expect(screen.getByTestId('camera')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Close scanner' }));
+    expect(screen.queryByTestId('camera')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Scan safe zone QR' })).toBeTruthy();
+  });
+
+  test('Close over the camera closes it', async () => {
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Scan safe zone QR' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByTestId('camera')).toBeNull();
+  });
+
+  test('leaving the screen closes the camera', async () => {
+    await renderRouter('./src/app', { initialUrl: '/checkin' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Scan safe zone QR' }));
+    await act(async () => router.push('/alerts'));
+    await act(async () => router.back());
+    expect(await screen.findByRole('button', { name: 'Scan safe zone QR' })).toBeTruthy();
+    expect(screen.queryByTestId('camera')).toBeNull();
   });
 });

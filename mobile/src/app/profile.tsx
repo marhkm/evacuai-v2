@@ -2,10 +2,11 @@ import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
 
+import { ScheduleSection } from '@/components/ScheduleSection';
 import { Body, Button, Field, Heading, Message, Screen } from '@/components/ui';
 import { TEST_BUILD } from '@/config';
 import { ApiError, api } from '@/lib/api';
-import { useAuth, type User } from '@/lib/auth';
+import { isOfficer, useAuth, type User } from '@/lib/auth';
 
 export default function Profile() {
   const { state } = useAuth();
@@ -67,6 +68,8 @@ function ProfileForm({ user }: { user: User }) {
       <Field label="Department" value={form.department} onChangeText={department => setForm(f => ({ ...f, department }))} autoCapitalize="words" />
       <Field label="Mobile number" value={form.phone} onChangeText={phone => setForm(f => ({ ...f, phone }))} keyboardType="phone-pad" placeholder="09XXXXXXXXX" error={error?.fieldError('phone')} />
       <Button label="Save profile" onPress={saveProfile} />
+
+      {!isOfficer(user) ? <ScheduleSection token={token} /> : null}
 
       <Heading>{user.has_password ? 'Change password' : 'Set a password'}</Heading>
       {user.has_password ? (

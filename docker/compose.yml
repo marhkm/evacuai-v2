@@ -42,6 +42,12 @@ services:
     depends_on:
       app: { condition: service_healthy }
 
+  queue-ai: # AI photo checks only (slow on a CPU): alerts and pushes keep the `queue` worker to themselves
+    <<: *php
+    command: ["php", "artisan", "queue:work", "--queue=ai", "--tries=2", "--timeout=80"]
+    depends_on:
+      app: { condition: service_healthy }
+
   scheduler:
     <<: *php
     command: ["php", "artisan", "schedule:work"]
@@ -85,10 +91,11 @@ services:
     ports: ["127.0.0.1:8025:8025", "127.0.0.1:1025:1025"]
     restart: unless-stopped
 
-  ollama: # optional local LLM (~4 GB RAM more): docker compose --profile ai-local up, then set OLLAMA_URL
+  ollama: # optional local AI (hazard-photo check, Moondream ~1.7 GB): docker compose --profile ai-local up, then set OLLAMA_URL
     image: ollama/ollama:latest
     profiles: [ai-local]
     volumes: [ollama:/root/.ollama]
+    mem_limit: 3g # leaves the rest of an 8 GB server to EvacuAI
     restart: unless-stopped
 
   caddy: # optional HTTPS for a server with a domain: docker compose --profile https up -d (set EVACUAI_DOMAIN)

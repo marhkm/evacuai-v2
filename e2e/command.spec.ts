@@ -1,11 +1,12 @@
 import type { Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 import { DEMO_PASSWORD, demoEmail, expect, test } from './fixtures';
 
 async function signIn(page: Page, role: 'student' | 'safety_officer') {
   await page.goto('/command/sign-in');
   await page.getByLabel('Email').fill(demoEmail(role));
-  await page.getByLabel('Password').fill(DEMO_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(DEMO_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
@@ -40,7 +41,10 @@ test.describe('signed in as an officer', () => {
   test('a new hazard report puts a badge on Reports, and opening Reports clears it', async ({ page, request }) => {
     const login = await request.post('/api/auth/login', { data: { email: demoEmail('student'), password: DEMO_PASSWORD, device_name: 'e2e' } });
     const token = (await login.json()).token as string;
-    const sent = await request.post('/api/hazard-reports', { headers: { Authorization: `Bearer ${token}` }, data: { hazard_type: 'other', building_id: 'A1', level: 1, description: 'e2e badge check' } });
+    const photo = { name: 'hazard.jpg', mimeType: 'image/jpeg', buffer: readFileSync('docs/images/app-home.jpg') /* tests run from the project folder */ };
+    const sent = await request.post('/api/hazard-reports', { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }, multipart: {
+      hazard_type: 'other', building_id: 'A1', level: '1', description: 'e2e badge check', photo, taken_at: new Date().toISOString(),
+    } });
     expect(sent.status()).toBe(201);
 
     const reports = page.getByRole('navigation', { name: 'Screens' }).getByRole('link', { name: /^Reports/ });

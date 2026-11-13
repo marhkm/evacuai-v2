@@ -56,6 +56,12 @@ return [
         ],
     ],
 
+    // Local vision model for the hazard-photo check (Moondream via Ollama): photos never leave the server.
+    'ollama' => [
+        'base' => env('OLLAMA_URL') ? rtrim((string) env('OLLAMA_URL'), '/') : null,
+        'vision_model' => env('OLLAMA_VISION_MODEL', 'moondream'),
+    ],
+
     // Microsoft 365 sign-in (slice 8): only accounts from this Entra tenant (UCLM's) are accepted.
     'microsoft' => [
         'tenant_id' => env('MICROSOFT_TENANT_ID'),

@@ -34,6 +34,6 @@ it('still checks students in when the realtime server is down', function () {
 });
 
 it('still accepts hazard reports when the realtime server is down', function () {
-    $this->postJson('/api/hazard-reports', ['hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1])->assertCreated();
+    $this->post('/api/hazard-reports', ['hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1] + photoFields(), ['Accept' => 'application/json'])->assertCreated();
     expect(HazardReport::count())->toBe(1);
 });

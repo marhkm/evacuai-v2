@@ -10,6 +10,8 @@ use App\Models\Alert;
 use App\Models\SosAlert;
 use App\Models\User;
 use App\Notifications\SosRaised;
+use App\Support\BuildingLocator;
+use App\Support\ClassNow;
 use App\Support\Places;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,8 +40,13 @@ class SosController extends Controller
             return response()->json(['sos' => self::payload($open, $user)]); // one open SOS per person; pressing again is harmless
         }
 
-        // Sent at once, even without a place: the app then asks for the room or a QR scan and updates it (location()).
-        $sos = SosAlert::create(['user_id' => $user->id, 'alert_id' => Alert::current()?->id, 'message' => $data['message'] ?? null] + self::place($data));
+        // Sent at once, even without a place. Where: a scan or pick the student just made, else their class now, else the
+        // phone's last known place (approximate). With none of those the app adds the building from GPS (location()).
+        $place = self::place($data);
+        if (! in_array($place['location_source'], ['qr', 'manual'], true) && ($class = ClassNow::for($user->id))) {
+            $place = self::place(['room_id' => $class->room_id, 'location_source' => 'schedule']);
+        }
+        $sos = SosAlert::create(['user_id' => $user->id, 'alert_id' => Alert::current()?->id, 'message' => $data['message'] ?? null] + $place);
 
         User::whereIn('role', [Role::Admin, Role::SafetyOfficer])->where('is_active', true)->get()
             ->each(fn (User $officer) => $officer->notify(new SosRaised($sos)));
@@ -74,6 +81,15 @@ class SosController extends Controller
         if (! $sos->isOpen()) {
             throw ValidationException::withMessages(['node_id' => 'This SOS is closed.']);
         }
+        if (isset($data['lat'], $data['lng']) && empty($data['node_id']) && empty($data['room_id'])) {
+            // GPS names the building only, and never replaces a better place. The coordinates are not kept.
+            $building = BuildingLocator::at((float) $data['lat'], (float) $data['lng'], (float) ($data['accuracy'] ?? 999));
+            if ($building && in_array($sos->location_source, [null, 'estimate'], true)) {
+                $sos->update(['node_id' => null, 'room_id' => null, 'building_id' => $building, 'level' => null, 'location_source' => 'gps']);
+            }
+
+            return response()->json(['sos' => self::payload($sos->fresh(), $request->user())]);
+        }
         $sos->update(self::place($data)); // the save broadcasts SosUpdated: officers see the new place live
 
         return response()->json(['sos' => self::payload($sos->fresh(), $request->user())]);
@@ -83,6 +99,11 @@ class SosController extends Controller
         'node_id' => ['nullable', 'string', 'exists:evac_nodes,id'],
         'room_id' => ['nullable', 'string', 'exists:rooms,id'],
         'location_source' => ['nullable', 'in:qr,manual,schedule,estimate'], // schedule/estimate: a guess the student confirms
+        'building_id' => ['nullable', 'string', 'exists:buildings,id'], // an estimate with no room (e.g. after a floor change)
+        'level' => ['nullable', 'integer'],
+        'lat' => ['nullable', 'numeric', 'between:-90,90'], // GPS, used once to find the building, never stored
+        'lng' => ['nullable', 'numeric', 'between:-180,180'],
+        'accuracy' => ['nullable', 'numeric', 'min:0'],
     ];
 
     /**
@@ -95,13 +116,14 @@ class SosController extends Controller
     {
         $node = isset($data['node_id']) ? DB::table('evac_nodes')->where('id', $data['node_id'])->first() : null;
         $room = ! $node && isset($data['room_id']) ? DB::table('rooms')->where('id', $data['room_id'])->first() : null;
+        $estimate = ! $node && ! $room && isset($data['building_id']) && ($data['location_source'] ?? null) === 'estimate';
 
         return [
             'node_id' => $node?->id,
             'room_id' => $node->room_id ?? $room?->id,
-            'building_id' => $node->building_id ?? $room?->building_id,
-            'level' => $node->level ?? $room?->level,
-            'location_source' => $node || $room ? ($data['location_source'] ?? null) : null,
+            'building_id' => $node->building_id ?? $room->building_id ?? ($estimate ? $data['building_id'] : null),
+            'level' => $node->level ?? $room->level ?? ($estimate ? ($data['level'] ?? null) : null),
+            'location_source' => $node || $room || $estimate ? ($data['location_source'] ?? null) : null,
         ];
     }
 

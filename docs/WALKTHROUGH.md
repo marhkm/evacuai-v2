@@ -64,13 +64,15 @@ safe, amber is a warning or a drill, and blue is information.
 **Steps**
 
 1. Tap **Profile**, then **Sign out**.
-2. Sign in as `student@evacuai.test` / `evacuai-demo`.
+2. Sign in as `student@evacuai.test` / `evacuai-demo`. Before tapping **Sign in**, tap **Show** next to the password,
+   then **Hide**.
 3. Sign out again, tap **Forgot password?**, enter the email of the account from S1, read the code at
    http://localhost:8025 and set a new password. Sign in with it.
 
 **Expected result**
 
 - [ ] Signing in opens the home screen.
+- [ ] **Show** reveals the typed password and **Hide** hides it again (every password box in the app has it).
 - [ ] A wrong password shows an error and does not sign in.
 - [ ] The new password works; the old one no longer does.
 
@@ -128,23 +130,29 @@ safe, amber is a warning or a drill, and blue is information.
 1. Go home and tap **Report a hazard**.
 2. Under **What is it?** choose **Fire**. Choose the building and floor, and optionally a room.
 3. Under **What do you see?** write "Smoke coming from the hallway".
-4. Add a photo with **Choose photo** (on a phone also **Take photo**). Tap **Send report**.
+4. Tap **Take photo** and take a picture (a photo is required, and only the camera works: no gallery). Tap
+   **Send report**.
 5. In the Command Center window, open **Reports**.
+6. Try **Send report** without a photo, and with a photo taken more than 10 minutes ago.
 
 **Expected result**
 
 - [ ] The app says **Report sent. Safety officers have been notified.**
 - [ ] The report appears in the Command Center **Reports** list within seconds, with **View photo**.
+- [ ] The report shows what the checks found: an **AI** chip (**looks like fire**, **doesn't look like fire**,
+      **unclear**, or **not available** when the server's AI is off), and **Location matches**, **Reporter was
+      elsewhere (…)** or **Location unknown**.
+- [ ] Without a photo the app says **Take a photo of the hazard.**; an old photo is refused with **Take a new photo of
+      the hazard (photos older than 10 minutes are not accepted).**
 
 ### S6. Send an SOS and chat with an officer
 
 **Steps**
 
-1. In the app, tap the red **SOS** button.
-2. Tap **Pick my room** and choose your room. Under **What happened? (optional)** write "Twisted ankle".
-   (If you have a class right now, the app already shows its room with **(from your class schedule)**.)
-3. Tap **Send SOS**. If the place came from your class schedule, answer **We sent your class room… Are you there?**
-   with **Yes**, or **No, change** to pick another room.
+1. In the app, tap the red **SOS** button once. There is no form: it sends straight away and opens the SOS chat.
+2. Tap SOS again from home on another try, and within 10 seconds tap **Cancel (sent by mistake)**.
+3. Tap **SOS** once more. If the app asks **We sent your class room… Are you there?**, answer **Yes** (or **No, change**
+   to pick another room). If it says **Location unknown**, tap **Pick my room** and choose your room.
 4. In the Command Center, open **SOS**, click the request, click **Acknowledge** and reply "Stay where you are, we are
    coming." with **Send**.
 5. In the app, reply "Thank you" with **Send message**.
@@ -152,9 +160,13 @@ safe, amber is a warning or a drill, and blue is information.
 
 **Expected result**
 
-- [ ] The app shows **Waiting for a safety officer…**, then **<officer> is responding** after Acknowledge.
-- [ ] Sending without picking a room (and with no class now) still sends the SOS, then shows **Location unknown…** with
-      **Pick my room** and **Scan QR**. Picking a room updates the place in the Command Center within seconds.
+- [ ] One tap sends the SOS: the app shows **Waiting for a safety officer…** at once, then **<officer> is responding**
+      after Acknowledge.
+- [ ] **Cancel (sent by mistake)** shows for 10 seconds only; after that the button reads **Cancel SOS (I'm safe now)**.
+- [ ] The Command Center shows where the place came from: **from class schedule** (you have a class now),
+      **from GPS** (no class, the admin set the building's corners in A4, and you are inside it), **approximate (last
+      known)** (a room you picked or scanned earlier today), or **Location unknown**.
+- [ ] Picking a room updates the place in the Command Center within seconds.
 - [ ] Messages show their time, with **Today** above the first one.
 - [ ] Messages appear on the other side within seconds, without refreshing.
 - [ ] The Command Center's **SOS** menu shows a red count while the SOS is open.
@@ -172,7 +184,9 @@ safe, amber is a warning or a drill, and blue is information.
 3. In the app, tap **EVACUATE NOW**, then go back and tap **Check in safe**. Under **I'm safe at a safe zone**, tap
    **Open ground · …** (or **Scan safe zone QR**, or **I'm safe (not at a safe zone)**).
 4. Tap **Open ground · …** again.
-5. Tap **Alerts** on the home screen.
+5. Tap **Scan safe zone QR**, then **Close scanner**. Open it again and tap **Close** on the camera. Open it once more
+   and go back to the home screen.
+6. Tap **Alerts** on the home screen.
 
 **Expected result**
 
@@ -185,6 +199,7 @@ safe, amber is a warning or a drill, and blue is information.
       to ask for help.
 - [ ] Checking in again asks **You already checked in at … Update your status?** **Keep** changes nothing; **Update**
       changes it, and **Earlier check-ins** lists the first one.
+- [ ] The camera closes with **Close scanner**, with **Close**, after a good scan, and when you leave the screen.
 - [ ] **Alerts** lists the drill as active.
 
 Leave the drill active for section 3, or resolve it in the Command Center (**Alerts → Resolve**).
@@ -195,12 +210,18 @@ Leave the drill active for section 3, or resolve it in the Command Center (**Ale
 
 1. Tap **Send feedback**, choose a rating, add a comment and tap **Send feedback**.
 2. Tap **Profile**: change your department and tap **Save profile**.
-3. Switch your phone or computer to **dark mode** (Windows: Settings → Personalization → Colors → Dark).
+3. Under **Class schedule**, tap **Download template**. In the file, keep the header row, replace the example row with
+   one class (a room code from the **Rooms** sheet, days such as `MWF`, times such as `08:00`), save it and tap
+   **Upload schedule**. Then upload a copy with a made-up room code.
+4. Switch your phone or computer to **dark mode** (Windows: Settings → Personalization → Colors → Dark).
 
 **Expected result**
 
 - [ ] The feedback shows up in the Command Center **Feedback** page.
 - [ ] The profile change is kept after signing out and in again.
+- [ ] The uploaded class is listed under **Class schedule**; during that class, **Evacuation route** starts from its
+      room by itself. The file with a made-up room is refused with **Row 2: unknown room code …** and nothing changes.
+- [ ] **Remove schedule** asks first, then shows **No schedule uploaded**.
 - [ ] The app switches to dark colours and stays easy to read.
 
 ---
@@ -290,14 +311,22 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
    ```
 
 2. Watch the app and the Command Center **Reports** and **Alerts** pages.
-3. In **Reports**, click **Verify** on one report and **Dismiss** on another. In **Alerts**, click **Confirm** (or
-   **Retract**) on the new alert.
+3. In **Reports**, click **Verify** on one report, **Dismiss** on another and **Reject as false** on a third (it asks
+   first). In **Alerts**, click **Confirm** (or **Retract**) on the new alert.
 
 **Expected result**
 
 - [ ] Three fire reports on the same floor arrive, each with a red matching badge (**3**).
 - [ ] An **UNVERIFIED** alert goes out to the app by itself.
 - [ ] **Confirm** marks it verified; **Retract** removes it from the app.
+- [ ] **Reject as false** counts against the student: after 3 in 30 days their reports show **Often false** and no
+      longer count. **Dismiss** does not count against anyone.
+- [ ] During an active alert, when three different students on that floor (**Location matches**) send different photos
+      of the same hazard and the AI says yes to at least two, the reports turn **verified** by themselves
+      (**Auto-verified**) and the hazard shows on the maps. The same photo sent twice shows **Same photo as #…** and
+      does not count.
+- [ ] **Dismiss** or **Reject as false** on one auto-verified report takes the whole group off the maps, and it does
+      not verify itself again; only the rejected report counts against its student.
 
 ### O6. Who is safe: the Safety board
 
@@ -401,7 +430,8 @@ QR stickers. Emergencies are handled in the Command Center (there is a **Command
 **Expected result**
 
 - [ ] The safety officer cannot sign in to the Admin panel.
-- [ ] The admin sees **Users**, **Import class schedules**, **QR stickers**, **Activity log** and **Command Center**.
+- [ ] The admin sees **Users**, **Building GPS**, **QR stickers**, **Activity log** and **Command Center**. There is
+      no schedule import: students upload their own (S8).
 
 ### A2. Make someone a safety officer
 
@@ -426,24 +456,21 @@ QR stickers. Emergencies are handled in the Command Center (there is a **Command
 
 - [ ] It lists your sign-ins, the role changes from A2, alerts, path changes, SOS, check-ins and reports, with times.
 
-### A4. Import a class schedule
+### A4. Building GPS
 
 **Steps**
 
-1. Make a text file named `schedule.csv` with these two lines:
-
-   ```text
-   email,subject,room_code,days,time_start,time_end
-   student@evacuai.test,IT 101,BE301,MTWTHFSSU,00:00,23:59
-   ```
-
-2. Open **Import class schedules**, choose `schedule.csv` and click **Import**.
-3. In the app, sign in as `student@evacuai.test` and tap **Evacuation route**.
+1. Open **Building GPS**.
+2. For one building, open Google Maps (Satellite), right-click each corner of its roof, click the coordinates to copy
+   them, and paste one corner per line (4 lines for a rectangle). Click **Save**.
+3. Type only two lines for another building, or a line like `10.3, 500`, and click **Save**.
+4. Stand inside that building with a phone, with no class scheduled now, and send an SOS (S6).
 
 **Expected result**
 
-- [ ] The page says **Imported 1 classes.** with no problems listed.
-- [ ] The route starts from **BE301** by itself, "from your class schedule", without picking a room.
+- [ ] **Building GPS saved** appears and the corners stay after a reload.
+- [ ] Fewer than 3 corners, or a number that is not a GPS point, is refused with a message.
+- [ ] The Command Center shows the SOS as **<building> · from GPS** within a few seconds.
 
 ### A5. QR stickers
 
@@ -477,6 +504,23 @@ Each drill uses both windows (and a phone if you have one). Resolve it at the en
 - [ ] The app shows **Open ground · … of 300**, and **Off-campus assembly area · … here** (no limit).
 - [ ] With a capacity smaller than the people checked in, the zone shows **Full**, and checking in there suggests the
       other zone.
+
+### A7. Report rules and false reports
+
+**Steps**
+
+1. In the **Admin panel**, open **Report rules**. Set **Different students needed** to **4** and **Within (minutes)** to
+   **15**, and click **Save**.
+2. Try **1** student or **90** minutes.
+3. Open **Users**. Find a student marked **Often false** (O5: reject three of their reports as false) and click
+   **Clear false reports**.
+
+**Expected result**
+
+- [ ] **Report rules saved** appears; the numbers stay after a reload, and the Command Center's Reports page follows
+      them.
+- [ ] 1 student or 90 minutes is refused (2–10 students, 5–60 minutes).
+- [ ] After **Clear false reports**, the **Often false** mark is gone and the student's reports count again.
 
 ### D1. Fire drill
 
@@ -555,9 +599,10 @@ Copy this table into your report and fill it in. Use **Pass**, **Fail** or **Ski
 | A1 Only admins get in | | |
 | A2 Make someone a safety officer | | |
 | A3 Activity log | | |
-| A4 Import a class schedule | | |
+| A4 Building GPS | | |
 | A5 QR stickers | | |
 | A6 Safe zone capacity | | |
+| A7 Report rules and false reports | | |
 | D1 Fire drill | | |
 | D2 Fire reported by students | | |
 | D3 Drill with simulated people | | |

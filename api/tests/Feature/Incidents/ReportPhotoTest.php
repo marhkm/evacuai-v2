@@ -24,7 +24,7 @@ beforeEach(function () {
 function reportWithPhoto(UploadedFile $photo)
 {
     return test()->post('/api/hazard-reports', [
-        'hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => '1', 'description' => 'Smoke', 'photo' => $photo,
+        'hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => '1', 'description' => 'Smoke', 'photo' => $photo, 'taken_at' => now()->toIso8601String(),
     ], ['Accept' => 'application/json']);
 }
 

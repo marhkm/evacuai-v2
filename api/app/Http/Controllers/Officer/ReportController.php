@@ -11,8 +11,10 @@ use App\Support\ReportActions;
 use App\Support\ReportClusters;
 use App\Support\ReportPhoto;
 use App\Support\ReportSummary;
+use App\Support\ReportVerification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
@@ -23,9 +25,10 @@ class ReportController extends Controller
             ->when($request->query('status'), fn ($q, $status) => $q->where('status', $status))
             ->latest()->latest('id')->paginate(50);
         $matching = ReportClusters::reporterCounts();
+        $flagged = ReportVerification::flaggedIds();
 
         return response()->json([
-            'reports' => collect($page->items())->map(fn (HazardReport $r) => $this->payload($r, $matching))->values(),
+            'reports' => collect($page->items())->map(fn (HazardReport $r) => $this->payload($r, $matching, $flagged))->values(),
             'meta' => ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'per_page' => $page->perPage(), 'total' => $page->total()],
         ]);
     }
@@ -38,6 +41,11 @@ class ReportController extends Controller
     public function dismiss(Request $request, HazardReport $report): JsonResponse
     {
         return $this->report(ReportActions::dismiss($report, $this->officer($request)));
+    }
+
+    public function rejectFalse(Request $request, HazardReport $report): JsonResponse
+    {
+        return $this->report(ReportActions::rejectFalse($report, $this->officer($request)));
     }
 
     public function resolve(HazardReport $report): JsonResponse
@@ -60,10 +68,15 @@ class ReportController extends Controller
 
     /**
      * @param  array<string, int>|null  $matching  ReportClusters::reporterCounts(), for lists
+     * @param  Collection<int, int>|null  $flagged  ReportVerification::flaggedIds(), for lists
      * @return array<string, mixed>
      */
-    private function payload(HazardReport $r, ?array $matching = null): array
+    private function payload(HazardReport $r, ?array $matching = null, ?Collection $flagged = null): array
     {
+        $independent = $matching === null
+            ? ReportClusters::reporterCount($r->hazard_type, $r->building_id, $r->level)
+            : ($matching["{$r->hazard_type}|{$r->building_id}|{$r->level}"] ?? 0);
+
         return [
             'id' => $r->id,
             'hazard_type' => $r->hazard_type,
@@ -75,10 +88,17 @@ class ReportController extends Controller
             'status' => $r->status,
             'alert_id' => $r->alert_id,
             'reporter' => $r->reporter?->name,
-            'matching' => $matching === null
-                ? ReportClusters::reporterCount($r->hazard_type, $r->building_id, $r->level)
-                : ($matching["{$r->hazard_type}|{$r->building_id}|{$r->level}"] ?? 0),
+            'matching' => $independent, // older clients
+            'independent' => $independent, // different students, different photos, nobody flagged
             'photo_url' => $r->photo_path ? url("/api/officer/reports/{$r->id}/photo") : null,
+            'ai_verdict' => $r->ai_verdict,
+            'ai_note' => $r->ai_note,
+            'duplicate_of' => $r->duplicate_of,
+            'reporter_place' => $r->reporter_place,
+            'reporter_place_label' => $r->reporter_place_label,
+            'auto_verified' => $r->auto_verified,
+            'dismiss_reason' => $r->dismiss_reason,
+            'reporter_flagged' => ($flagged ?? ReportVerification::flaggedIds())->contains($r->reported_by),
             'created_at' => $r->created_at?->toIso8601String(),
         ];
     }

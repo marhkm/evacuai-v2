@@ -2,18 +2,15 @@
 
 use App\Enums\Role;
 use App\Events\CampusChanged;
-use App\Filament\Pages\ImportSchedules;
 use App\Models\EvacEdge;
 use App\Models\User;
 use Database\Seeders\CampusSeeder;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -56,25 +53,6 @@ describe('schedules', function () {
         DB::table('rooms')->where('id', 'DEMO/1/R101')->update(['code' => 'R101']);
         DB::table('rooms')->where('id', 'DEMO/2/R201')->update(['code' => 'R201']);
         $this->student = User::forceCreate(['name' => 'Stu', 'email' => 'stu@example.test', 'email_verified_at' => now()]);
-    });
-
-    it('imports a schedule CSV, matching registrar room codes and reporting bad rows', function () {
-        $this->actingAs(officer(), 'admin');
-        $csv = "email,subject,room_code,days,time_start,time_end\n"
-            ."stu@example.test,IT 101,R101,MWF,08:00,09:30\n"
-            ."stu@example.test,IT 102,R201,TTH,13:00,14:30\n"
-            ."ghost@example.test,X,R101,M,08:00,09:00\n"
-            ."stu@example.test,Y,NOPE,M,08:00,09:00\n";
-        $file = UploadedFile::fake()->createWithContent('schedules.csv', $csv);
-
-        Livewire::test(ImportSchedules::class)
-            ->set('file', $file)
-            ->call('import')
-            ->assertSee('Imported 2 classes')
-            ->assertSee('Row 4: unknown email ghost@example.test')
-            ->assertSee('Row 5: unknown room code NOPE');
-
-        expect(DB::table('schedules')->where('user_id', $this->student->id)->count())->toBe(2);
     });
 
     it('returns the class happening now in Manila time', function () {

@@ -10,7 +10,7 @@ import { PlanView } from '../components/PlanView';
 const View3D = lazy(() => import('../components/View3D'));
 
 type Counts = { total: number; safe: number; unknown: number; sos: number }; // sos includes "needs help" check-ins
-export type SosItem = { id: number; person: string | null; place: string; status: string; message: string | null; created_at: string; acknowledged_by?: string | null };
+export type SosItem = { id: number; person: string | null; place: string; status: string; message: string | null; created_at: string; acknowledged_by?: string | null; location_source?: string | null };
 export type ReportItem = { id: number; hazard_type: string; place: string; matching: number; status: string };
 
 export function LiveOps() {

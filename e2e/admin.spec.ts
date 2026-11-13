@@ -22,7 +22,7 @@ test('an admin sees only the admin tools, and the officer pages are gone', async
   for (const [path, heading] of [
     ['/admin/users', 'Users'],
     ['/admin/activity-logs', /^activity log/i],
-    ['/admin/import-schedules', 'Import class schedules'],
+    ['/admin/building-gps', 'Building GPS'],
     ['/admin/qr-stickers', 'QR stickers'],
   ] as const) {
     await page.goto(path);
@@ -37,7 +37,7 @@ test('an admin sees only the admin tools, and the officer pages are gone', async
 test('an officer in the Command Center and an admin in the admin panel at once, in one browser', async ({ page }) => {
   await page.goto('/command/sign-in');
   await page.getByLabel('Email').fill(demoEmail('safety_officer'));
-  await page.getByLabel('Password').fill(DEMO_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(DEMO_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('heading', { name: 'Live Ops' })).toBeVisible({ timeout: 45_000 });
 

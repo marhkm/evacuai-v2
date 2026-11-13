@@ -7,6 +7,7 @@ import { api, ApiError, csrf } from '../api';
 export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [shown, setShown] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
@@ -36,10 +37,11 @@ export function SignIn() {
           Email
           <input type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} />
         </label>
-        <label>
-          Password
-          <input type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} />
-        </label>
+        <label htmlFor="password">Password</label>
+        <div className="reveal">
+          <input id="password" type={shown ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} />
+          <button type="button" aria-label={shown ? 'Hide password' : 'Show password'} onClick={() => setShown(v => !v)}>{shown ? 'Hide' : 'Show'}</button>
+        </div>
         {error && <p className="banner danger" role="alert">{error}</p>}
         <button className="primary" type="submit" disabled={busy}>Sign in</button>
       </form>

@@ -591,6 +591,11 @@ web app at <code>http://&lt;server IP&gt;:8081</code>. Phones use an APK built w
 Ports 8000, 8080 and 8081 can then be closed in the firewall.</p>
 </li>
 </ol>
+<p><strong>The AI photo check</strong> runs on the server itself (photos never leave it): the setup script turns on the optional
+<code>ollama</code> service and downloads the small Moondream model (about 1.7 GB, once). It only advises officers; without it,
+reports still work and show <strong>AI: not available</strong>. On your own PC it is off unless you run
+<code>docker compose -f docker/compose.yml --profile ai-local up -d</code>, set <code>OLLAMA_URL=http://ollama:11434</code> in
+<code>docker/.env</code>, and run <code>docker compose -f docker/compose.yml exec ollama ollama pull moondream</code>.</p>
 <p><strong>Update</strong> after new code is pushed: <code>cd evacuai-v2/docker &amp;&amp; git pull &amp;&amp; docker compose up -d --build</code>.
 <strong>Stop</strong> at the end of the round: <code>docker compose down</code> (keeps the data; <code>docker compose down -v</code> deletes it).</p>
 <p>Verification codes for new accounts go to the test mailbox, which only opens on the server itself. To read it from

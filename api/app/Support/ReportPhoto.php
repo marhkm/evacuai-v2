@@ -30,8 +30,8 @@ class ReportPhoto
         ]);
     }
 
-    /** @return string path on the local (private) disk */
-    public static function store(UploadedFile $file): string
+    /** @return array{path: string, hash: string} path on the local (private) disk, and the photo's dHash */
+    public static function store(UploadedFile $file): array
     {
         $size = @getimagesize($file->getRealPath());
         if (! $size || $size[0] * $size[1] > self::MAX_SOURCE_PIXELS) {
@@ -52,7 +52,43 @@ class ReportPhoto
         $path = 'reports/'.now()->format('Y/m').'/'.Str::uuid().'.jpg';
         Storage::disk('local')->put($path, (string) ob_get_clean());
 
-        return $path;
+        return ['path' => $path, 'hash' => self::dhash($out)];
+    }
+
+    /**
+     * 64-bit difference hash (16 hex): the photo shrunk to 9×8 grey pixels, one bit per "brighter than the next one to
+     * the right". Survives re-compression, resizing and small edits, so a re-sent photo lands within a few bits.
+     */
+    public static function dhash(\GdImage $img): string
+    {
+        $small = imagecreatetruecolor(9, 8);
+        imagecopyresampled($small, $img, 0, 0, 0, 0, 9, 8, imagesx($img), imagesy($img));
+        $grey = function (int $x, int $y) use ($small): int {
+            $c = imagecolorat($small, $x, $y);
+
+            return (($c >> 16) & 0xFF) * 299 + (($c >> 8) & 0xFF) * 587 + ($c & 0xFF) * 114;
+        };
+        $hex = '';
+        for ($y = 0; $y < 8; $y++) {
+            $byte = 0;
+            for ($x = 0; $x < 8; $x++) {
+                $byte = ($byte << 1) | ($grey($x, $y) > $grey($x + 1, $y) ? 1 : 0);
+            }
+            $hex .= sprintf('%02x', $byte);
+        }
+
+        return $hex;
+    }
+
+    /** How many of the 64 bits differ (0 = the same picture). Compared per byte: no 64-bit overflow. */
+    public static function distance(string $a, string $b): int
+    {
+        $bits = 0;
+        foreach (str_split($a, 2) as $i => $byte) {
+            $bits += substr_count(decbin(hexdec($byte) ^ hexdec(substr($b, $i * 2, 2))), '1');
+        }
+
+        return $bits;
     }
 
     /** Phones store photos sideways plus an EXIF rotation flag; apply it before the metadata is dropped. */

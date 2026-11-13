@@ -23,7 +23,7 @@ jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: async () => ({ granted: true }),
   requestCameraPermissionsAsync: async () => ({ granted: true }),
   launchImageLibraryAsync: async () => ({ canceled: false, assets: [{ uri: 'file:///tmp/smoke.jpg', fileName: 'smoke.jpg', mimeType: 'image/jpeg', width: 4000, height: 3000 }] }),
-  launchCameraAsync: async () => ({ canceled: true, assets: null }),
+  launchCameraAsync: async () => ({ canceled: false, assets: [{ uri: 'file:///tmp/fire.jpg', fileName: 'fire.jpg', mimeType: 'image/jpeg', width: 4000, height: 3000 }] }),
 }));
 
 const user = { id: 1, name: 'Juan', email: 'j@x.test', role: 'student', department: null, phone: null, email_verified: true, consented: true, has_password: true };
@@ -99,17 +99,38 @@ test('the alerts screen lists history with status', async () => {
   expect(screen.getByText('Active')).toBeTruthy();
 });
 
-test('reporting a hazard sends type, building, floor and room', async () => {
+test('reporting a hazard sends type, building, floor, room and a photo just taken', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('@/lib/whereabouts').updateWhereabouts({ source: 'manual', roomId: 'DEMO/2/R201', building: 'DEMO', floor: 2 }, null, false);
   await renderRouter('./src/app', { initialUrl: '/report' });
   await fireEvent.press(await screen.findByRole('button', { name: 'Fire' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Ground' }));
   await fireEvent.press(screen.getByRole('button', { name: 'R101' }));
   await fireEvent.changeText(screen.getByLabelText('What do you see?'), 'Smoke from the door');
+  await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
+  expect(await screen.findByLabelText('Photo to send with the report')).toBeTruthy();
   await fireEvent.press(screen.getByRole('button', { name: 'Send report' }));
   expect(await screen.findByText(/Report sent/)).toBeTruthy();
-  expect(posted.find(p => p.url === '/api/hazard-reports')?.body).toEqual({
-    hazard_type: 'fire', building_id: 'DEMO', level: 1, room_id: 'DEMO/1/R101', description: 'Smoke from the door',
+
+  const form = posted.find(p => p.url === '/api/hazard-reports')!.body as FormData;
+  expect(form).toBeInstanceOf(FormData);
+  expect(Object.fromEntries([...form.entries()].filter(([k]) => k !== 'photo' && k !== 'taken_at'))).toEqual({
+    hazard_type: 'fire', building_id: 'DEMO', level: '1', room_id: 'DEMO/1/R101', description: 'Smoke from the door', at_building: 'DEMO', at_level: '2',
   });
+  expect(form.get('photo')).toBeTruthy();
+  expect(Math.abs(Date.parse(String(form.get('taken_at'))) - Date.now())).toBeLessThan(60_000); // the time the photo was taken
+  expect(screen.queryByLabelText('Photo to send with the report')).toBeNull(); // cleared after sending
+});
+
+test('a report needs a photo taken in the app, not one from the gallery', async () => {
+  await renderRouter('./src/app', { initialUrl: '/report' });
+  expect(await screen.findByText('Photo (required)')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Choose photo' })).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Fire' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Ground' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Send report' }));
+  expect(await screen.findByText('Take a photo of the hazard.')).toBeTruthy();
+  expect(posted.length).toBe(0);
 });
 
 test('report requires a hazard type', async () => {
@@ -119,20 +140,3 @@ test('report requires a hazard type', async () => {
   expect(posted.length).toBe(0);
 });
 
-test('a photo is sent as multipart with the report fields', async () => {
-  await renderRouter('./src/app', { initialUrl: '/report' });
-  await fireEvent.press(await screen.findByRole('button', { name: 'Fire' }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Ground' }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Choose photo' }));
-  expect(await screen.findByLabelText('Photo to send with the report')).toBeTruthy();
-  await fireEvent.press(screen.getByRole('button', { name: 'Send report' }));
-  expect(await screen.findByText(/Report sent/)).toBeTruthy();
-
-  const form = posted.find(p => p.url === '/api/hazard-reports')!.body as FormData;
-  expect(form).toBeInstanceOf(FormData);
-  expect(form.get('hazard_type')).toBe('fire');
-  expect(form.get('level')).toBe('1');
-  expect(form.has('room_id')).toBe(false); // no room chosen: field left out, not "null"
-  expect(form.get('photo')).toBeTruthy();
-  expect(screen.queryByLabelText('Photo to send with the report')).toBeNull(); // cleared after sending
-});

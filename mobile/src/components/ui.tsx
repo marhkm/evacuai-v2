@@ -21,16 +21,27 @@ export function Screen({ title, children }: { title: string; children: ReactNode
 export function Field({ label, error, ...input }: TextInputProps & { label: string; error?: string }) {
   const s = useStyles();
   const c = useTheme();
+  const [shown, setShown] = useState(false); // password fields: Show / Hide what was typed
+  const secret = !!input.secureTextEntry;
   return (
     <View style={s.field}>
       <Text style={s.label}>{label}</Text>
-      <TextInput
-        accessibilityLabel={label}
-        autoCapitalize="none"
-        placeholderTextColor={c.muted}
-        style={[s.input, error ? s.inputError : null]}
-        {...input}
-      />
+      <View style={s.inputRow}>
+        <TextInput
+          accessibilityLabel={label}
+          autoCapitalize="none"
+          placeholderTextColor={c.muted}
+          style={[s.input, s.grow, error ? s.inputError : null]}
+          {...input}
+          secureTextEntry={secret && !shown}
+        />
+        {secret ? (
+          <Pressable accessibilityRole="button" accessibilityLabel={shown ? 'Hide password' : 'Show password'} hitSlop={8}
+            onPress={() => setShown(v => !v)} style={s.reveal}>
+            <Text style={s.revealText}>{shown ? 'Hide' : 'Show'}</Text>
+          </Pressable>
+        ) : null}
+      </View>
       {error ? <Text style={s.error}>{error}</Text> : null}
     </View>
   );
@@ -139,6 +150,10 @@ const useStyles = makeStyles(c => ({
   label: { fontFamily: fonts.bodySemi, fontSize: 15, color: c.ink },
   input: { fontFamily: fonts.body, borderWidth: 1.5, borderColor: c.line, borderRadius: 10, padding: 12, fontSize: 17, color: c.ink, backgroundColor: c.surface, minHeight: 48 },
   inputError: { borderColor: c.danger },
+  inputRow: { flexDirection: 'row', alignItems: 'center' },
+  grow: { flex: 1 },
+  reveal: { position: 'absolute', right: 4, minHeight: 44, minWidth: 56, alignItems: 'center', justifyContent: 'center' },
+  revealText: { fontFamily: fonts.bodySemi, fontSize: 15, color: c.info },
   error: { fontFamily: fonts.bodySemi, color: c.danger, fontSize: 14 },
   info: { fontFamily: fonts.bodySemi, color: c.safeText, fontSize: 14 },
   button: { borderRadius: 10, minHeight: 52, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },

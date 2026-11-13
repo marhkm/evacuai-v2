@@ -61,3 +61,41 @@ test('load more asks for the next page', async () => {
   expect(await screen.findByText('Smoke 5')).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
 });
+
+test('each report shows what the checks found', async () => {
+  setup({
+    'GET /api/officer/reports': [200, { reports: [report(7, 3, {
+      hazard_type: 'fire', ai_verdict: 'match', ai_note: 'Yes, flames in a hallway.', duplicate_of: 12, reporter_place: 'elsewhere',
+      reporter_place_label: 'Annex 1 · Ground', reporter_flagged: true, auto_verified: true, status: 'verified',
+    }), report(8, 1, { hazard_type: 'flood', ai_verdict: 'no_match', reporter_place: 'match' }), report(9, 1, { ai_verdict: 'unavailable', reporter_place: 'unknown' })], meta: meta(1, 1) }],
+  });
+  renderApp('/reports');
+  const first = await row('Smoke 7');
+  for (const text of ['AI: looks like fire', 'Same photo as #12', 'Reporter was elsewhere (Annex 1 · Ground)', 'Often false', 'Auto-verified']) {
+    expect(within(first).getByText(text)).toBeTruthy();
+  }
+  expect(within(first).getByTitle('Yes, flames in a hallway.')).toBeTruthy(); // the AI's reason on hover
+  expect(within(await row('Smoke 8')).getByText("AI: doesn't look like flood")).toBeTruthy();
+  expect(within(await row('Smoke 8')).getByText('Location matches')).toBeTruthy();
+  expect(within(await row('Smoke 9')).getByText('AI: not available')).toBeTruthy();
+  expect(within(await row('Smoke 9')).getByText('Location unknown')).toBeTruthy();
+});
+
+test('Reject as false asks first, and Dismiss does not count against the student', async () => {
+  const fetch = setup({
+    'POST /api/officer/reports/3/reject-false': [200, { report: report(3, 3, { status: 'dismissed' }) }],
+    'POST /api/officer/reports/4/dismiss': [200, { report: report(4, 2, { status: 'dismissed' }) }],
+  });
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true);
+  renderApp('/reports');
+  const first = await row('Smoke 3');
+  fireEvent.click(within(first).getByRole('button', { name: 'Reject as false' }));
+  expect(confirm).toHaveBeenCalledWith('Count this as a false report by Sam Student?');
+  expect(fetch.mock.calls.some(([u]) => u === '/api/officer/reports/3/reject-false')).toBe(false); // said no
+  fireEvent.click(within(first).getByRole('button', { name: 'Reject as false' }));
+  await waitFor(() => expect(fetch.mock.calls.some(([u, i]) => u === '/api/officer/reports/3/reject-false' && i?.method === 'POST')).toBe(true));
+
+  fireEvent.click(within(await row('Smoke 4')).getByRole('button', { name: 'Dismiss' }));
+  await waitFor(() => expect(fetch.mock.calls.some(([u, i]) => u === '/api/officer/reports/4/dismiss' && i?.method === 'POST')).toBe(true));
+  confirm.mockRestore();
+});

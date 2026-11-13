@@ -45,7 +45,7 @@ it('announces new reports to officers without the reporter', function () {
     $student = officerUser(Role::Student);
     Sanctum::actingAs($student);
 
-    $this->postJson('/api/hazard-reports', ['hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1, 'description' => 'Smoke'])->assertCreated();
+    $this->post('/api/hazard-reports', ['hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1, 'description' => 'Smoke'] + photoFields(), ['Accept' => 'application/json'])->assertCreated();
 
     Event::assertDispatched(ReportSubmitted::class, function (ReportSubmitted $e) use ($student) {
         $payload = $e->broadcastWith();
