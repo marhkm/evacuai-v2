@@ -79,6 +79,9 @@ services:
 
   mailpit:
     image: axllent/mailpit:latest
+    environment: # a test server with a domain shows the inbox at https://<domain>/mail/ behind a login (setup script)
+      MP_WEBROOT: ${MAILPIT_WEBROOT:-/}
+      MP_UI_AUTH: ${MAILPIT_UI_AUTH:-}
     ports: ["127.0.0.1:8025:8025", "127.0.0.1:1025:1025"]
     restart: unless-stopped
 

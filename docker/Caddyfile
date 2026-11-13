@@ -5,6 +5,7 @@
 {$EVACUAI_DOMAIN} {
 	encode gzip
 	reverse_proxy /app/* reverb:8080
+	reverse_proxy /mail* mailpit:8025 # the test inbox (Mailpit asks for its own login)
 	reverse_proxy app:8000
 }
 
