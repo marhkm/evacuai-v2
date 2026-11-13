@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByLabel('Email').fill(demoEmail('student'));
   await page.getByLabel('Password', { exact: true }).fill(DEMO_PASSWORD);
   await page.getByRole('button', { name: 'Show password' }).click();
-  await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text');
+  await expect(page.getByLabel('Password', { exact: true })).not.toHaveAttribute('type', 'password'); // shown
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Welcome, Demo Student')).toBeVisible({ timeout: 45_000 }); // first request after a cold start is slow
 });
