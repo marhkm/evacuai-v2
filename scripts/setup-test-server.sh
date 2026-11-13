@@ -39,7 +39,7 @@ if [[ "$HOST" =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
   set_env VITE_REVERB_SCHEME http
   set_env TRUSTED_PROXIES ""
   set_env SESSION_SECURE_COOKIE false
-  set_env COMPOSE_PROFILES ai-local    # the local AI photo check (Ollama)
+  set_env COMPOSE_PROFILES ""
 else
   # Let's Encrypt refuses (and soon rate-limits) a domain that does not point here: check DNS first.
   ME=$(curl -fs https://api.ipify.org || true)
@@ -59,20 +59,15 @@ else
   set_env VITE_REVERB_SCHEME https
   set_env TRUSTED_PROXIES "*"         # only Caddy is in front; it sets X-Forwarded-Proto
   set_env SESSION_SECURE_COOKIE true
-  set_env COMPOSE_PROFILES https,ai-local  # `docker compose up` always includes Caddy and the local AI
+  set_env COMPOSE_PROFILES https      # `docker compose up` now always includes Caddy
   set_env MAILPIT_WEBROOT /mail/          # the test inbox at https://<domain>/mail/
   set_env MAILPIT_UI_AUTH "tester:$(grep '^DEMO_PASSWORD=' .env | cut -d= -f2-)"  # login: tester + the demo password
 fi
-# Hazard-photo check by a local vision model: photos never leave this server.
-set_env OLLAMA_URL http://ollama:11434
-set_env OLLAMA_VISION_MODEL moondream
 chmod 600 .env
 
 echo "Settings:"; grep -E "^(APP_DEBUG|APP_URL|PUBLIC_API_URL|VITE_REVERB_PORT|VITE_REVERB_SCHEME|COMPOSE_PROFILES)=" .env
 echo "Building and starting EvacuAI (15-25 minutes the first time)..."
 docker compose up -d --build
-echo "Getting the AI photo-check model (about 1.7 GB, once)..."
-docker compose exec -T ollama ollama pull moondream || echo "Could not get the model now; reports still work, the AI check shows 'not available'."
 
 echo "Waiting for the API..."
 for _ in $(seq 1 60); do
