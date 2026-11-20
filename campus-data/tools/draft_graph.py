@@ -39,7 +39,7 @@ def centroid(poly):
 
 
 def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembly: dict | None, extra_links: list | None = None,
-                via: list | None = None):
+                via: list | None = None, walk_through: list | None = None, hand_points: list | None = None):
     plan = dict(floor['plan'], labels=floor['plan']['labels'] + (extra_links or []))
     nodes, edges = [], []
     corridor = []
@@ -49,7 +49,10 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
         corridor.append((nid, a))
 
     # Wall pieces under 1 m are thresholds and symbols, not barriers.
-    walls = [(w[0], w[-1]) for w in plan['walls'] if math.dist(w[0], w[-1]) >= 1.0]
+    # Lines inside a walk-through area (import.json "walk_through", e.g. a courtyard outline) are not barriers either.
+    def walkable(p) -> bool:
+        return any(x0 <= p[0] <= x1 and y0 <= p[1] <= y1 for x0, y0, x1, y1 in walk_through or [])
+    walls = [(w[0], w[-1]) for w in plan['walls'] if math.dist(w[0], w[-1]) >= 1.0 and not (walkable(w[0]) and walkable(w[-1]))]
     clear = lambda p, q: not any(crosses(p, q, w0, w1) for w0, w1 in walls)
 
     # Chain each arrow to the nearest arrow ahead of it (within 70° of its direction, 12 m, no wall in between).
@@ -65,6 +68,12 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
                 best, best_d = oid, d
         if best and not any({e['from'], e['to']} == {nid, best} for e in edges):
             edges.append({'from': nid, 'to': best, 'type': 'corridor'})
+    chained = {e['from'] for e in edges}  # arrows with an arrow ahead; the others end a fire-escape sequence
+    # Hand-placed corridor points (import.json "corridor_points") where the poster draws few arrows: they join the
+    # corridor network like arrows do, but have no direction, so they never end a sequence or aim at a link.
+    for k, (hx, hy) in enumerate(hand_points or [], 1):
+        nodes.append({'id': f'H{k}', 'type': 'hallway', 'x': hx, 'y': hy})
+        corridor.append((f'H{k}', {'x': hx, 'y': hy}))
 
     # Join the arrow chains into one corridor network: shortest links that do not cross a wall (spanning tree).
     parent = {nid: nid for nid, _ in corridor}
@@ -141,7 +150,8 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
             nodes.append({'id': did, 'type': 'hallway', 'x': door['hinge'][0], 'y': door['hinge'][1], 'name': f"{room['name']} door"})
             edges += [{'from': rid, 'to': did, 'type': 'door'}, {'from': did, 'to': reach(door)[0], 'type': 'corridor'}]
         elif targets:
-            near = min(targets, key=lambda c: math.hypot(c[1]['x'] - x, c[1]['y'] - y))
+            seen = [t for t in targets if clear((x, y), (t[1]['x'], t[1]['y']))]
+            near = min(seen or targets, key=lambda c: math.hypot(c[1]['x'] - x, c[1]['y'] - y))
             edges.append({'from': rid, 'to': near[0], 'type': 'door'})
 
     # Links drawn on the poster ("TO OLD BUILDING", "TO ANNEX 2"): the escape continues through the next building.
@@ -154,7 +164,7 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
                 dx, dy = lab['x'] - a['x'], lab['y'] - a['y']
                 off = abs((math.degrees(math.atan2(dy, dx)) - a['deg'] + 180) % 360 - 180)
                 return math.hypot(dx, dy) <= 8 and off <= 45
-            aiming = [c for c in corridor if aims(c[1])]
+            aiming = [c for c in corridor if 'deg' in c[1] and aims(c[1])]
             if not aiming:
                 continue
             near = min(aiming, key=lambda c: math.hypot(c[1]['x'] - lab['x'], c[1]['y'] - lab['y']))
@@ -165,8 +175,7 @@ def draft_floor(floor: dict, level: int, ground: bool, flood_safe: bool, assembl
 
     if ground and assembly:
         # Exits: arrows with nothing ahead of them (the end of each fire-escape sequence), plus labelled gates.
-        heads = {e['from'] for e in edges if e['type'] == 'corridor'}
-        ends = [c for c in corridor if c[0] not in heads]
+        ends = [c for c in corridor if 'deg' in c[1] and c[0] not in chained]
         gates = [l for l in plan['labels'] if l['text'].startswith('GATE')]
         n = 0
         for _, a in ends:
@@ -205,7 +214,9 @@ def main(argv):
         if f['nodes'] and not force:
             continue
         f['nodes'], f['edges'], links = draft_floor(f, lv, lv == levels[0], lv >= flood_from, cfg.get('assembly'),
-                                                    cfg.get('links', {}).get(str(lv)), cfg.get('via', {}).get(str(lv)))
+                                                    cfg.get('links', {}).get(str(lv)), cfg.get('via', {}).get(str(lv)),
+                                                    cfg.get('walk_through', {}).get(str(lv)),
+                                                    cfg.get('corridor_points', {}).get(str(lv)))
         drafted[lv] = True
         # Hand-confirmed doorways the wall check cannot see (double-line walls): import.json "connect" [[from, to], ...].
         for a, b in cfg.get('connect', {}).get(str(lv), []):
@@ -215,14 +226,15 @@ def main(argv):
             dist = ap["distance_m"] + 7 * levels.index(lv) + 45  # cross-over walk, its corridors and stairs, estimated
             target = ap['id'] if lv == levels[0] else f"{building}/{levels[0]}/{ap['id']}"
             f['edges'].append({'from': lid, 'to': target, 'type': 'outdoor', 'bidirectional': False, 'distance_m': dist, 'flags': ['estimated', 'flood_prone']})
-    # Stairs: each floor links its stairwells down to the nearest stairwell on the floor below (within 3 m).
+    # Stairs: each floor links its stairwells down to the nearest stairwell on the floor below (within 3 m, or
+    # import.json "stairs_link_m" where the drawn flights shift between floors).
     for below, lv in zip(levels, levels[1:]):
         if lv not in drafted:
             continue
         for s in [n for n in floors[lv]['nodes'] if n['type'] == 'stairwell']:
             under = [n for n in floors[below]['nodes'] if n['type'] == 'stairwell']
             near = min(under, key=lambda u: math.hypot(u['x'] - s['x'], u['y'] - s['y']), default=None)
-            if near and math.hypot(near['x'] - s['x'], near['y'] - s['y']) <= 3:
+            if near and math.hypot(near['x'] - s['x'], near['y'] - s['y']) <= cfg.get('stairs_link_m', 3):
                 floors[lv]['edges'].append({'from': s['id'], 'to': f'{building}/{below}/{near["id"]}', 'type': 'stairs'})
     for lv in drafted:
         with open(os.path.join(bdir, f'floor-{lv}.json'), 'w', encoding='utf-8', newline='\n') as fh:

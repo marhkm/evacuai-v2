@@ -14,6 +14,7 @@ import pymupdf as fitz  # noqa: E402
 import import_pdf_plan as imp  # noqa: E402
 
 GRAY, BLACK, RED, ORANGE, BLUE = (0.86, 0.86, 0.86), (0, 0, 0), (1, 0, 0), (0.87, 0.43, 0), (0, 0, 1)
+GREEN = (0.35, 0.73, 0.28)
 
 
 def synthetic_pdf(path: str) -> None:
@@ -85,7 +86,45 @@ def main() -> None:
     assert rooms[0]['type'] == 'classroom' and rooms[0]['name'] == 'ROOM A-1'
     # Coordinates are rounded to 2 decimals.
     assert all(round(v, 2) == v for w in plan['walls'] for p in w for v in p)
+    plain_poster()
     print('ok')
+
+
+def plain_poster() -> None:
+    """Plain style: black walls/doors/treads, black (vertical) names, green arrows, fixed plan area."""
+    with tempfile.TemporaryDirectory() as tmp:
+        pdf = os.path.join(tmp, 'plain.pdf')
+        doc = fitz.open()
+        page = doc.new_page(width=800, height=600)
+        s = page.new_shape()
+        for a, b in [((120, 120), (480, 120)), ((480, 120), (480, 300)), ((480, 300), (120, 300)), ((120, 300), (120, 120)), ((300, 120), (300, 300))]:
+            s.draw_line(a, b)
+        s.finish(color=BLACK, width=0)                      # hairline walls
+        s.draw_sector((300, 200), (336, 200), 90, fullSector=False)
+        s.finish(color=BLACK, width=0.72)                   # door swing: a black quarter turn
+        s.draw_sector((200, 260), (205, 260), 30, fullSector=False)
+        s.finish(color=BLACK, width=0.72)                   # a fixture curve, not a quarter turn: ignored
+        for y in (230, 240, 250, 260, 270, 280):
+            s.draw_line((400, y), (460, y))
+        s.finish(color=BLACK, width=0.72)                   # six treads 0.25 m apart
+        s.draw_polyline([(420, 350), (440, 340), (440, 360), (420, 350)])
+        s.finish(color=GREEN, fill=GREEN, width=0)          # arrow pointing left (head + shaft)
+        s.draw_rect(fitz.Rect(440, 347, 475, 353))
+        s.finish(color=GREEN, fill=GREEN, width=0)
+        s.commit()
+        page.insert_text((215, 240), 'LAB 1', fontsize=12, color=BLACK, rotate=90)  # vertical name
+        page.insert_text((180, 330), 'YOU ARE HERE', fontsize=10, color=BLACK)
+        page.insert_text((120, 560), 'MR. JUAN DELA CRUZ', fontsize=9, color=BLACK)  # outside the plan area
+        doc.save(pdf)
+        floor = imp.extract(pdf, level=1, name='Ground', plain=True, area=[100, 100, 500, 400])
+    plan = floor['plan']
+    assert math.isclose(floor['scale_m_per_pt'], 0.9 / 36, rel_tol=0.02), floor['scale_m_per_pt']
+    assert len(plan['doors']) == 1, plan['doors']
+    assert [l['text'] for l in plan['labels']] == ['LAB 1'], plan['labels']
+    assert 'JUAN' not in json.dumps(floor)
+    assert len(plan['stairs']) == 1, plan['stairs']
+    assert len(plan['arrows']) == 1 and abs(((plan['arrows'][0]['deg'] - 180) + 180) % 360 - 180) < 5, plan['arrows']
+    assert [r['name'] for r in floor['rooms']] == ['LAB 1'], floor['rooms']
 
 
 if __name__ == '__main__':

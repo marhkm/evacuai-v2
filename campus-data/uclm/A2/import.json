@@ -1,0 +1,268 @@
+{
+ "about": "Annex 2 evacuation posters (source/*.pdf, gitignored: they contain staff names). Plain style like the Old Building; levels follow the campus numbering (Annex 2 has no mezzanine, so level 2 is absent). *-b.pdf are the same floor with another 'you are here' and add its arrows.",
+ "style": "plain",
+ "plan_area": [
+  240,
+  280,
+  2165,
+  1280
+ ],
+ "files": [
+  {
+   "pdf": "plan-ground.pdf",
+   "level": 1,
+   "name": "Ground"
+  },
+  {
+   "pdf": "plan-floor-2.pdf",
+   "level": 3,
+   "name": "Second",
+   "more_arrows_from": [
+    "plan-floor-2-b.pdf"
+   ]
+  },
+  {
+   "pdf": "plan-floor-3.pdf",
+   "level": 4,
+   "name": "Third"
+  },
+  {
+   "pdf": "plan-floor-4.pdf",
+   "level": 5,
+   "name": "Fourth",
+   "more_arrows_from": [
+    "plan-floor-4-b.pdf"
+   ]
+  },
+  {
+   "pdf": "plan-floor-5.pdf",
+   "level": 6,
+   "name": "Fifth",
+   "more_arrows_from": [
+    "plan-floor-5-b.pdf"
+   ]
+  }
+ ],
+ "flood_safe_from_level": 3,
+ "stairs_link_m": 4,
+ "assembly": {
+  "id": "AP_Outside",
+  "name": "Off-campus assembly area",
+  "x": 30,
+  "y": 20,
+  "distance_m": 80,
+  "note": "placeholder until the school confirms Annex 2's assembly point"
+ },
+ "labels": {
+  "1": [
+   {
+    "text": "SOCIAL HALL",
+    "x": 26.1,
+    "y": 28.6
+   },
+   {
+    "text": "ROBOTICS LAB",
+    "x": 58.6,
+    "y": 28.9
+   },
+   {
+    "text": "A2-103",
+    "x": 69.6,
+    "y": 28.6
+   },
+   {
+    "text": "A2-104",
+    "x": 77.2,
+    "y": 28.6
+   },
+   {
+    "text": "GATE 4",
+    "x": 47.7,
+    "y": 24.8
+   }
+  ],
+  "4": [
+   {
+    "text": "A2-301",
+    "x": 10.1,
+    "y": 26.9
+   },
+   {
+    "text": "A2-302",
+    "x": 17.5,
+    "y": 26.9
+   },
+   {
+    "text": "A2-303",
+    "x": 25.0,
+    "y": 26.9
+   },
+   {
+    "text": "A2-304",
+    "x": 32.6,
+    "y": 26.9
+   },
+   {
+    "text": "A2-305",
+    "x": 40.1,
+    "y": 26.9
+   },
+   {
+    "text": "A2-306",
+    "x": 47.6,
+    "y": 26.9
+   },
+   {
+    "text": "A2-307",
+    "x": 55.1,
+    "y": 26.9
+   },
+   {
+    "text": "A2-308",
+    "x": 62.5,
+    "y": 26.9
+   },
+   {
+    "text": "A2-309",
+    "x": 70.1,
+    "y": 26.9
+   },
+   {
+    "text": "A2-310",
+    "x": 77.4,
+    "y": 26.9
+   }
+  ],
+  "5": [
+   {
+    "text": "A2-401",
+    "x": 11.2,
+    "y": 27.7
+   },
+   {
+    "text": "A2-402",
+    "x": 17.9,
+    "y": 27.7
+   },
+   {
+    "text": "A2-403",
+    "x": 25.4,
+    "y": 27.7
+   },
+   {
+    "text": "A2-404",
+    "x": 32.8,
+    "y": 27.7
+   },
+   {
+    "text": "A2-405",
+    "x": 40.3,
+    "y": 27.7
+   },
+   {
+    "text": "A2-406",
+    "x": 47.5,
+    "y": 27.7
+   },
+   {
+    "text": "FACULTY ROOM",
+    "x": 55.7,
+    "y": 27.7
+   },
+   {
+    "text": "FACULTY ROOM 2",
+    "x": 67.1,
+    "y": 27.7
+   },
+   {
+    "text": "LOUNGE",
+    "x": 75.9,
+    "y": 25.7
+   },
+   {
+    "text": "OFFICE",
+    "x": 79.9,
+    "y": 25.7
+   },
+   {
+    "text": "SHS PRINCIPAL'S OFFICE",
+    "x": 79.9,
+    "y": 30.6
+   }
+  ],
+  "6": [
+   {
+    "text": "FOOD COURT",
+    "x": 58.0,
+    "y": 28.3
+   }
+  ]
+ },
+ "labels_note": "room names drawn as outlines on these posters (not text); positions read off the plans in metres",
+ "skip_hairlines": true,
+ "arrow_deg": {
+  "1": [
+   [
+    45.07,
+    35.23,
+    -70
+   ]
+  ]
+ },
+ "arrow_deg_note": "Ground: the curved arrow at the corner turns up towards Gate 4",
+ "corridor_points": {
+  "1": [
+   [
+    50,
+    34.7
+   ],
+   [
+    57,
+    34.7
+   ],
+   [
+    64,
+    34.7
+   ],
+   [
+    71,
+    34.7
+   ],
+   [
+    78,
+    34.7
+   ]
+  ],
+  "4": [
+   [
+    47,
+    33.3
+   ],
+   [
+    53,
+    33.3
+   ],
+   [
+    59,
+    33.3
+   ],
+   [
+    65,
+    33.3
+   ],
+   [
+    71,
+    33.3
+   ],
+   [
+    77,
+    33.3
+   ],
+   [
+    81,
+    33.3
+   ]
+  ]
+ },
+ "corridor_points_note": "Ground and Third: the posters draw arrows along only part of the corridor; these points carry it to the far stairs"
+}

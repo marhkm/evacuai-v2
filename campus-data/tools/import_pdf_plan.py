@@ -11,6 +11,11 @@ logo and the "Prepared / Checked / Approved by" names block lie outside the plan
 Poster conventions (from a survey of the Annex 1 plans): walls black 0.72 pt + gray 0.12 pt strokes, door swings
 red curves, fire-escape arrows red fills, stairs orange hatch, room labels blue text. A standard door leaf is
 0.9 m, which gives the scale.
+
+Plain posters (import.json "style": "plain", e.g. the Old Building) draw walls, doors and stairs in black or gray of
+any width, label rooms in black and draw the escape arrows green. They have no gray outline, so import.json gives
+"plan_area": [x0, y0, x1, y1] in PDF points (keep the legend and the names block outside it). Stairs are found as
+runs of evenly spaced parallel treads.
 """
 from __future__ import annotations
 
@@ -26,15 +31,22 @@ import pymupdf as fitz
 
 GRAY, BLACK, RED, ORANGE = (0.86, 0.86, 0.86), (0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.87, 0.43, 0.0)
 BLUE_TEXT = 0x0000FF
+GREEN = (0.35, 0.73, 0.28)   # plain posters: escape arrows
+NOT_LABELS = ('YOU ARE HERE',)
 DOOR_M = 0.9          # standard door leaf
 PX_PER_M = 4          # room flood-fill grid resolution
 CLOSE_PX = 3          # walls grown by 0.75 m before flood-fill: doorways up to ~1.5 m without a drawn swing stay closed
-NOT_ROOMS = ('OPEN GROUND',)
+NOT_ROOMS = ('OPEN GROUND', 'MEDIA AGUA')  # a courtyard; the roof overhang along a corridor
 MARKERS = ('UP', 'DOWN')   # stair direction marks: never part of a room name
 
 
 def _same(color, ref, tol=0.03) -> bool:
     return color is not None and len(color) == 3 and all(abs(a - b) <= tol for a, b in zip(color, ref))
+
+
+def _dark(color) -> bool:
+    """Black or gray line work (plain posters draw walls in either); not the near-white exit signs, red or green."""
+    return color is not None and len(color) == 3 and max(color) <= 0.9 and max(color) - min(color) < 0.05
 
 
 def _points(item) -> list[fitz.Point]:
@@ -191,10 +203,14 @@ def _arrow_heading(verts: list[tuple[float, float]], cx: float, cy: float) -> fl
     lo, hi = min(a for a, _ in along), max(a for a, _ in along)
     window = 0.45 * (hi - lo)
 
-    def spread(end_is_hi: bool) -> float:
+    def spread(end_is_hi: bool, window: float = window) -> float:
         side = [p for a, p in along if (a >= hi - window if end_is_hi else a <= lo + window)]
         return max(side) - min(side) if side else 0.0
 
+    # The very ends decide first: the tip is a point, the tail is flat (as wide as the shaft).
+    tip_hi, tip_lo = spread(True, 0.08 * (hi - lo)), spread(False, 0.08 * (hi - lo))
+    if min(tip_hi, tip_lo) < 0.3 * max(tip_hi, tip_lo):
+        return math.degrees(axis if tip_hi < tip_lo else axis + math.pi)
     return math.degrees(axis if spread(True) >= spread(False) else axis + math.pi)
 
 
@@ -207,12 +223,47 @@ def plan_area(page: fitz.Page) -> fitz.Rect:
     return fitz.Rect(r.x0 - dx, r.y0 - dy, r.x1 + dx, r.y1 + dy)
 
 
-def door_arcs(page: fitz.Page, area: fitz.Rect) -> list[dict]:
+def _treads(segs: list[tuple[fitz.Point, fitz.Point]], scale: float) -> list[tuple[fitz.Point, fitz.Point]]:
+    """Plain posters: stair treads, i.e. runs of 5+ parallel segments of similar length (0.8-4 m), 0.15-0.6 m apart."""
+    cand = []
+    for a, b in segs:
+        length = math.dist(a, b) * scale
+        if 0.8 <= length <= 4:
+            cand.append((a, b, length, math.atan2(b.y - a.y, b.x - a.x) % math.pi))
+
+    def linked(s, t) -> bool:
+        turn = abs(s[3] - t[3])
+        if min(turn, math.pi - turn) > math.radians(3) or not 0.8 <= s[2] / t[2] <= 1.25:
+            return False
+        ux, uy = math.cos(s[3]), math.sin(s[3])
+        mx = (t[0].x + t[1].x - s[0].x - s[1].x) / 2
+        my = (t[0].y + t[1].y - s[0].y - s[1].y) / 2
+        return 0.15 <= abs(my * ux - mx * uy) * scale <= 0.6 and abs(mx * ux + my * uy) * scale <= 0.3 * s[2]
+
+    parent = list(range(len(cand)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for i in range(len(cand)):
+        for j in range(i + 1, len(cand)):
+            if linked(cand[i], cand[j]):
+                parent[find(i)] = find(j)
+    groups: dict[int, list] = {}
+    for i, c in enumerate(cand):
+        groups.setdefault(find(i), []).append((c[0], c[1]))
+    return [s for g in groups.values() if len(g) >= 5 for s in g]
+
+
+def door_arcs(page: fitz.Page, area: fitz.Rect, plain: bool = False) -> list[dict]:
     """Door swings in PDF points: {'hinge', 'r', 'p0', 'p1'}."""
     doors = []
     for d in page.get_drawings():
         curves = [it for it in d['items'] if it[0] == 'c']
-        if not curves or not _same(d.get('color'), RED) or d.get('fill') is not None:
+        if not curves or not (_dark(d.get('color')) if plain else _same(d.get('color'), RED)) or d.get('fill') is not None:
             continue
         start, end = curves[0][1], curves[-1][4]
         if len(curves) > 1:
@@ -226,15 +277,19 @@ def door_arcs(page: fitz.Page, area: fitz.Rect) -> list[dict]:
         if center is None:
             continue
         r = math.dist(center, start)
+        sweep = abs((math.degrees(math.atan2(end.y - center.y, end.x - center.x) - math.atan2(start.y - center.y, start.x - center.x)) + 180) % 360 - 180)
+        if plain and not 75 <= sweep <= 105:  # plain posters: fixtures are black curves too; a door swings a quarter turn
+            continue
         if 5 <= r <= 80:
             doors.append({'hinge': center, 'r': r, 'p0': start, 'p1': end})
     return doors
 
 
-def extract(pdf_path: str, level: int, name: str, scale: float | None = None) -> dict:
+def extract(pdf_path: str, level: int, name: str, scale: float | None = None, plain: bool = False,
+            area: list | None = None, extra_labels: list | None = None, skip_hairlines: bool = False) -> dict:
     page = fitz.open(pdf_path)[0]
-    area = plan_area(page)
-    doors_pt = door_arcs(page, area)
+    area = fitz.Rect(area) if area else plan_area(page)
+    doors_pt = door_arcs(page, area, plain)
     if scale is None:
         if not doors_pt:
             raise ValueError(f'{pdf_path}: no door swings to derive the scale from; set scale_m_per_pt in import.json')
@@ -245,19 +300,37 @@ def extract(pdf_path: str, level: int, name: str, scale: float | None = None) ->
 
     drawings = page.get_drawings()
 
-    # Walls: black 0.72 pt and gray 0.12 pt strokes inside the plan area, kept as 2-point segments.
-    seen, walls = set(), []
-    for d in drawings:
+    def is_wall(d) -> bool:
         color, width = d.get('color'), d.get('width') or 0
-        if not ((_same(color, BLACK) and abs(width - 0.72) < 0.2) or _same(color, GRAY)) or d.get('fill') is not None:
-            continue
-        for it in d['items']:
-            for a, b in _segments(it):
-                if area.contains(a) and area.contains(b):
-                    seg = (tuple(m(a)), tuple(m(b)))
-                    if math.dist(*seg) >= 0.05 and seg not in seen and seg[::-1] not in seen:
-                        seen.add(seg)
-                        walls.append([list(seg[0]), list(seg[1])])
+        if d.get('fill') is not None:
+            return False
+        if plain:  # skip_hairlines: room names drawn as hairline outlines on some posters, walls never hairline
+            return _dark(color) and not (skip_hairlines and width == 0)
+        return (_same(color, BLACK) and abs(width - 0.72) < 0.2) or _same(color, GRAY)
+
+    line_work = [(a, b) for d in drawings if is_wall(d) for it in d['items'] for a, b in _segments(it)
+                 if area.contains(a) and area.contains(b)]
+
+    # Stairs: orange hatch (plain posters: runs of treads), clustered into one polygon per stairwell.
+    if plain:
+        stair_segs = _treads(line_work, scale)
+        tread_ids = {id(s) for s in stair_segs}
+        line_work = [s for s in line_work if id(s) not in tread_ids]
+    else:
+        stair_segs = [(a, b) for d in drawings if _same(d.get('color'), ORANGE)
+                      for it in d['items'] for a, b in _segments(it) if area.contains(a) and area.contains(b)]
+    near = 3 / scale  # 3 m in points
+    stairs = [[list(map(lambda v: round(v, 2), p)) for p in _hull([tuple(m(q)) for s in g for q in s])]
+              for g in _clusters(stair_segs, lambda s: [(s[0].x, s[0].y), (s[1].x, s[1].y)], near)]
+    stairs = [s for s in stairs if len(s) >= 3]
+
+    # Walls: the line work inside the plan area (black 0.72 pt and gray 0.12 pt on colour posters), as 2-point segments.
+    seen, walls = set(), []
+    for a, b in line_work:
+        seg = (tuple(m(a)), tuple(m(b)))
+        if math.dist(*seg) >= 0.05 and seg not in seen and seg[::-1] not in seen:
+            seen.add(seg)
+            walls.append([list(seg[0]), list(seg[1])])
 
     doors = []
     for d in doors_pt:
@@ -265,25 +338,22 @@ def extract(pdf_path: str, level: int, name: str, scale: float | None = None) ->
         a1 = math.degrees(math.atan2(d['p1'].y - d['hinge'].y, d['p1'].x - d['hinge'].x))
         doors.append({'hinge': m(d['hinge']), 'r': round(d['r'] * scale, 2), 'from': round(a0, 1), 'to': round(a1, 1)})
 
-    # Stairs: orange hatch, clustered into one polygon per stairwell.
-    stair_segs = [(a, b) for d in drawings if _same(d.get('color'), ORANGE)
-                  for it in d['items'] for a, b in _segments(it) if area.contains(a) and area.contains(b)]
-    near = 3 / scale  # 3 m in points
-    stairs = [[list(map(lambda v: round(v, 2), p)) for p in _hull([tuple(m(q)) for s in g for q in s])]
-              for g in _clusters(stair_segs, lambda s: [(s[0].x, s[0].y), (s[1].x, s[1].y)], near)]
-    stairs = [s for s in stairs if len(s) >= 3]
-
-    # Fire-escape arrows: red fills, clustered (head + shaft), pointing from the centroid to the farthest vertex.
+    # Fire-escape arrows: red fills (plain posters: green), clustered (head + shaft), pointing from the centroid to
+    # the farthest vertex.
     arrow_parts = [[p for it in d['items'] for p in _points(it)] for d in drawings
-                   if _same(d.get('fill'), RED) and all(area.contains(p) for it in d['items'] for p in _points(it))]
+                   if _same(d.get('fill'), GREEN if plain else RED) and all(area.contains(p) for it in d['items'] for p in _points(it))]
     arrows = []
-    for g in _clusters([p for p in arrow_parts if p], lambda pts: [(q.x, q.y) for q in pts], 1.5 / scale):
+    for g in _clusters([p for p in arrow_parts if p], lambda pts: [(q.x, q.y) for q in pts], 12 if plain else 1.5 / scale):  # plain: 12 pt joins head and shaft; the arrows sit close together
+        if plain and len(g) > 12:  # the green "you are here" dot: an ellipse drawn as dozens of thin strips
+            continue
         verts = list({(round(q.x, 2), round(q.y, 2)) for pts in g for q in pts})
         cx, cy = sum(v[0] for v in verts) / len(verts), sum(v[1] for v in verts) / len(verts)
         c = m(fitz.Point(cx, cy))
         arrows.append({'x': c[0], 'y': c[1], 'deg': round(_arrow_heading(verts, cx, cy), 1)})
 
-    labels = _labels(page, area, m)
+    labels = _labels(page, area, m, 0x000000, 1.8) if plain else _labels(page, area, m)
+    # Names drawn as outlines instead of text cannot be read: import.json "labels" gives them in metres.
+    labels = sorted(labels + [dict(lab) for lab in extra_labels or []], key=lambda lab: (lab['y'], lab['x']))
     rooms = _rooms(walls, doors, labels, area, scale)
     return {
         'level': level, 'name': name, 'scale_m_per_pt': scale,
@@ -292,27 +362,33 @@ def extract(pdf_path: str, level: int, name: str, scale: float | None = None) ->
     }
 
 
-def _labels(page: fitz.Page, area: fitz.Rect, m) -> list[dict]:
+def _labels(page: fitz.Page, area: fitz.Rect, m, color: int = BLUE_TEXT, line_gap: float = 1.5) -> list[dict]:
+    """Room labels in the plan area; spans on consecutive lines (line_gap x the font size apart) form one name."""
     spans = []
     for block in page.get_text('dict')['blocks']:
         for line in block.get('lines', []):
+            dx, dy = round(line['dir'][0]), round(line['dir'][1])  # reading direction (vertical text on some posters)
             for sp in line['spans']:
                 text = ' '.join(sp['text'].split())
-                if sp['color'] != BLUE_TEXT or not text:
+                if sp['color'] != color or not text or text.upper() in NOT_LABELS:
                     continue
                 box = fitz.Rect(sp['bbox'])
                 if area.contains(fitz.Point((box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2)):
-                    spans.append({'text': text, 'box': box, 'size': sp['size']})
-    spans.sort(key=lambda s: (s['box'].y0, s['box'].x0))
+                    # The box in reading coordinates: u along the line, v towards the next line.
+                    us = [x * dx + y * dy for x in (box.x0, box.x1) for y in (box.y0, box.y1)]
+                    vs = [y * dx - x * dy for x in (box.x0, box.x1) for y in (box.y0, box.y1)]
+                    spans.append({'text': text, 'box': box, 'size': sp['size'], 'dir': (dx, dy),
+                                  'u0': min(us), 'u1': max(us), 'v0': min(vs)})
+    spans.sort(key=lambda s: (s['dir'], s['v0'], s['u0']))
     groups: list[list[dict]] = []
     for sp in spans:
-        cx = (sp['box'].x0 + sp['box'].x1) / 2
+        cu = (sp['u0'] + sp['u1']) / 2
         for g in groups:
             last = g[-1]
-            lcx = (last['box'].x0 + last['box'].x1) / 2
-            same_size = abs(sp['size'] - last['size']) < 0.6
-            same_line = abs(sp['box'].y0 - last['box'].y0) < 0.5 * sp['size'] and 0 <= sp['box'].x0 - last['box'].x1 < 0.6 * sp['size']
-            next_line = 0 < sp['box'].y0 - last['box'].y0 <= 1.5 * sp['size'] and abs(cx - lcx) < 2 * sp['size']
+            lcu = (last['u0'] + last['u1']) / 2
+            same_size = abs(sp['size'] - last['size']) < 0.6 and sp['dir'] == last['dir']
+            same_line = abs(sp['v0'] - last['v0']) < 0.5 * sp['size'] and 0 <= sp['u0'] - last['u1'] < 0.6 * sp['size']
+            next_line = 0 < sp['v0'] - last['v0'] <= line_gap * sp['size'] and abs(cu - lcu) < 2 * sp['size']
             if same_size and (same_line or next_line):
                 g.append(sp)
                 break
@@ -454,14 +530,24 @@ def main(argv: list[str]) -> None:
     bdir = argv[0].rstrip('/\\')
     cfg = json.load(open(os.path.join(bdir, 'import.json'), encoding='utf-8'))
     scale = cfg.get('scale_m_per_pt')
+    plain, fixed_area = cfg.get('style') == 'plain', cfg.get('plan_area')
     if scale is None:  # one scale for the whole building: median door radius across every floor
         radii = []
         for f in cfg['files']:
             page = fitz.open(os.path.join(bdir, 'source', f['pdf']))[0]
-            radii += [d['r'] for d in door_arcs(page, plan_area(page))]
+            radii += [d['r'] for d in door_arcs(page, fitz.Rect(fixed_area) if fixed_area else plan_area(page), plain)]
         scale = DOOR_M / statistics.median(radii)
     for f in cfg['files']:
-        floor = extract(os.path.join(bdir, 'source', f['pdf']), f['level'], f['name'], scale)
+        floor = extract(os.path.join(bdir, 'source', f['pdf']), f['level'], f['name'], scale, plain, fixed_area,
+                        cfg.get('labels', {}).get(str(f['level'])), cfg.get('skip_hairlines', False))
+        # Other posters of the same floor (another "you are here") add the escape arrows drawn from their spot.
+        for extra in f.get('more_arrows_from', []):
+            more = extract(os.path.join(bdir, 'source', extra), f['level'], f['name'], scale, plain, fixed_area)
+            arrows = floor['plan']['arrows']
+            arrows += [a for a in more['plan']['arrows'] if all(math.dist((a['x'], a['y']), (b['x'], b['y'])) > 1 for b in arrows)]
+        # Curved arrows defeat the direction guess: import.json "arrow_deg" sets the nearest arrow's heading by hand.
+        for x, y, deg in cfg.get('arrow_deg', {}).get(str(f['level']), []):
+            min(floor['plan']['arrows'], key=lambda a: math.dist((a['x'], a['y']), (x, y)))['deg'] = deg
         path = os.path.join(bdir, f"floor-{f['level']}.json")
         existing = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else {}
         manual = cfg.get('rooms', {}).get(str(f['level']), [])

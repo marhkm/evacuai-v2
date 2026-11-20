@@ -1,0 +1,14 @@
+{
+  "id": "A2",
+  "name": "Annex 2",
+  "origin": null,
+  "rotation_deg": 0,
+  "footprint": [],
+  "floors": [
+    { "level": 1, "name": "Ground", "elevation_m": 0, "height_m": 3.5 },
+    { "level": 3, "name": "Second", "elevation_m": 3.5, "height_m": 3.5 },
+    { "level": 4, "name": "Third", "elevation_m": 7, "height_m": 3.5 },
+    { "level": 5, "name": "Fourth", "elevation_m": 10.5, "height_m": 3.5 },
+    { "level": 6, "name": "Fifth", "elevation_m": 14, "height_m": 3.5 }
+  ]
+}

@@ -3,7 +3,9 @@
   "origin": null,
   "buildings": [
     "BE",
-    "A1"
+    "A1",
+    "OLD",
+    "A2"
   ],
   "assembly_points": [
     {
@@ -16,6 +18,20 @@
     {
       "id": "AP_Outside_A1",
       "node_id": "A1/1/AP_Outside",
+      "lat": null,
+      "lng": null,
+      "radius_m": 50
+    },
+    {
+      "id": "AP_Outside_OLD",
+      "node_id": "OLD/1/AP_Outside",
+      "lat": null,
+      "lng": null,
+      "radius_m": 50
+    },
+    {
+      "id": "AP_Outside_A2",
+      "node_id": "A2/1/AP_Outside",
       "lat": null,
       "lng": null,
       "radius_m": 50
