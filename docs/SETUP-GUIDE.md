@@ -300,7 +300,7 @@ issue or give it to your teacher.
 ## 12. A shared test server (teacher)
 
 For a test round where students use one server on the internet instead of their own PCs. This is still a **test**
-setup (plain `http://`, demo accounts, test mailbox), not production. A Linux VPS with 2 CPUs and 4–8 GB of memory
+setup (demo accounts, test mailbox), not production. A Linux VPS with 2 CPUs and 4–8 GB of memory
 (Ubuntu 24.04) is enough.
 
 1. **Open the ports** in the VPS provider's firewall: TCP **22** (SSH), **8000** (API, Command Center, Admin panel),
@@ -370,8 +370,9 @@ setup (plain `http://`, demo accounts, test mailbox), not production. A Linux VP
    ```
 
    Then: Command Center `https://<domain>/command`, Admin panel `https://<domain>/admin`, web app
-   `https://app.<domain>`, and phones use `https://<domain>` (typing just `<domain>` under **Server: …** works).
-   Ports 8000, 8080 and 8081 can then be closed in the firewall.
+   `https://app.<domain>`, test mailbox `https://<domain>/mail/` (user `tester`, password: the `DEMO_PASSWORD`),
+   and phones use `https://<domain>` (typing just `<domain>` under **Server: …** works). The testers' APK already
+   points at `https://evacuai.tech`. Ports 8000, 8080 and 8081 can then be closed in the firewall.
 
 **The AI photo check** runs on the server itself (photos never leave it): the setup script turns on the optional
 `ollama` service and downloads the small Moondream model (about 1.7 GB, once). It only advises officers; without it,
@@ -382,8 +383,9 @@ reports still work and show **AI: not available**. On your own PC it is off unle
 **Update** after new code is pushed: `cd evacuai-v2/docker && git pull && docker compose up -d --build`.
 **Stop** at the end of the round: `docker compose down` (keeps the data; `docker compose down -v` deletes it).
 
-Verification codes for new accounts go to the test mailbox, which only opens on the server itself. To read it from
-your computer, tunnel it over SSH, then open http://localhost:8025:
+Verification codes for new accounts go to the test mailbox. With a domain it is at `https://<domain>/mail/` (see
+above). Without one it only opens on the server itself; to read it from your computer, tunnel it over SSH, then open
+http://localhost:8025:
 
 ```bash
 ssh -L 8025:localhost:8025 root@<server IP>

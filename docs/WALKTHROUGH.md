@@ -31,7 +31,11 @@ person in the app at the same time (each window keeps its own sign-in).
 **Drills are practice.** Always tick **Drill** when you broadcast a test alert, so everyone can tell it is not real.
 Resolve your drills when you finish a scenario, so the next one starts clean.
 
-**On a shared test server** (`http://<server IP>`), use the password your teacher gives you instead of `evacuai-demo`, and use the APK for QR scans and GPS check-in: browsers only allow the camera and location on `https://` or `localhost`.
+**On a shared test server** (for example `https://evacuai.tech`), use the password your teacher gives you instead of
+`evacuai-demo`. The web app is at `https://app.<domain>`, and the test mailbox is at `https://<domain>/mail/` (user
+`tester`, password: the one your teacher gives you) instead of http://localhost:8025. On a server without a domain
+(`http://<server IP>`), use the APK for QR scans and GPS check-in: browsers only allow the camera and location on
+`https://` or `localhost`.
 
 **Colours mean the same everywhere** (like the safety signs on campus): red is danger and SOS, green is the way out and
 safe, amber is a warning or a drill, and blue is information.
@@ -49,7 +53,8 @@ safe, amber is a warning or a drill, and blue is information.
 1. Open http://localhost:8081 and tap **Create an account**.
 2. Enter your full name, an email (any address, for example `juan.test@example.com`) and a password of 8 characters or
    more, twice. Tap **Create account**.
-3. Open the test mailbox at http://localhost:8025, open the newest email and copy the 6-digit code.
+3. Open the test mailbox at http://localhost:8025 (on a shared test server: `https://<domain>/mail/`), open the
+   newest email and copy the 6-digit code.
 4. Back in the app, enter the code and tap **Verify**.
 5. Read the privacy notice and tap **I agree**.
 
@@ -67,7 +72,7 @@ safe, amber is a warning or a drill, and blue is information.
 2. Sign in as `student@evacuai.test` / `evacuai-demo`. Before tapping **Sign in**, tap **Show** next to the password,
    then **Hide**.
 3. Sign out again, tap **Forgot password?**, enter the email of the account from S1, read the code at
-   http://localhost:8025 and set a new password. Sign in with it.
+   the test mailbox and set a new password. Sign in with it.
 
 **Expected result**
 

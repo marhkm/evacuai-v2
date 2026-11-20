@@ -209,7 +209,11 @@ is different, write it in the <a href="#7-results">results table</a> at the end.
 person in the app at the same time (each window keeps its own sign-in).</p>
 <p><strong>Drills are practice.</strong> Always tick <strong>Drill</strong> when you broadcast a test alert, so everyone can tell it is not real.
 Resolve your drills when you finish a scenario, so the next one starts clean.</p>
-<p><strong>On a shared test server</strong> (<code>http://&lt;server IP&gt;</code>), use the password your teacher gives you instead of <code>evacuai-demo</code>, and use the APK for QR scans and GPS check-in: browsers only allow the camera and location on <code>https://</code> or <code>localhost</code>.</p>
+<p><strong>On a shared test server</strong> (for example <code>https://evacuai.tech</code>), use the password your teacher gives you instead of
+<code>evacuai-demo</code>. The web app is at <code>https://app.&lt;domain&gt;</code>, and the test mailbox is at <code>https://&lt;domain&gt;/mail/</code> (user
+<code>tester</code>, password: the one your teacher gives you) instead of <a href="http://localhost:8025">http://localhost:8025</a>. On a server without a domain
+(<code>http://&lt;server IP&gt;</code>), use the APK for QR scans and GPS check-in: browsers only allow the camera and location on
+<code>https://</code> or <code>localhost</code>.</p>
 <p><strong>Colours mean the same everywhere</strong> (like the safety signs on campus): red is danger and SOS, green is the way out and
 safe, amber is a warning or a drill, and blue is information.</p>
 <hr>
@@ -221,7 +225,8 @@ safe, amber is a warning or a drill, and blue is information.</p>
 <li>Open <a href="http://localhost:8081">http://localhost:8081</a> and tap <strong>Create an account</strong>.</li>
 <li>Enter your full name, an email (any address, for example <code>juan.test@example.com</code>) and a password of 8 characters or
 more, twice. Tap <strong>Create account</strong>.</li>
-<li>Open the test mailbox at <a href="http://localhost:8025">http://localhost:8025</a>, open the newest email and copy the 6-digit code.</li>
+<li>Open the test mailbox at <a href="http://localhost:8025">http://localhost:8025</a> (on a shared test server: <code>https://&lt;domain&gt;/mail/</code>), open the
+newest email and copy the 6-digit code.</li>
 <li>Back in the app, enter the code and tap <strong>Verify</strong>.</li>
 <li>Read the privacy notice and tap <strong>I agree</strong>.</li>
 </ol>
@@ -238,7 +243,7 @@ more, twice. Tap <strong>Create account</strong>.</li>
 <li>Sign in as <code>student@evacuai.test</code> / <code>evacuai-demo</code>. Before tapping <strong>Sign in</strong>, tap <strong>Show</strong> next to the password,
 then <strong>Hide</strong>.</li>
 <li>Sign out again, tap <strong>Forgot password?</strong>, enter the email of the account from S1, read the code at
-<a href="http://localhost:8025">http://localhost:8025</a> and set a new password. Sign in with it.</li>
+the test mailbox and set a new password. Sign in with it.</li>
 </ol>
 <p><strong>Expected result</strong></p>
 <ul>
