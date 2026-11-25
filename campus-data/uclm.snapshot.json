@@ -29427,6 +29427,12 @@
           }
         },
         {
+          "level": 5,
+          "name": "Fourth",
+          "elevation_m": 10.5,
+          "height_m": 3.5
+        },
+        {
           "level": 6,
           "name": "Fifth",
           "elevation_m": 14,
@@ -167624,6 +167630,296 @@
       "level": 4
     },
     {
+      "id": "A1/5/MINI_HOTEL",
+      "name": "MINI HOTEL",
+      "type": "lab",
+      "polygon": [
+        [
+          12.5,
+          29.5
+        ],
+        [
+          21.2,
+          29.5
+        ],
+        [
+          21.2,
+          36.2
+        ],
+        [
+          12.5,
+          36.2
+        ],
+        [
+          12.5,
+          29.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/KITCHEN_LAB",
+      "name": "KITCHEN LAB",
+      "type": "lab",
+      "polygon": [
+        [
+          22,
+          29.5
+        ],
+        [
+          30.8,
+          29.5
+        ],
+        [
+          30.8,
+          36.2
+        ],
+        [
+          22,
+          36.2
+        ],
+        [
+          22,
+          29.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/STOCK_ROOM",
+      "name": "UNLABELLED ROOM",
+      "type": "room",
+      "polygon": [
+        [
+          31.5,
+          29.8
+        ],
+        [
+          35.5,
+          29.8
+        ],
+        [
+          35.5,
+          36.2
+        ],
+        [
+          31.5,
+          36.2
+        ],
+        [
+          31.5,
+          29.8
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/A_42",
+      "name": "A-42",
+      "type": "classroom",
+      "polygon": [
+        [
+          41.2,
+          29.5
+        ],
+        [
+          49.8,
+          29.5
+        ],
+        [
+          49.8,
+          36.2
+        ],
+        [
+          41.2,
+          36.2
+        ],
+        [
+          41.2,
+          29.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/A_43",
+      "name": "A-43",
+      "type": "classroom",
+      "polygon": [
+        [
+          43.5,
+          18.5
+        ],
+        [
+          49.8,
+          18.5
+        ],
+        [
+          49.8,
+          26
+        ],
+        [
+          43.5,
+          26
+        ],
+        [
+          43.5,
+          18.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/CR_FEMALE",
+      "name": "FEMALE CR",
+      "type": "restroom",
+      "polygon": [
+        [
+          43.5,
+          14.5
+        ],
+        [
+          46.6,
+          14.5
+        ],
+        [
+          46.6,
+          18
+        ],
+        [
+          43.5,
+          18
+        ],
+        [
+          43.5,
+          14.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/CR_MALE",
+      "name": "MALE CR",
+      "type": "restroom",
+      "polygon": [
+        [
+          46.8,
+          14.5
+        ],
+        [
+          49.8,
+          14.5
+        ],
+        [
+          49.8,
+          18
+        ],
+        [
+          46.8,
+          18
+        ],
+        [
+          46.8,
+          14.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/TRAVEL_AND_TOUR",
+      "name": "TRAVEL AND TOUR",
+      "type": "classroom",
+      "polygon": [
+        [
+          6.2,
+          20.5
+        ],
+        [
+          11.8,
+          20.5
+        ],
+        [
+          11.8,
+          25.8
+        ],
+        [
+          6.2,
+          25.8
+        ],
+        [
+          6.2,
+          20.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/HM_OFFICE",
+      "name": "HM OFFICE",
+      "type": "office",
+      "polygon": [
+        [
+          4,
+          10.5
+        ],
+        [
+          12,
+          9.2
+        ],
+        [
+          13.4,
+          20.2
+        ],
+        [
+          5.2,
+          20.5
+        ],
+        [
+          4,
+          10.5
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/HM_FACULTY",
+      "name": "HM FACULTY",
+      "type": "office",
+      "polygon": [
+        [
+          2.6,
+          3.4
+        ],
+        [
+          10.4,
+          1.8
+        ],
+        [
+          12,
+          9.2
+        ],
+        [
+          4,
+          10.5
+        ],
+        [
+          2.6,
+          3.4
+        ]
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
       "id": "A1/6/BARTENDING_ROOM",
       "name": "BARTENDING ROOM",
       "type": "classroom",
@@ -173017,7 +173313,7 @@
     {
       "id": "BE/1/AP_Field",
       "type": "assembly_point",
-      "name": "Open ground",
+      "name": "Open Ground 2 · Basic Ed",
       "x": 8.126,
       "y": 60,
       "safe_for": [
@@ -173852,11 +174148,11 @@
       "safe_for": []
     },
     {
-      "id": "A1/1/AP_Outside",
+      "id": "A1/1/AP_NaturesSpring",
       "type": "assembly_point",
       "x": 60,
       "y": 30,
-      "name": "Off-campus assembly area",
+      "name": "Nature's Spring (off campus)",
       "safe_for": [
         "earthquake",
         "fire",
@@ -174815,6 +175111,263 @@
       "safe_for": []
     },
     {
+      "id": "A1/5/C1",
+      "type": "hallway",
+      "x": 36.45,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C2",
+      "type": "hallway",
+      "x": 30.58,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C3",
+      "type": "hallway",
+      "x": 24.71,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C4",
+      "type": "hallway",
+      "x": 18.85,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C5",
+      "type": "hallway",
+      "x": 12.97,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C6",
+      "type": "hallway",
+      "x": 7.16,
+      "y": 28.58,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C7",
+      "type": "hallway",
+      "x": 41.94,
+      "y": 17.51,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C8",
+      "type": "hallway",
+      "x": 41.94,
+      "y": 23.38,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C9",
+      "type": "hallway",
+      "x": 11.11,
+      "y": 3.53,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C10",
+      "type": "hallway",
+      "x": 12.6,
+      "y": 9.71,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C11",
+      "type": "hallway",
+      "x": 14.09,
+      "y": 15.88,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C12",
+      "type": "hallway",
+      "x": 15.77,
+      "y": 22,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/C13",
+      "type": "hallway",
+      "x": 7.16,
+      "y": 31.88,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/J1",
+      "type": "hallway",
+      "x": 15.77,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/J2",
+      "type": "hallway",
+      "x": 41.94,
+      "y": 28.09,
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/S1",
+      "type": "stairwell",
+      "x": 6.98,
+      "y": 31.23,
+      "name": "Stairs 1",
+      "safe_for": [
+        "flood"
+      ],
+      "building": "A1",
+      "level": 5
+    },
+    {
+      "id": "A1/5/LINK1",
+      "type": "exit",
+      "x": 41.87,
+      "y": 12.43,
+      "name": "To Annex 2",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_MINI_HOTEL",
+      "type": "room",
+      "x": 16.9,
+      "y": 32.9,
+      "room_id": "A1/5/MINI_HOTEL",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_KITCHEN_LAB",
+      "type": "room",
+      "x": 26.4,
+      "y": 32.9,
+      "room_id": "A1/5/KITCHEN_LAB",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_STOCK_ROOM",
+      "type": "room",
+      "x": 33.5,
+      "y": 33,
+      "room_id": "A1/5/STOCK_ROOM",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_A_42",
+      "type": "room",
+      "x": 45.5,
+      "y": 32.9,
+      "room_id": "A1/5/A_42",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_A_43",
+      "type": "room",
+      "x": 46.6,
+      "y": 22.2,
+      "room_id": "A1/5/A_43",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_CR_FEMALE",
+      "type": "room",
+      "x": 45,
+      "y": 16.2,
+      "room_id": "A1/5/CR_FEMALE",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_CR_MALE",
+      "type": "room",
+      "x": 48.3,
+      "y": 16.2,
+      "room_id": "A1/5/CR_MALE",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_TRAVEL_AND_TOUR",
+      "type": "room",
+      "x": 9,
+      "y": 23.1,
+      "room_id": "A1/5/TRAVEL_AND_TOUR",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_HM_OFFICE",
+      "type": "room",
+      "x": 8.7,
+      "y": 15.1,
+      "room_id": "A1/5/HM_OFFICE",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
+      "id": "A1/5/R_HM_FACULTY",
+      "type": "room",
+      "x": 7.3,
+      "y": 6.2,
+      "room_id": "A1/5/HM_FACULTY",
+      "building": "A1",
+      "level": 5,
+      "safe_for": []
+    },
+    {
       "id": "A1/6/C1",
       "type": "hallway",
       "x": 7.12,
@@ -175709,11 +176262,11 @@
       "safe_for": []
     },
     {
-      "id": "OLD/1/AP_Outside",
+      "id": "OLD/1/AP_OpenGround1",
       "type": "assembly_point",
       "x": 36,
       "y": 36,
-      "name": "Off-campus assembly area",
+      "name": "Open Ground 1 · Old Building",
       "safe_for": [
         "earthquake",
         "fire",
@@ -177967,20 +178520,6 @@
       "safe_for": []
     },
     {
-      "id": "A2/1/AP_Outside",
-      "type": "assembly_point",
-      "x": 30,
-      "y": 20,
-      "name": "Off-campus assembly area",
-      "safe_for": [
-        "earthquake",
-        "fire",
-        "flood"
-      ],
-      "building": "A2",
-      "level": 1
-    },
-    {
       "id": "A2/3/C1",
       "type": "hallway",
       "x": 63.46,
@@ -179397,6 +179936,30 @@
       "status": "open"
     },
     {
+      "id": "BE/1/Exit_South->A1/1/AP_NaturesSpring",
+      "from": "BE/1/Exit_South",
+      "to": "A1/1/AP_NaturesSpring",
+      "type": "outdoor",
+      "distance_m": 180,
+      "bidirectional": true,
+      "flags": [
+        "estimated"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "BE/1/Exit_North->A1/1/AP_NaturesSpring",
+      "from": "BE/1/Exit_North",
+      "to": "A1/1/AP_NaturesSpring",
+      "type": "outdoor",
+      "distance_m": 180,
+      "bidirectional": true,
+      "flags": [
+        "estimated"
+      ],
+      "status": "open"
+    },
+    {
       "id": "BE/2/C2_01->BE/2/C2_02",
       "from": "BE/2/C2_01",
       "to": "BE/2/C2_02",
@@ -180167,11 +180730,11 @@
       "status": "open"
     },
     {
-      "id": "A1/1/EXIT1->A1/1/AP_Outside",
+      "id": "A1/1/EXIT1->A1/1/AP_NaturesSpring",
       "from": "A1/1/EXIT1",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 80,
+      "distance_m": 200,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -180180,11 +180743,11 @@
       "status": "open"
     },
     {
-      "id": "A1/1/EXIT2->A1/1/AP_Outside",
+      "id": "A1/1/EXIT2->A1/1/AP_NaturesSpring",
       "from": "A1/1/EXIT2",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 80,
+      "distance_m": 200,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -180193,11 +180756,11 @@
       "status": "open"
     },
     {
-      "id": "A1/1/EXIT3->A1/1/AP_Outside",
+      "id": "A1/1/EXIT3->A1/1/AP_NaturesSpring",
       "from": "A1/1/EXIT3",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 80,
+      "distance_m": 200,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -180576,11 +181139,11 @@
       "status": "open"
     },
     {
-      "id": "A1/2/LINK1->A1/1/AP_Outside",
+      "id": "A1/2/LINK1->A1/1/AP_NaturesSpring",
       "from": "A1/2/LINK1",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 132,
+      "distance_m": 252,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -180929,11 +181492,11 @@
       "status": "open"
     },
     {
-      "id": "A1/3/LINK1->A1/1/AP_Outside",
+      "id": "A1/3/LINK1->A1/1/AP_NaturesSpring",
       "from": "A1/3/LINK1",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 139,
+      "distance_m": 259,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -181222,11 +181785,11 @@
       "status": "open"
     },
     {
-      "id": "A1/4/LINK1->A1/1/AP_Outside",
+      "id": "A1/4/LINK1->A1/1/AP_NaturesSpring",
       "from": "A1/4/LINK1",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 146,
+      "distance_m": 266,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -181240,6 +181803,289 @@
       "to": "A1/3/S1",
       "type": "stairs",
       "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C1->A1/5/C2",
+      "from": "A1/5/C1",
+      "to": "A1/5/C2",
+      "type": "corridor",
+      "distance_m": 5.8700000000000045,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C2->A1/5/C3",
+      "from": "A1/5/C2",
+      "to": "A1/5/C3",
+      "type": "corridor",
+      "distance_m": 5.869999999999997,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C3->A1/5/C4",
+      "from": "A1/5/C3",
+      "to": "A1/5/C4",
+      "type": "corridor",
+      "distance_m": 5.859999999999999,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C4->A1/5/C5",
+      "from": "A1/5/C4",
+      "to": "A1/5/C5",
+      "type": "corridor",
+      "distance_m": 5.880000000000001,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C5->A1/5/C6",
+      "from": "A1/5/C5",
+      "to": "A1/5/C6",
+      "type": "corridor",
+      "distance_m": 5.8306260384284645,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C6->A1/5/C13",
+      "from": "A1/5/C6",
+      "to": "A1/5/C13",
+      "type": "corridor",
+      "distance_m": 3.3000000000000007,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C8->A1/5/C7",
+      "from": "A1/5/C8",
+      "to": "A1/5/C7",
+      "type": "corridor",
+      "distance_m": 5.869999999999997,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C9->A1/5/C10",
+      "from": "A1/5/C9",
+      "to": "A1/5/C10",
+      "type": "corridor",
+      "distance_m": 6.357082664241516,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C10->A1/5/C11",
+      "from": "A1/5/C10",
+      "to": "A1/5/C11",
+      "type": "corridor",
+      "distance_m": 6.347361656625531,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C11->A1/5/C12",
+      "from": "A1/5/C11",
+      "to": "A1/5/C12",
+      "type": "corridor",
+      "distance_m": 6.346400554645128,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C5->A1/5/J1",
+      "from": "A1/5/C5",
+      "to": "A1/5/J1",
+      "type": "corridor",
+      "distance_m": 2.799999999999999,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/J1->A1/5/C12",
+      "from": "A1/5/J1",
+      "to": "A1/5/C12",
+      "type": "corridor",
+      "distance_m": 6.09,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C1->A1/5/J2",
+      "from": "A1/5/C1",
+      "to": "A1/5/J2",
+      "type": "corridor",
+      "distance_m": 5.489999999999995,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/J2->A1/5/C8",
+      "from": "A1/5/J2",
+      "to": "A1/5/C8",
+      "type": "corridor",
+      "distance_m": 4.710000000000001,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C13->A1/5/S1",
+      "from": "A1/5/C13",
+      "to": "A1/5/S1",
+      "type": "corridor",
+      "distance_m": 0.6744627491566885,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/C7->A1/5/LINK1",
+      "from": "A1/5/C7",
+      "to": "A1/5/LINK1",
+      "type": "door",
+      "distance_m": 5.080482260573302,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/LINK1->A1/1/AP_NaturesSpring",
+      "from": "A1/5/LINK1",
+      "to": "A1/1/AP_NaturesSpring",
+      "type": "outdoor",
+      "distance_m": 266,
+      "bidirectional": false,
+      "flags": [
+        "estimated",
+        "flood_prone"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/S1->A1/4/S1",
+      "from": "A1/5/S1",
+      "to": "A1/4/S1",
+      "type": "stairs",
+      "distance_m": 7,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_MINI_HOTEL->A1/5/C4",
+      "from": "A1/5/R_MINI_HOTEL",
+      "to": "A1/5/C4",
+      "type": "door",
+      "distance_m": 5.1902408421960535,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_KITCHEN_LAB->A1/5/C3",
+      "from": "A1/5/R_KITCHEN_LAB",
+      "to": "A1/5/C3",
+      "type": "door",
+      "distance_m": 5.098254603293168,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_STOCK_ROOM->A1/5/C2",
+      "from": "A1/5/R_STOCK_ROOM",
+      "to": "A1/5/C2",
+      "type": "door",
+      "distance_m": 5.712661376276386,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_A_42->A1/5/J2",
+      "from": "A1/5/R_A_42",
+      "to": "A1/5/J2",
+      "type": "door",
+      "distance_m": 5.984120653863857,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_A_43->A1/5/C8",
+      "from": "A1/5/R_A_43",
+      "to": "A1/5/C8",
+      "type": "door",
+      "distance_m": 4.807078114613911,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_CR_FEMALE->A1/5/C7",
+      "from": "A1/5/R_CR_FEMALE",
+      "to": "A1/5/C7",
+      "type": "door",
+      "distance_m": 3.3286183319810068,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_CR_MALE->A1/5/C7",
+      "from": "A1/5/R_CR_MALE",
+      "to": "A1/5/C7",
+      "type": "door",
+      "distance_m": 6.493512146750786,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_TRAVEL_AND_TOUR->A1/5/C12",
+      "from": "A1/5/R_TRAVEL_AND_TOUR",
+      "to": "A1/5/C12",
+      "type": "door",
+      "distance_m": 6.858782690827869,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_HM_OFFICE->A1/5/C11",
+      "from": "A1/5/R_HM_OFFICE",
+      "to": "A1/5/C11",
+      "type": "door",
+      "distance_m": 5.446145425895273,
+      "bidirectional": true,
+      "flags": [],
+      "status": "open"
+    },
+    {
+      "id": "A1/5/R_HM_FACULTY->A1/5/C9",
+      "from": "A1/5/R_HM_FACULTY",
+      "to": "A1/5/C9",
+      "type": "door",
+      "distance_m": 4.6524187257812475,
       "bidirectional": true,
       "flags": [],
       "status": "open"
@@ -181575,11 +182421,11 @@
       "status": "open"
     },
     {
-      "id": "A1/6/LINK1->A1/1/AP_Outside",
+      "id": "A1/6/LINK1->A1/1/AP_NaturesSpring",
       "from": "A1/6/LINK1",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 153,
+      "distance_m": 273,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -181588,9 +182434,9 @@
       "status": "open"
     },
     {
-      "id": "A1/6/S1->A1/4/S1",
+      "id": "A1/6/S1->A1/5/S1",
       "from": "A1/6/S1",
-      "to": "A1/4/S1",
+      "to": "A1/5/S1",
       "type": "stairs",
       "distance_m": 7,
       "bidirectional": true,
@@ -181918,11 +182764,11 @@
       "status": "open"
     },
     {
-      "id": "A1/7/LINK1->A1/1/AP_Outside",
+      "id": "A1/7/LINK1->A1/1/AP_NaturesSpring",
       "from": "A1/7/LINK1",
-      "to": "A1/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 160,
+      "distance_m": 280,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -182191,15 +183037,27 @@
       "status": "open"
     },
     {
-      "id": "OLD/1/EXIT1->OLD/1/AP_Outside",
+      "id": "OLD/1/EXIT1->OLD/1/AP_OpenGround1",
       "from": "OLD/1/EXIT1",
-      "to": "OLD/1/AP_Outside",
+      "to": "OLD/1/AP_OpenGround1",
       "type": "outdoor",
-      "distance_m": 80,
+      "distance_m": 20,
       "bidirectional": false,
       "flags": [
         "estimated",
         "flood_prone"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "OLD/1/EXIT1->A1/1/AP_NaturesSpring",
+      "from": "OLD/1/EXIT1",
+      "to": "A1/1/AP_NaturesSpring",
+      "type": "outdoor",
+      "distance_m": 150,
+      "bidirectional": true,
+      "flags": [
+        "estimated"
       ],
       "status": "open"
     },
@@ -183684,11 +184542,11 @@
       "status": "open"
     },
     {
-      "id": "OLD/5/LINK1->OLD/1/AP_Outside",
+      "id": "OLD/5/LINK1->OLD/1/AP_OpenGround1",
       "from": "OLD/5/LINK1",
-      "to": "OLD/1/AP_Outside",
+      "to": "OLD/1/AP_OpenGround1",
       "type": "outdoor",
-      "distance_m": 153,
+      "distance_m": 93,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -184307,11 +185165,11 @@
       "status": "open"
     },
     {
-      "id": "OLD/7/LINK1->OLD/1/AP_Outside",
+      "id": "OLD/7/LINK1->OLD/1/AP_OpenGround1",
       "from": "OLD/7/LINK1",
-      "to": "OLD/1/AP_Outside",
+      "to": "OLD/1/AP_OpenGround1",
       "type": "outdoor",
-      "distance_m": 167,
+      "distance_m": 107,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -184530,11 +185388,11 @@
       "status": "open"
     },
     {
-      "id": "A2/1/EXIT1->A2/1/AP_Outside",
+      "id": "A2/1/EXIT1->A1/1/AP_NaturesSpring",
       "from": "A2/1/EXIT1",
-      "to": "A2/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 80,
+      "distance_m": 250,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -184543,11 +185401,11 @@
       "status": "open"
     },
     {
-      "id": "A2/1/EXIT2->A2/1/AP_Outside",
+      "id": "A2/1/EXIT2->A1/1/AP_NaturesSpring",
       "from": "A2/1/EXIT2",
-      "to": "A2/1/AP_Outside",
+      "to": "A1/1/AP_NaturesSpring",
       "type": "outdoor",
-      "distance_m": 80,
+      "distance_m": 250,
       "bidirectional": false,
       "flags": [
         "estimated",
@@ -185858,32 +186716,25 @@
   ],
   "assemblyPoints": [
     {
+      "id": "AP_NaturesSpring",
+      "node_id": "A1/1/AP_NaturesSpring",
+      "lat": 10.326639,
+      "lng": 123.952111,
+      "radius_m": 50
+    },
+    {
+      "id": "AP_OpenGround1",
+      "node_id": "OLD/1/AP_OpenGround1",
+      "lat": null,
+      "lng": null,
+      "radius_m": 30
+    },
+    {
       "id": "AP_Field",
       "node_id": "BE/1/AP_Field",
       "lat": null,
       "lng": null,
       "radius_m": 25
-    },
-    {
-      "id": "AP_Outside_A1",
-      "node_id": "A1/1/AP_Outside",
-      "lat": null,
-      "lng": null,
-      "radius_m": 50
-    },
-    {
-      "id": "AP_Outside_OLD",
-      "node_id": "OLD/1/AP_Outside",
-      "lat": null,
-      "lng": null,
-      "radius_m": 50
-    },
-    {
-      "id": "AP_Outside_A2",
-      "node_id": "A2/1/AP_Outside",
-      "lat": null,
-      "lng": null,
-      "radius_m": 50
     }
   ],
   "hazardRoomIds": [],

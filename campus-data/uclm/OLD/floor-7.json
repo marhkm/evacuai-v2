@@ -568,10 +568,10 @@
   },
   {
    "from": "LINK1",
-   "to": "OLD/1/AP_Outside",
+   "to": "OLD/1/AP_OpenGround1",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 167,
+   "distance_m": 107,
    "flags": [
     "estimated",
     "flood_prone"

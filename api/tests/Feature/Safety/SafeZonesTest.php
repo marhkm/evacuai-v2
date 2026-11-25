@@ -13,10 +13,11 @@ use Livewire\Livewire;
 uses(RefreshDatabase::class);
 
 const FIELD = 'BE/1/AP_Field';
-const OUTSIDE = 'A1/1/AP_Outside';
+const SPRING = 'A1/1/AP_NaturesSpring';
+const OLD_GROUND = 'OLD/1/AP_OpenGround1';
 
 beforeEach(function () {
-    $this->seed(CampusSeeder::class); // the real campus: two safe zones
+    $this->seed(CampusSeeder::class); // the real campus: Nature's Spring and the two open grounds
     $this->alert = Alert::create(['hazard_type' => 'fire', 'severity_level' => 'high', 'message' => 'Drill', 'is_drill' => true, 'issued_at' => now()]);
 });
 
@@ -32,30 +33,37 @@ function safeAt(int $alertId, string $node, int $people): void
     }
 }
 
-it('names the Field "Open ground" and counts people against capacity', function () {
+it('names each safe zone so people know which one they are at, and counts people against capacity', function () {
     capacity(FIELD, 2);
     safeAt($this->alert->id, FIELD, 2);
-    safeAt($this->alert->id, OUTSIDE, 1);
+    safeAt($this->alert->id, SPRING, 1);
 
-    expect(SafeZones::forAlert($this->alert->id))->toBe([
-        ['node_id' => FIELD, 'name' => 'Open ground', 'count' => 2, 'capacity' => 2, 'full' => true],
-        ['node_id' => OUTSIDE, 'name' => 'Off-campus assembly area', 'count' => 1, 'capacity' => null, 'full' => false],
-    ]);
+    $zones = collect(SafeZones::forAlert($this->alert->id))->keyBy('node_id');
+    expect($zones)->toHaveCount(3)
+        ->and($zones[SPRING])->toBe(['node_id' => SPRING, 'name' => "Nature's Spring (off campus)", 'count' => 1, 'capacity' => null, 'full' => false])
+        ->and($zones[OLD_GROUND]['name'])->toBe('Open Ground 1 · Old Building')
+        ->and($zones[FIELD])->toBe(['node_id' => FIELD, 'name' => 'Open Ground 2 · Basic Ed', 'count' => 2, 'capacity' => 2, 'full' => true]);
+});
+
+it('knows where the Nature Spring site is, so phones can check people in there by GPS', function () {
+    expect(DB::table('assembly_points')->where('node_id', SPRING)->first())
+        ->lat->toEqual(10.326639)->lng->toEqual(123.952111);
 });
 
 it('treats capacity 0 as full and a blank capacity as no limit', function () {
     capacity(FIELD, 0);
     $zones = collect(SafeZones::forAlert($this->alert->id))->keyBy('node_id');
 
-    expect($zones[FIELD]['full'])->toBeTrue()->and($zones[OUTSIDE]['full'])->toBeFalse();
+    expect($zones[FIELD]['full'])->toBeTrue()->and($zones[SPRING]['full'])->toBeFalse();
 });
 
 it('suggests another zone with space', function () {
     capacity(FIELD, 1);
     safeAt($this->alert->id, FIELD, 1);
 
-    expect(SafeZones::suggest($this->alert->id, FIELD)['name'] ?? null)->toBe('Off-campus assembly area');
-    capacity(OUTSIDE, 0);
+    expect(SafeZones::suggest($this->alert->id, FIELD)['name'] ?? null)->not->toBeNull();
+    capacity(SPRING, 0);
+    capacity(OLD_GROUND, 0);
     expect(SafeZones::suggest($this->alert->id, FIELD))->toBeNull();
 });
 
@@ -83,7 +91,7 @@ it('lets an admin set capacity on the Safe zones page, and logs it', function ()
     $this->actingAs(officerUser(Role::Admin), 'admin');
 
     Livewire::test(SafeZonesPage::class)
-        ->assertSee('Open ground')
+        ->assertSee('Open Ground 1 · Old Building')->assertSee('Open Ground 2 · Basic Ed')->assertSee('Spring (off campus)')
         ->set('capacities.AP_Field', '300')
         ->call('save')
         ->assertHasNoErrors();
@@ -101,6 +109,6 @@ it('shows capacity and full on the officer safety board', function () {
     safeAt($this->alert->id, FIELD, 1);
     Sanctum::actingAs(officerUser());
 
-    $this->getJson('/api/officer/safety')->assertOk()
-        ->assertJsonPath('occupancy.0', ['node_id' => FIELD, 'name' => 'Open ground', 'count' => 1, 'capacity' => 1, 'full' => true]);
+    $zones = collect($this->getJson('/api/officer/safety')->assertOk()->json('occupancy'))->keyBy('node_id');
+    expect($zones[FIELD])->toBe(['node_id' => FIELD, 'name' => 'Open Ground 2 · Basic Ed', 'count' => 1, 'capacity' => 1, 'full' => true]);
 });

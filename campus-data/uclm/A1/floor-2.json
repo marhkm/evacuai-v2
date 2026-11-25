@@ -723,10 +723,10 @@
   },
   {
    "from": "LINK1",
-   "to": "A1/1/AP_Outside",
+   "to": "A1/1/AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 132,
+   "distance_m": 252,
    "flags": [
     "estimated",
     "flood_prone"

@@ -30,3 +30,26 @@ test('clicking a path on the plan opens its panel, and Blocked saves it', async 
     expect(JSON.parse(String(call?.[1]?.body))).toEqual({ status: 'blocked' });
   });
 });
+
+test('a stair flight can block its whole staircase in one click', async () => {
+  const id = 'BE/2/Stairs_Left_2->BE/1/Stairs_Left_G';
+  const stairs = { id, type: 'stairs', building_id: 'BE', level: 2, from: 'Stairs Left 2', to: 'Stairs Left G', place: 'Basic Ed · Second', status: 'open', updated_by: null, updated_at: null };
+  const fetch = mockFetch({
+    'GET /api/officer/me': [200, { id: 1, name: 'Olive Officer', role: 'safety_officer' }],
+    'GET /api/officer/overview': [200, { stats: { open_sos: 0 }, active_alert: null }],
+    'GET /api/campus-snapshot': [200, snapshot],
+    'GET /api/officer/live': [200, { alert: null, edges: {}, hazardRoomIds: [], roomCounts: {}, pins: [] }],
+    'GET /api/officer/paths?building=BE&level=1': [200, { paths: [] }],
+    'GET /api/officer/paths?building=BE&level=2': [200, { paths: [stairs] }],
+    [`PATCH /api/officer/paths/${encodeURIComponent(id)}/staircase`]: [200, { changed: 2 }],
+  });
+  renderApp('/paths');
+  fireEvent.change(await screen.findByLabelText('Floor'), { target: { value: '2' } });
+  fireEvent.click(await screen.findByRole('button', { name: 'Block whole staircase: Stairs Left 2' }));
+  await waitFor(() => {
+    const call = fetch.mock.calls.find(([, i]) => i?.method === 'PATCH');
+    expect(call?.[0]).toBe(`/api/officer/paths/${encodeURIComponent(id)}/staircase`);
+    expect(JSON.parse(String(call?.[1]?.body))).toEqual({ status: 'blocked' });
+  });
+  expect(screen.getByRole('button', { name: 'Open whole staircase: Stairs Left 2' })).toBeTruthy();
+});

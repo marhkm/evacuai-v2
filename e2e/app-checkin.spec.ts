@@ -16,12 +16,12 @@ test('check in at a safe zone, then asked before updating', async ({ page, reque
   await expect(page.getByText('Welcome, Demo Student')).toBeVisible({ timeout: 45_000 });
 
   await page.goto('/checkin');
-  const zone = page.getByRole('button', { name: /^Open ground · / });
+  const zone = page.getByRole('button', { name: /^Open Ground 2 · Basic Ed · / });
   await expect(zone).toBeVisible({ timeout: 20_000 });
   const asked: string[] = []; // every prompt, answered Keep (a rerun is already checked in: the first tap asks too)
   page.on('dialog', d => { asked.push(d.message()); void d.dismiss(); });
   await zone.click();
-  await expect(page.getByText(/You checked in safe at .*Open ground/)).toBeVisible();
+  await expect(page.getByText(/You checked in safe at .*Open Ground 2 · Basic Ed/)).toBeVisible();
 
   const before = asked.length;
   await zone.click();

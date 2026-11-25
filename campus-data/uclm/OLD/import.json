@@ -64,12 +64,11 @@
  ],
  "flood_safe_from_level": 3,
  "assembly": {
-  "id": "AP_Outside",
-  "name": "Off-campus assembly area",
+  "id": "AP_OpenGround1",
+  "name": "Open Ground 1 · Old Building",
   "x": 36,
   "y": 36,
-  "distance_m": 80,
-  "note": "placeholder until the school confirms the Old Building's assembly point"
+  "distance_m": 20
  },
  "rooms": {
   "3": [

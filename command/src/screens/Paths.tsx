@@ -24,6 +24,9 @@ export function Paths() {
   const action = useAction(['paths'], ['live'], ['overview']);
   // Edge ids contain "/" and "->": encoded as one path segment.
   const set = (id: string, status: EdgeStatus) => action.run(() => api(`/api/officer/paths/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status } }));
+  // Every flight of the staircase at once: smoke in a stairwell closes all of it, so routes switch to the other stairs.
+  const setStaircase = (id: string, status: EdgeStatus) =>
+    action.run(() => api(`/api/officer/paths/${encodeURIComponent(id)}/staircase`, { method: 'PATCH', body: { status } }));
   const statusOf = (id: string): EdgeStatus => live.data?.edges?.[id] ?? 'open';
   const name = (id: string) => snap.data?.nodes.find(n => n.id === id)?.name ?? id.split('/').pop();
 
@@ -34,7 +37,7 @@ export function Paths() {
         <span className="spacer" />
         {snap.data && <FloorPicker snap={snap.data} floor={{ ...floor, set: (b, l) => { setSelected(null); floor.set(b, l); } }} />}
       </div>
-      <p className="muted">Click a path on the plan to mark it. Blocked paths are never routed; congested ones are avoided when there is another way. Every phone re-routes at once.</p>
+      <p className="muted">Click a path on the plan to mark it. Blocked paths are never routed; congested ones are avoided when there is another way. Every phone re-routes at once. Stairs between floors are in the table below: <strong>Block whole staircase</strong> closes every floor of that staircase.</p>
       {action.error && <p className="banner danger" role="alert">{action.error}</p>}
       <div className="paths-layout">
         {snap.data && floor.building && <PlanView snap={snap.data} building={floor.building} level={floor.level} live={live.data} onEdge={setSelected} />}
@@ -55,7 +58,7 @@ export function Paths() {
       {paths.data?.paths.length === 0 && <p className="muted">No paths on this floor.</p>}
       {!!paths.data?.paths.length && (
         <table>
-          <thead><tr><th>From</th><th>To</th><th>Type</th><th>Status</th><th>Changed by</th></tr></thead>
+          <thead><tr><th>From</th><th>To</th><th>Type</th><th>Status</th><th>Whole staircase</th><th>Changed by</th></tr></thead>
           <tbody>
             {paths.data.paths.map(p => (
               <tr key={p.id}>
@@ -66,6 +69,14 @@ export function Paths() {
                   <select aria-label={`Status of ${p.from} to ${p.to}`} value={p.status} onChange={e => set(p.id, e.target.value as EdgeStatus)}>
                     {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
+                </td>
+                <td>
+                  {p.type === 'stairs' && (
+                    <div className="row">
+                      <button disabled={action.busy} aria-label={`Block whole staircase: ${p.from}`} onClick={() => setStaircase(p.id, 'blocked')}>Block</button>
+                      <button disabled={action.busy} aria-label={`Open whole staircase: ${p.from}`} onClick={() => setStaircase(p.id, 'open')}>Open</button>
+                    </div>
+                  )}
                 </td>
                 <td className="muted">{p.updated_by ?? '–'}</td>
               </tr>

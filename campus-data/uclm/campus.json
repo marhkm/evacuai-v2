@@ -9,32 +9,25 @@
   ],
   "assembly_points": [
     {
+      "id": "AP_NaturesSpring",
+      "node_id": "A1/1/AP_NaturesSpring",
+      "lat": 10.326639,
+      "lng": 123.952111,
+      "radius_m": 50
+    },
+    {
+      "id": "AP_OpenGround1",
+      "node_id": "OLD/1/AP_OpenGround1",
+      "lat": null,
+      "lng": null,
+      "radius_m": 30
+    },
+    {
       "id": "AP_Field",
       "node_id": "BE/1/AP_Field",
       "lat": null,
       "lng": null,
       "radius_m": 25
-    },
-    {
-      "id": "AP_Outside_A1",
-      "node_id": "A1/1/AP_Outside",
-      "lat": null,
-      "lng": null,
-      "radius_m": 50
-    },
-    {
-      "id": "AP_Outside_OLD",
-      "node_id": "OLD/1/AP_Outside",
-      "lat": null,
-      "lng": null,
-      "radius_m": 50
-    },
-    {
-      "id": "AP_Outside_A2",
-      "node_id": "A2/1/AP_Outside",
-      "lat": null,
-      "lng": null,
-      "radius_m": 50
     }
   ]
 }

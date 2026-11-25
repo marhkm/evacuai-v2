@@ -21,7 +21,9 @@ export function useCampus() {
       .catch(e => { if (!cancelled) setError((e as Error).message); });
     load();
     subscribeCampus(load).then(u => (cancelled ? u() : (unsubscribe = u))).catch(() => undefined);
-    return () => { cancelled = true; unsubscribe?.(); };
+    // Backup for a missed live update (phone asleep, poor signal): a blocked path still reaches it. ETag keeps it cheap.
+    const poll = setInterval(load, 30_000);
+    return () => { cancelled = true; unsubscribe?.(); clearInterval(poll); };
   }, [token]);
 
   return { snapshot, offline, error };

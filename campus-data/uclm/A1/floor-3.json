@@ -722,10 +722,10 @@
   },
   {
    "from": "LINK1",
-   "to": "A1/1/AP_Outside",
+   "to": "A1/1/AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 139,
+   "distance_m": 259,
    "flags": [
     "estimated",
     "flood_prone"

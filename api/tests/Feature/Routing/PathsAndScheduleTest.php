@@ -73,3 +73,30 @@ describe('schedules', function () {
         $this->getJson('/api/me/schedule/now')->assertOk()->assertJsonPath('class', null);
     });
 });
+
+describe('whole staircase', function () {
+    beforeEach(function () {
+        config(['evacuai.campus_dataset' => 'uclm']);
+        $this->seed(CampusSeeder::class);
+    });
+
+    it('blocks every flight of a staircase at once, and tells phones once', function () {
+        Event::fake([CampusChanged::class]);
+        $this->actingAs(officer());
+
+        $this->patchJson('/api/officer/paths/'.rawurlencode('BE/3/Stairs_Left_3->BE/2/Stairs_Left_2').'/staircase', ['status' => 'blocked'])
+            ->assertOk()->assertJsonPath('changed', 2);
+
+        $status = fn (string $id) => DB::table('evac_edges')->where('id', $id)->value('status');
+        expect($status('BE/3/Stairs_Left_3->BE/2/Stairs_Left_2'))->toBe('blocked')
+            ->and($status('BE/2/Stairs_Left_2->BE/1/Stairs_Left_G'))->toBe('blocked')
+            ->and($status('BE/2/Stairs_Right_2->BE/1/Stairs_Right_G'))->toBe('open')
+            ->and(DB::table('user_activity_logs')->where('activity_type', 'staircase_status_changed')->count())->toBe(1);
+        Event::assertDispatchedTimes(CampusChanged::class, 1);
+    });
+
+    it('only works on stairs', function () {
+        $this->actingAs(officer());
+        $this->patchJson('/api/officer/paths/'.rawurlencode('BE/1/C1_01->BE/1/C1_02').'/staircase', ['status' => 'blocked'])->assertUnprocessable();
+    });
+});

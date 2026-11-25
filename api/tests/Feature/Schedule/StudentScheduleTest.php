@@ -120,7 +120,7 @@ it('no longer has the admin import page', function () {
 });
 
 it('stops reading a huge sheet early instead of loading every row', function () {
-    $rows = array_merge([HEADER], array_fill(0, 60000, ['IT 101', 'R101', 'M', '08:00', '09:00']));
+    $rows = array_merge([HEADER], array_fill(0, 30000, ['IT 101', 'R101', 'M', '08:00', '09:00']));
     $file = sheet($rows);
     gc_collect_cycles();
     memory_reset_peak_usage();

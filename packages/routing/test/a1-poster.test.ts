@@ -1,7 +1,7 @@
 import { findRoute } from '../src/route';
 import { loadCampus } from '../src/load';
 
-// Annex 1 was imported from UCLM's evacuation posters. Its computed fire routes must lead off campus and, at every
+// Annex 1 was imported from UCLM's evacuation posters. Its computed fire routes must lead to Nature's Spring (off campus) and, at every
 // corridor point that carries a poster arrow, leave in the direction that arrow points (within 90°).
 const snap = loadCampus('campus-data/uclm');
 const a1 = snap.buildings.find(b => b.id === 'A1')!;
@@ -10,15 +10,16 @@ describe.each(a1.floors.map(f => [f.name, f.level] as const))('Annex 1 %s', (_na
   const floor = a1.floors.find(f => f.level === level)!;
   const rooms = snap.nodes.filter(n => n.building === 'A1' && n.level === level && n.type === 'room');
 
-  test('every room evacuates to the off-campus assembly area for fire', () => {
+  test("every room evacuates to Nature's Spring for fire", () => {
     for (const room of rooms) {
       const r = findRoute(snap, room.id, 'fire');
       expect(r.ok, room.id).toBe(true);
-      if (r.ok) expect(r.route.destinationId).toBe('A1/1/AP_Outside');
+      if (r.ok) expect(r.route.destinationId).toBe('A1/1/AP_NaturesSpring');
     }
   });
 
-  test('the fire route follows the poster arrows', () => {
+  // The Fourth floor was traced by hand from a photo (no vector poster yet): no arrows or walls to check against.
+  test.skipIf(!floor.plan)('the fire route follows the poster arrows', () => {
     const arrows = floor.plan!.arrows;
     const farthest = rooms
       .map(room => ({ room, r: findRoute(snap, room.id, 'fire') }))
@@ -63,7 +64,7 @@ test('Annex 1: corridor hops never pass through a wall', () => {
     const o = (a: number[], b: number[], c: number[]) => Math.sign((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]));
     return o(p1, p2, q1) * o(p1, p2, q2) < 0 && o(q1, q2, p1) * o(q1, q2, p2) < 0;
   };
-  for (const f of a1.floors) {
+  for (const f of a1.floors.filter(x => x.plan)) { // floors traced without a poster have no walls to check
     const walls = f.plan!.walls.filter(w => Math.hypot(w[1][0] - w[0][0], w[1][1] - w[0][1]) >= 1);
     for (const e of snap.edges) {
       const a = snap.nodes.find(n => n.id === e.from)!;

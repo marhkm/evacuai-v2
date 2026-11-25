@@ -578,7 +578,7 @@
     {
       "id": "AP_Field",
       "type": "assembly_point",
-      "name": "Open ground",
+      "name": "Open Ground 2 · Basic Ed",
       "x": 8.126,
       "y": 60,
       "safe_for": [
@@ -696,6 +696,24 @@
       "to": "AP_Field",
       "type": "outdoor",
       "distance_m": 30
+    },
+    {
+      "from": "Exit_South",
+      "to": "A1/1/AP_NaturesSpring",
+      "type": "outdoor",
+      "distance_m": 180,
+      "flags": [
+        "estimated"
+      ]
+    },
+    {
+      "from": "Exit_North",
+      "to": "A1/1/AP_NaturesSpring",
+      "type": "outdoor",
+      "distance_m": 180,
+      "flags": [
+        "estimated"
+      ]
     }
   ]
 }

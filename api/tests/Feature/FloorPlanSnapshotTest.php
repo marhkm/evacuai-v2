@@ -17,7 +17,7 @@ it('stores the poster floor plans for Annex 1 only', function () {
     $a1 = DB::table('floors')->where(['building_id' => 'A1', 'level' => 1])->value('plan');
     expect(json_decode((string) $a1, true)['walls'])->not->toBeEmpty()
         ->and(DB::table('floors')->where(['building_id' => 'BE', 'level' => 1])->value('plan'))->toBeNull()
-        ->and(DB::table('floors')->where('building_id', 'A1')->pluck('level')->all())->toBe([1, 2, 3, 4, 6, 7]);
+        ->and(DB::table('floors')->where('building_id', 'A1')->orderBy('level')->pluck('level')->all())->toBe([1, 2, 3, 4, 5, 6, 7]); // 5 = Fourth, traced from a photo
 });
 
 it('serves floor plans in the campus snapshot, within the size budget', function () {

@@ -280,18 +280,6 @@
    "x": 47.7,
    "y": 24.8,
    "name": "Gate 4"
-  },
-  {
-   "id": "AP_Outside",
-   "type": "assembly_point",
-   "x": 30,
-   "y": 20,
-   "name": "Off-campus assembly area",
-   "safe_for": [
-    "earthquake",
-    "fire",
-    "flood"
-   ]
   }
  ],
  "edges": [
@@ -397,10 +385,10 @@
   },
   {
    "from": "EXIT1",
-   "to": "AP_Outside",
+   "to": "A1/1/AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 80,
+   "distance_m": 250,
    "flags": [
     "estimated",
     "flood_prone"
@@ -408,10 +396,10 @@
   },
   {
    "from": "EXIT2",
-   "to": "AP_Outside",
+   "to": "A1/1/AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 80,
+   "distance_m": 250,
    "flags": [
     "estimated",
     "flood_prone"

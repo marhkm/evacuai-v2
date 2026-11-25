@@ -679,10 +679,10 @@
   },
   {
    "from": "LINK1",
-   "to": "A1/1/AP_Outside",
+   "to": "A1/1/AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 153,
+   "distance_m": 273,
    "flags": [
     "estimated",
     "flood_prone"
@@ -690,7 +690,7 @@
   },
   {
    "from": "S1",
-   "to": "A1/4/S1",
+   "to": "A1/5/S1",
    "type": "stairs"
   }
  ],

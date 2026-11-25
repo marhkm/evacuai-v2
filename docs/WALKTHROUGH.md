@@ -187,8 +187,8 @@ safe, amber is a warning or a drill, and blue is information.
    drill. Leave the building by the nearest stairs." and click **Broadcast**.
 2. Watch the app's home screen.
 3. In the app, tap **EVACUATE NOW**, then go back and tap **Check in safe**. Under **I'm safe at a safe zone**, tap
-   **Open ground · …** (or **Scan safe zone QR**, or **I'm safe (not at a safe zone)**).
-4. Tap **Open ground · …** again.
+   **Open Ground 2 · Basic Ed · …** (or **Scan safe zone QR**, or **I'm safe (not at a safe zone)**).
+4. Tap **Open Ground 2 · Basic Ed · …** again.
 5. Tap **Scan safe zone QR**, then **Close scanner**. Open it again and tap **Close** on the camera. Open it once more
    and go back to the home screen.
 6. Tap **Alerts** on the home screen.
@@ -198,9 +198,11 @@ safe, amber is a warning or a drill, and blue is information.
 - [ ] Within seconds, the app shows an amber striped **[DRILL] FIRE ALERT** band, without refreshing.
 - [ ] The home then leads with a big green **EVACUATE NOW** button, with **SOS** and **Check in safe** under it.
 - [ ] **EVACUATE NOW** opens the evacuation route already set for fire.
-- [ ] Each safe zone shows how many people are there, for example **Open ground · 1 of 300** (or **· 1 here** when an
+- [ ] There are three safe zones, each named so you know which one you are at: **Nature's Spring (off campus)**,
+      **Open Ground 1 · Old Building** and **Open Ground 2 · Basic Ed**.
+- [ ] Each safe zone shows how many people are there, for example **Open Ground 2 · Basic Ed · 1 of 300** (or **· 1 here** when an
       admin has not set a capacity, A6).
-- [ ] Check-in confirms **You checked in safe at … Open ground.** There is no **I need help** button: SOS is the way
+- [ ] Check-in confirms **You checked in safe at … Open Ground 2 · Basic Ed.** There is no **I need help** button: SOS is the way
       to ask for help.
 - [ ] Checking in again asks **You already checked in at … Update your status?** **Keep** changes nothing; **Update**
       changes it, and **Earlier check-ins** lists the first one.
@@ -298,12 +300,19 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
 2. In the Command Center, open **Paths**, choose the same building and floor, and click a path on the route (a line on
    the plan). In the panel, click **Blocked**.
 3. Click the same path and set it back to **Open**.
+4. In the app, pick a room on the **Second** floor of **Basic Education Building** and note which stairs the route
+   uses. In **Paths**, choose that building and the **Second** floor; in the table, find that staircase's row (type
+   **stairs**) and click **Block** under **Whole staircase**. Then click **Open**.
 
 **Expected result**
 
 - [ ] The blocked path shows as a dark dashed line with ✕ on the plan.
-- [ ] Within seconds, the app's route changes by itself to avoid it.
+- [ ] Within seconds, the app's route changes by itself to avoid it, and says **Your route changed: safety officers
+      closed or reopened a path. Follow the new route.**
 - [ ] After **Open**, the original route comes back.
+- [ ] **Block** under **Whole staircase** closes that staircase on every floor at once: the route switches to the other
+      staircase and exit. **Open** brings it back.
+- [ ] A phone that missed the live update still re-routes within 30 seconds.
 
 ### O5. Hazard reports and the 3-report rule
 
@@ -500,15 +509,17 @@ Each drill uses both windows (and a phone if you have one). Resolve it at the en
 **Steps**
 
 1. In the **Admin panel**, open **Safe zones**.
-2. Type **300** for **Open ground**, leave **Off-campus assembly area** blank, and click **Save**.
+2. Type **300** for **Open Ground 2 · Basic Ed** and **200** for **Open Ground 1 · Old Building**, leave
+   **Nature's Spring (off campus)** blank, and click **Save**.
 3. During a drill, open the app's **Check in safe** screen.
 
 **Expected result**
 
 - [ ] **Safe zone capacities saved** appears, and the numbers are still there after a reload.
-- [ ] The app shows **Open ground · … of 300**, and **Off-campus assembly area · … here** (no limit).
+- [ ] The app shows **Open Ground 2 · Basic Ed · … of 300**, **Open Ground 1 · Old Building · … of 200**, and
+      **Nature's Spring (off campus) · … here** (no limit).
 - [ ] With a capacity smaller than the people checked in, the zone shows **Full**, and checking in there suggests the
-      other zone.
+      other zone, and evacuation routes lead to another safe zone with room.
 
 ### A7. Report rules and false reports
 

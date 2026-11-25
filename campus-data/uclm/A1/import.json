@@ -1,5 +1,5 @@
 {
- "about": "Annex 1 evacuation posters (source/*.pdf, gitignored). Level 5 (Fourth) has no poster yet, so it is absent.",
+ "about": "Annex 1 evacuation posters (source/*.pdf, gitignored). Level 5 (Fourth) has no vector poster yet: floor-5.json was traced by hand from a photo (approximate sizes, no plan drawing). Do not re-import level 5 until the poster PDF is available.",
  "files": [
   {
    "pdf": "plan-ground.pdf",
@@ -34,11 +34,11 @@
  ],
  "flood_safe_from_level": 3,
  "assembly": {
-  "id": "AP_Outside",
-  "name": "Off-campus assembly area",
+  "id": "AP_NaturesSpring",
+  "name": "Nature's Spring (off campus)",
   "x": 60,
   "y": 30,
-  "distance_m": 80
+  "distance_m": 200
  },
  "links": {
   "3": [

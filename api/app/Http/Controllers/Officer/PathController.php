@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Officer;
 
+use App\Events\CampusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\EvacEdge;
+use App\Support\Activity;
 use App\Support\Places;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 /** Path segments and their status. The EvacEdge model records who changed it, logs it and tells every phone. */
 class PathController extends Controller
@@ -31,6 +34,38 @@ class PathController extends Controller
         $path->update($request->validate(['status' => ['required', Rule::in(['open', 'congested', 'blocked'])]]));
 
         return response()->json(['path' => $this->payload($this->query()->where('evac_edges.id', $path->id)->firstOrFail())]);
+    }
+
+    /**
+     * Blocks (or reopens) every flight of the staircase this stair path belongs to, found by following the stair
+     * links up and down. Smoke in a stairwell closes all of it, not one flight: routes switch to the other stairs.
+     */
+    public function staircase(Request $request, string $edge): JsonResponse
+    {
+        $status = $request->validate(['status' => ['required', Rule::in(['open', 'congested', 'blocked'])]])['status'];
+        $first = EvacEdge::findOrFail($edge);
+        if ($first->type !== 'stairs') {
+            throw ValidationException::withMessages(['status' => 'This path is not a staircase.']);
+        }
+        $stairs = DB::table('evac_edges')->where('type', 'stairs')->get(['id', 'from_node_id', 'to_node_id']);
+        $nodes = [$first->from_node_id => true, $first->to_node_id => true];
+        $ids = [];
+        do { // ponytail: re-scans the stair edges until nothing new joins; a campus has a few dozen
+            $grew = false;
+            foreach ($stairs as $s) {
+                if (! isset($ids[$s->id]) && (isset($nodes[$s->from_node_id]) || isset($nodes[$s->to_node_id]))) {
+                    $ids[$s->id] = true;
+                    $nodes[$s->from_node_id] = $nodes[$s->to_node_id] = true;
+                    $grew = true;
+                }
+            }
+        } while ($grew);
+
+        DB::table('evac_edges')->whereIn('id', array_keys($ids))->update(['status' => $status, 'updated_by' => $request->user()->id, 'updated_at' => now()]);
+        Activity::log('staircase_status_changed', ['edges' => array_keys($ids), 'to' => $status]);
+        event(new CampusChanged); // one refresh for the whole staircase
+
+        return response()->json(['changed' => count($ids)]);
     }
 
     private function query(): Builder

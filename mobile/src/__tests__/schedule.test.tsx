@@ -8,6 +8,13 @@ const mockConfirm = jest.fn(async (..._a: unknown[]) => true);
 jest.mock('@/lib/confirm', () => ({ confirm: (...a: unknown[]) => mockConfirm(...a) }));
 let mockPicked: { canceled: boolean; assets?: { uri: string; name: string; mimeType: string }[] } = { canceled: true };
 jest.mock('expo-document-picker', () => ({ getDocumentAsync: async () => mockPicked }));
+// expo/fetch on phones only sends real files (Blob or expo-file-system File), never React Native's { uri } objects.
+jest.mock('expo-file-system', () => ({
+  File: class extends Blob {
+    uri: string;
+    constructor(uri: string) { super(['x'], { type: 'image/jpeg' }); this.uri = uri; }
+  },
+}));
 
 const cls = { subject: 'IT 101', room_code: 'A-61', room: 'Room 61', days: 'MWF', time_start: '08:00', time_end: '09:30' };
 let classes: object[] = [];
@@ -48,6 +55,7 @@ test('uploads a picked file and shows the new list', async () => {
   await fireEvent.press(await screen.findByRole('button', { name: 'Upload schedule' }));
   expect(await screen.findByText('IT 101 · A-61 · MWF 08:00–09:30')).toBeTruthy();
   expect(calls.find(c => c.method === 'POST')!.body).toBeInstanceOf(FormData);
+  expect((calls.find(c => c.method === 'POST')!.body as FormData).get('file')).toBeInstanceOf(Blob); // a real file, not a { uri } object
 });
 
 test('shows each row problem from the server', async () => {

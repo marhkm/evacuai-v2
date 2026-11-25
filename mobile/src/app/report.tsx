@@ -2,7 +2,7 @@ import type { CampusSnapshot } from '@evacuai/routing';
 import * as ImagePicker from 'expo-image-picker';
 import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Platform, View } from 'react-native';
+import { Image, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
 import { Button, Field, Message, Screen } from '@/components/ui';
@@ -10,6 +10,7 @@ import { makeStyles } from '@/theme';
 import { ApiError, api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { loadSnapshot } from '@/lib/campus';
+import { uploadFile } from '@/lib/uploadFile';
 import { lastEstimate } from '@/lib/whereabouts';
 
 const HAZARDS = [
@@ -127,12 +128,7 @@ export default function Report() {
   );
 }
 
-/** Web gives a File; phones give a file URI that React Native's FormData uploads from disk. */
-async function photoPart(asset: ImagePicker.ImagePickerAsset): Promise<Blob> {
-  if (asset.file) return asset.file;
-  if (Platform.OS === 'web') return (await fetch(asset.uri)).blob();
-  return { uri: asset.uri, name: asset.fileName ?? 'photo.jpg', type: asset.mimeType ?? 'image/jpeg' } as unknown as Blob;
-}
+const photoPart = (asset: ImagePicker.ImagePickerAsset) => uploadFile(asset.uri, asset.file);
 
 const useStyles = makeStyles(c => ({
   photoRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },

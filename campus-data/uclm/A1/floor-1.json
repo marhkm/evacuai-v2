@@ -437,11 +437,11 @@
    "name": "Gate 2"
   },
   {
-   "id": "AP_Outside",
+   "id": "AP_NaturesSpring",
    "type": "assembly_point",
    "x": 60,
    "y": 30,
-   "name": "Off-campus assembly area",
+   "name": "Nature's Spring (off campus)",
    "safe_for": [
     "earthquake",
     "fire",
@@ -557,10 +557,10 @@
   },
   {
    "from": "EXIT1",
-   "to": "AP_Outside",
+   "to": "AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 80,
+   "distance_m": 200,
    "flags": [
     "estimated",
     "flood_prone"
@@ -568,10 +568,10 @@
   },
   {
    "from": "EXIT2",
-   "to": "AP_Outside",
+   "to": "AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 80,
+   "distance_m": 200,
    "flags": [
     "estimated",
     "flood_prone"
@@ -579,10 +579,10 @@
   },
   {
    "from": "EXIT3",
-   "to": "AP_Outside",
+   "to": "AP_NaturesSpring",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 80,
+   "distance_m": 200,
    "flags": [
     "estimated",
     "flood_prone"

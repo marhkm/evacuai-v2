@@ -28,3 +28,17 @@ it('re-seeds idempotently and keeps live edge status', function () {
     expect(DB::table('evac_edges')->count())->toBe(12)
         ->and(DB::table('evac_edges')->where('id', 'DEMO/1/C1->DEMO/1/C2')->value('status'))->toBe('blocked');
 });
+
+it('removes safe zones, points and paths that left the campus data', function () {
+    $this->seed(CampusSeeder::class);
+    DB::table('evac_nodes')->insert(['id' => 'DEMO/1/OLD_AP', 'building_id' => 'DEMO', 'level' => 1, 'type' => 'assembly_point', 'x' => 1, 'y' => 1, 'safe_for' => '["fire"]']);
+    DB::table('evac_edges')->insert(['id' => 'DEMO/1/X1->DEMO/1/OLD_AP', 'from_node_id' => 'DEMO/1/X1', 'to_node_id' => 'DEMO/1/OLD_AP', 'type' => 'outdoor', 'distance_m' => 5, 'bidirectional' => false, 'flags' => '[]']);
+    DB::table('assembly_points')->insert(['id' => 'OLD_AP', 'node_id' => 'DEMO/1/OLD_AP', 'radius_m' => 25]);
+
+    $this->seed(CampusSeeder::class); // the next deploy: the old safe zone is gone from the data
+
+    expect(DB::table('evac_nodes')->where('id', 'DEMO/1/OLD_AP')->exists())->toBeFalse()
+        ->and(DB::table('evac_edges')->where('id', 'DEMO/1/X1->DEMO/1/OLD_AP')->exists())->toBeFalse()
+        ->and(DB::table('assembly_points')->where('id', 'OLD_AP')->exists())->toBeFalse()
+        ->and(DB::table('evac_nodes')->count())->toBe(12);
+});

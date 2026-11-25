@@ -1,7 +1,7 @@
 import { exitBadge, floorRoutePoints, routeSteps } from '@evacuai/campus-view';
 import { findRoute, type Hazard } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { Chips, Section } from '@/components/Chips';
@@ -61,6 +61,18 @@ export default function RouteScreen() {
   const live = current(estimate, now);
   const origin = snapshot ? routeOrigin(snapshot, live) : null;
   const result = useMemo(() => (snapshot && origin && hazard ? findRoute(snapshot, origin, hazard) : null), [snapshot, origin, hazard]);
+  // Same start and hazard but a different way out: an officer blocked or reopened a path. Say so, so nobody keeps
+  // walking toward a closed staircase.
+  const last = useRef<{ key: string; path: string } | null>(null);
+  const [changed, setChanged] = useState(false);
+  useEffect(() => {
+    const key = `${origin}|${hazard}`;
+    const path = result?.ok ? result.route.nodeIds.join('>') : '';
+    if (last.current?.key === key) {
+      if (path && last.current.path && path !== last.current.path) setChanged(true);
+    } else setChanged(false);
+    last.current = { key, path };
+  }, [origin, hazard, result]);
 
   if (state.status === 'loading') return null;
   if (state.status === 'signedOut') return <Redirect href="/login" />;
@@ -83,6 +95,7 @@ export default function RouteScreen() {
     <Screen title="Evacuation route">
       <Message text={error} />
       <Message text={offline ? 'Offline: using the last downloaded map. Path changes may be missing.' : null} kind="info" />
+      <Message text={changed ? 'Your route changed: safety officers closed or reopened a path. Follow the new route.' : null} />
 
       {active[0] ? (
         <Text style={styles.hazard}>Routing for {active[0].hazard_type.replace(/_/g, ' ')}{active[0].is_drill ? ' (drill)' : ''}</Text>

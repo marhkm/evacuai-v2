@@ -468,11 +468,11 @@
    "name": "Exit 1"
   },
   {
-   "id": "AP_Outside",
+   "id": "AP_OpenGround1",
    "type": "assembly_point",
    "x": 36,
    "y": 36,
-   "name": "Off-campus assembly area",
+   "name": "Open Ground 1 · Old Building",
    "safe_for": [
     "earthquake",
     "fire",
@@ -608,13 +608,22 @@
   },
   {
    "from": "EXIT1",
-   "to": "AP_Outside",
+   "to": "AP_OpenGround1",
    "type": "outdoor",
    "bidirectional": false,
-   "distance_m": 80,
+   "distance_m": 20,
    "flags": [
     "estimated",
     "flood_prone"
+   ]
+  },
+  {
+   "from": "EXIT1",
+   "to": "A1/1/AP_NaturesSpring",
+   "type": "outdoor",
+   "distance_m": 150,
+   "flags": [
+    "estimated"
    ]
   }
  ],

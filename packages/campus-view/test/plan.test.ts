@@ -47,8 +47,8 @@ test('floorRoutePoints stops at the exit instead of running off the plan', () =>
 
 test('exitBadge names the destination when the route leaves this floor plan', () => {
   const route = routeOf(uclm, 'A1/1/R_STUDY_HALL');
-  expect(route.destinationId).toBe('A1/1/AP_Outside');
-  expect(exitBadge(uclm, route, 'A1', 1)).toBe('Exit to Off-campus assembly area');
+  expect(route.destinationId).toBe('A1/1/AP_NaturesSpring');
+  expect(exitBadge(uclm, route, 'A1', 1)).toBe("Exit to Nature's Spring (off campus)");
   const upstairs = routeOf(uclm, 'A1/4/R_A_31');
   expect(exitBadge(uclm, upstairs, 'A1', 4)).toBeNull(); // continues down the stairs, still inside
 });

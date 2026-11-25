@@ -103,6 +103,12 @@ class CampusSeeder extends Seeder
                 'lng' => $a['lng'],
                 'radius_m' => $a['radius_m'],
             ], $snap['assemblyPoints']), ['id'], ['node_id', 'lat', 'lng', 'radius_m']);
+
+            // Points, paths and safe zones that left the campus data go too (deleting a point removes its paths and
+            // safe zone; check-ins and reports that named it keep their row with no point).
+            DB::table('assembly_points')->whereNotIn('id', array_column($snap['assemblyPoints'], 'id'))->delete();
+            DB::table('evac_edges')->whereNotIn('id', array_column($snap['edges'], 'id'))->delete();
+            DB::table('evac_nodes')->whereNotIn('id', array_column($snap['nodes'], 'id'))->delete();
         });
     }
 }

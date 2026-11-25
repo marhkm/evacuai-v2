@@ -141,3 +141,34 @@ test('a barometer floor change moves the start to the stair landing and re-route
   expect(screen.getByText('Start at S2')).toBeTruthy();
   expect(screen.queryByText('Take S1 up to Second')).toBeNull();
 });
+
+test('when a path ahead is blocked, the route switches to another way out and says so', async () => {
+  alerts = [activeAlert('earthquake')];
+  // A long second way out from the stairs, used only when the short one is blocked.
+  snapshot.edges.push({ ...snapshot.edges.find(e => e.id === 'DEMO/1/C1->DEMO/1/X1')!, id: 'DEMO/1/S1->DEMO/1/X1', from: 'DEMO/1/S1', to: 'DEMO/1/X1', distance_m: 500 });
+  await open();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Second' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'R201' }));
+  expect(await screen.findByText('Go to X1')).toBeTruthy();
+  expect(screen.queryByText(/Your route changed/)).toBeNull();
+
+  snapshot.edges.find(e => e.id === 'DEMO/1/C1->DEMO/1/C2')!.status = 'blocked';
+  await act(async () => mockLive.campus!());
+  expect(await screen.findByText('Your route changed: safety officers closed or reopened a path. Follow the new route.')).toBeTruthy();
+  expect(screen.queryByText(/No safe way out found/)).toBeNull();
+});
+
+test('checks the map every 30 seconds in case a live update was missed', async () => {
+  jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+  try {
+    await open();
+    const maps = () => (global.fetch as jest.Mock).mock.calls.filter(([u]) => String(u).endsWith('/api/campus-snapshot')).length;
+    await act(async () => { await jest.advanceTimersByTimeAsync(1000); });
+    const before = maps();
+    await act(async () => { await jest.advanceTimersByTimeAsync(30_000); });
+    expect(maps()).toBeGreaterThan(before);
+  } finally {
+    jest.useRealTimers();
+  }
+});

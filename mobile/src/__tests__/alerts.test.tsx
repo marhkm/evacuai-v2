@@ -19,6 +19,13 @@ jest.mock('@/lib/realtime', () => ({
   },
 }));
 jest.mock('@/lib/push', () => ({ registerForPush: async () => undefined }));
+// expo/fetch on phones only sends real files (Blob or expo-file-system File), never React Native's { uri } objects.
+jest.mock('expo-file-system', () => ({
+  File: class extends Blob {
+    uri: string;
+    constructor(uri: string) { super(['x'], { type: 'image/jpeg' }); this.uri = uri; }
+  },
+}));
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: async () => ({ granted: true }),
   requestCameraPermissionsAsync: async () => ({ granted: true }),
@@ -117,7 +124,7 @@ test('reporting a hazard sends type, building, floor, room and a photo just take
   expect(Object.fromEntries([...form.entries()].filter(([k]) => k !== 'photo' && k !== 'taken_at'))).toEqual({
     hazard_type: 'fire', building_id: 'DEMO', level: '1', room_id: 'DEMO/1/R101', description: 'Smoke from the door', at_building: 'DEMO', at_level: '2',
   });
-  expect(form.get('photo')).toBeTruthy();
+  expect(form.get('photo')).toBeInstanceOf(Blob); // a file the phone's fetch can send
   expect(Math.abs(Date.parse(String(form.get('taken_at'))) - Date.now())).toBeLessThan(60_000); // the time the photo was taken
   expect(screen.queryByLabelText('Photo to send with the report')).toBeNull(); // cleared after sending
 });

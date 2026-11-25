@@ -87,6 +87,7 @@ Route::prefix('officer')->middleware(['auth:sanctum', 'officer'])->group(functio
         foreach (['publish', 'discard', 'confirm', 'resolve', 'retract'] as $action) {
             Route::post("alerts/{alert}/{$action}", [Officer\AlertController::class, $action]);
         }
+        Route::patch('paths/{edge}/staircase', [Officer\PathController::class, 'staircase'])->where('edge', '.+'); // before the catch-all below
         Route::patch('paths/{edge}', [Officer\PathController::class, 'update'])->where('edge', '.+'); // ids contain "/" and "->"
         Route::post('sos/{sos}/acknowledge', [Officer\SosController::class, 'acknowledge']);
         Route::post('sos/{sos}/resolve', [Officer\SosController::class, 'resolve']);

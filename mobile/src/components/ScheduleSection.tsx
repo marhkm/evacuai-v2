@@ -5,6 +5,7 @@ import { Linking, Platform } from 'react-native';
 import { Body, Button, Heading, Message } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { confirm } from '@/lib/confirm';
+import { uploadFile } from '@/lib/uploadFile';
 
 type Class = { subject: string; room_code: string | null; room: string; days: string; time_start: string; time_end: string };
 const TYPES = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/comma-separated-values'];
@@ -39,10 +40,10 @@ export function ScheduleSection({ token }: { token: string | null }) {
     const file = picked.canceled ? null : picked.assets?.[0];
     if (!file) return;
     const form = new FormData();
-    // Web gives a File (named, so the server sees .xlsx/.csv); phones give a file URI that React Native's FormData
-    // uploads from disk, with the name inside the part.
-    if (Platform.OS === 'web') form.append('file', file.file ?? (await (await fetch(file.uri)).blob()), file.name);
-    else form.append('file', { uri: file.uri, name: file.name, type: file.mimeType ?? 'application/octet-stream' } as unknown as Blob);
+    // The server reads the extension (.xlsx/.csv) from the file name: the browser's Blob needs it passed in.
+    const part = await uploadFile(file.uri, file.file);
+    if (Platform.OS === 'web') form.append('file', part, file.name);
+    else form.append('file', part);
     setClasses((await api<{ classes: Class[] }>('/api/me/schedule', { method: 'POST', token, body: form })).classes);
   });
 

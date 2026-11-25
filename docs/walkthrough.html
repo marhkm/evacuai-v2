@@ -352,8 +352,8 @@ known)</strong> (a room you picked or scanned earlier today), or <strong>Locatio
 drill. Leave the building by the nearest stairs.&quot; and click <strong>Broadcast</strong>.</li>
 <li>Watch the app&#39;s home screen.</li>
 <li>In the app, tap <strong>EVACUATE NOW</strong>, then go back and tap <strong>Check in safe</strong>. Under <strong>I&#39;m safe at a safe zone</strong>, tap
-<strong>Open ground · …</strong> (or <strong>Scan safe zone QR</strong>, or <strong>I&#39;m safe (not at a safe zone)</strong>).</li>
-<li>Tap <strong>Open ground · …</strong> again.</li>
+<strong>Open Ground 2 · Basic Ed · …</strong> (or <strong>Scan safe zone QR</strong>, or <strong>I&#39;m safe (not at a safe zone)</strong>).</li>
+<li>Tap <strong>Open Ground 2 · Basic Ed · …</strong> again.</li>
 <li>Tap <strong>Scan safe zone QR</strong>, then <strong>Close scanner</strong>. Open it again and tap <strong>Close</strong> on the camera. Open it once more
 and go back to the home screen.</li>
 <li>Tap <strong>Alerts</strong> on the home screen.</li>
@@ -363,9 +363,11 @@ and go back to the home screen.</li>
 <li><input type="checkbox" class="check" aria-label="Done">Within seconds, the app shows an amber striped <strong>[DRILL] FIRE ALERT</strong> band, without refreshing.</li>
 <li><input type="checkbox" class="check" aria-label="Done">The home then leads with a big green <strong>EVACUATE NOW</strong> button, with <strong>SOS</strong> and <strong>Check in safe</strong> under it.</li>
 <li><input type="checkbox" class="check" aria-label="Done"><strong>EVACUATE NOW</strong> opens the evacuation route already set for fire.</li>
-<li><input type="checkbox" class="check" aria-label="Done">Each safe zone shows how many people are there, for example <strong>Open ground · 1 of 300</strong> (or <strong>· 1 here</strong> when an
+<li><input type="checkbox" class="check" aria-label="Done">There are three safe zones, each named so you know which one you are at: <strong>Nature&#39;s Spring (off campus)</strong>,
+<strong>Open Ground 1 · Old Building</strong> and <strong>Open Ground 2 · Basic Ed</strong>.</li>
+<li><input type="checkbox" class="check" aria-label="Done">Each safe zone shows how many people are there, for example <strong>Open Ground 2 · Basic Ed · 1 of 300</strong> (or <strong>· 1 here</strong> when an
 admin has not set a capacity, A6).</li>
-<li><input type="checkbox" class="check" aria-label="Done">Check-in confirms <strong>You checked in safe at … Open ground.</strong> There is no <strong>I need help</strong> button: SOS is the way
+<li><input type="checkbox" class="check" aria-label="Done">Check-in confirms <strong>You checked in safe at … Open Ground 2 · Basic Ed.</strong> There is no <strong>I need help</strong> button: SOS is the way
 to ask for help.</li>
 <li><input type="checkbox" class="check" aria-label="Done">Checking in again asks <strong>You already checked in at … Update your status?</strong> <strong>Keep</strong> changes nothing; <strong>Update</strong>
 changes it, and <strong>Earlier check-ins</strong> lists the first one.</li>
@@ -450,12 +452,19 @@ sends nothing.</li>
 <li>In the Command Center, open <strong>Paths</strong>, choose the same building and floor, and click a path on the route (a line on
 the plan). In the panel, click <strong>Blocked</strong>.</li>
 <li>Click the same path and set it back to <strong>Open</strong>.</li>
+<li>In the app, pick a room on the <strong>Second</strong> floor of <strong>Basic Education Building</strong> and note which stairs the route
+uses. In <strong>Paths</strong>, choose that building and the <strong>Second</strong> floor; in the table, find that staircase&#39;s row (type
+<strong>stairs</strong>) and click <strong>Block</strong> under <strong>Whole staircase</strong>. Then click <strong>Open</strong>.</li>
 </ol>
 <p><strong>Expected result</strong></p>
 <ul>
 <li><input type="checkbox" class="check" aria-label="Done">The blocked path shows as a dark dashed line with ✕ on the plan.</li>
-<li><input type="checkbox" class="check" aria-label="Done">Within seconds, the app&#39;s route changes by itself to avoid it.</li>
+<li><input type="checkbox" class="check" aria-label="Done">Within seconds, the app&#39;s route changes by itself to avoid it, and says <strong>Your route changed: safety officers
+closed or reopened a path. Follow the new route.</strong></li>
 <li><input type="checkbox" class="check" aria-label="Done">After <strong>Open</strong>, the original route comes back.</li>
+<li><input type="checkbox" class="check" aria-label="Done"><strong>Block</strong> under <strong>Whole staircase</strong> closes that staircase on every floor at once: the route switches to the other
+staircase and exit. <strong>Open</strong> brings it back.</li>
+<li><input type="checkbox" class="check" aria-label="Done">A phone that missed the live update still re-routes within 30 seconds.</li>
 </ul>
 <h3 id="o5-hazard-reports-and-the-3-report-rule"><a class="anchor" href="#o5-hazard-reports-and-the-3-report-rule" aria-hidden="true">#</a>O5. Hazard reports and the 3-report rule</h3>
 <p><strong>Steps</strong></p>
@@ -627,15 +636,17 @@ them, and paste one corner per line (4 lines for a rectangle). Click <strong>Sav
 <p><strong>Steps</strong></p>
 <ol>
 <li>In the <strong>Admin panel</strong>, open <strong>Safe zones</strong>.</li>
-<li>Type <strong>300</strong> for <strong>Open ground</strong>, leave <strong>Off-campus assembly area</strong> blank, and click <strong>Save</strong>.</li>
+<li>Type <strong>300</strong> for <strong>Open Ground 2 · Basic Ed</strong> and <strong>200</strong> for <strong>Open Ground 1 · Old Building</strong>, leave
+<strong>Nature&#39;s Spring (off campus)</strong> blank, and click <strong>Save</strong>.</li>
 <li>During a drill, open the app&#39;s <strong>Check in safe</strong> screen.</li>
 </ol>
 <p><strong>Expected result</strong></p>
 <ul>
 <li><input type="checkbox" class="check" aria-label="Done"><strong>Safe zone capacities saved</strong> appears, and the numbers are still there after a reload.</li>
-<li><input type="checkbox" class="check" aria-label="Done">The app shows <strong>Open ground · … of 300</strong>, and <strong>Off-campus assembly area · … here</strong> (no limit).</li>
+<li><input type="checkbox" class="check" aria-label="Done">The app shows <strong>Open Ground 2 · Basic Ed · … of 300</strong>, <strong>Open Ground 1 · Old Building · … of 200</strong>, and
+<strong>Nature&#39;s Spring (off campus) · … here</strong> (no limit).</li>
 <li><input type="checkbox" class="check" aria-label="Done">With a capacity smaller than the people checked in, the zone shows <strong>Full</strong>, and checking in there suggests the
-other zone.</li>
+other zone, and evacuation routes lead to another safe zone with room.</li>
 </ul>
 <h3 id="a7-report-rules-and-false-reports"><a class="anchor" href="#a7-report-rules-and-false-reports" aria-hidden="true">#</a>A7. Report rules and false reports</h3>
 <p><strong>Steps</strong></p>
