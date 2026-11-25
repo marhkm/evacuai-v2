@@ -28,7 +28,7 @@ class Llm
     {
         foreach (self::providers() as $name => $p) {
             try {
-                $text = Http::withToken($p['key'])->timeout(30)->post($p['url'], [
+                $text = Http::withToken($p['key'])->timeout(25)->post($p['url'], [
                     'model' => $p['model'],
                     'temperature' => 0.2,
                     'messages' => [['role' => 'system', 'content' => $system], ['role' => 'user', 'content' => $user]],

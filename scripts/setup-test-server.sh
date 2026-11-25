@@ -66,6 +66,7 @@ fi
 # Hazard-photo check by a local vision model: photos never leave this server.
 set_env OLLAMA_URL http://ollama:11434
 set_env OLLAMA_VISION_MODEL moondream
+set_env OLLAMA_MODEL llama3.2:1b         # officers' report summaries (text): small enough to sit beside Moondream
 chmod 600 .env
 
 echo "Settings:"; grep -E "^(APP_DEBUG|APP_URL|PUBLIC_API_URL|VITE_REVERB_PORT|VITE_REVERB_SCHEME|COMPOSE_PROFILES)=" .env
@@ -73,6 +74,8 @@ echo "Building and starting EvacuAI (15-25 minutes the first time)..."
 docker compose up -d --build
 echo "Getting the AI photo-check model (about 1.7 GB, once)..."
 docker compose exec -T ollama ollama pull moondream || echo "Could not get the model now; reports still work, the AI check shows 'not available'."
+echo "Getting the AI summary model (about 1.3 GB, once)..."
+docker compose exec -T ollama ollama pull llama3.2:1b || echo "Could not get the summary model now; Summarize says it is not available until the next run."
 
 echo "Waiting for the API..."
 for _ in $(seq 1 60); do

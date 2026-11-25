@@ -74,3 +74,14 @@ it('summarizes only with an LLM, without sending the reporter name', function ()
         ->assertJson(['text' => 'Two people report smoke at R101.', 'provider' => 'groq']);
     Http::assertSent(fn (Request $req) => ! str_contains($req->body(), 'Ana Reyes'));
 });
+
+it('summarizes with the server\'s own small model when only the local AI is set up (the test server)', function () {
+    $r = smokeReport();
+    config(['services.llm.ollama.url' => 'http://ollama:11434/v1/chat/completions', 'services.llm.ollama.key' => 'ollama']);
+    Http::fake(['ollama:11434/*' => Http::response(['choices' => [['message' => ['content' => 'One person reports smoke at R101.']]]])]);
+
+    $this->postJson("/api/officer/reports/{$r->id}/summary")->assertOk()->assertJson(['provider' => 'ollama']);
+    // The model the setup script downloads next to Moondream: asking for one that isn't there fails every time.
+    Http::assertSent(fn (Request $req) => $req['model'] === 'llama3.2:1b');
+    expect(file_get_contents(base_path('../scripts/setup-test-server.sh')))->toContain('ollama pull llama3.2:1b');
+});

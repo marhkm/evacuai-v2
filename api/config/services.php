@@ -52,7 +52,7 @@ return [
         'ollama' => [ // local model, docker compose --profile ai-local
             'url' => env('OLLAMA_URL') ? rtrim((string) env('OLLAMA_URL'), '/').'/v1/chat/completions' : null,
             'key' => env('OLLAMA_URL') ? 'ollama' : null,
-            'model' => env('OLLAMA_MODEL', 'llama3.2'),
+            'model' => env('OLLAMA_MODEL', 'llama3.2:1b'), // small text model (about 1.3 GB): the setup script downloads it
         ],
     ],
 

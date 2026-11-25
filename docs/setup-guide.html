@@ -592,11 +592,14 @@ and phones use <code>https://&lt;domain&gt;</code> (typing just <code>&lt;domain
 points at <code>https://evacuai.tech</code>. Ports 8000, 8080 and 8081 can then be closed in the firewall.</p>
 </li>
 </ol>
-<p><strong>The AI photo check</strong> runs on the server itself (photos never leave it): the setup script turns on the optional
-<code>ollama</code> service and downloads the small Moondream model (about 1.7 GB, once). It only advises officers; without it,
-reports still work and show <strong>AI: not available</strong>. On your own PC it is off unless you run
+<p><strong>The server&#39;s own AI</strong> (photos and reports never leave it): the setup script turns on the optional <code>ollama</code> service
+and downloads two small models once: Moondream for the hazard-photo check (about 1.7 GB) and <code>llama3.2:1b</code> for the
+<strong>Summarize</strong> button on Reports (about 1.3 GB). Both only advise officers; without them, reports still work and show
+<strong>AI: not available</strong>. A free <code>GEMINI_API_KEY</code> or <code>GROQ_API_KEY</code> in <code>docker/.env</code> is used first for summaries and
+translations when set. On your own PC the local AI is off unless you run
 <code>docker compose -f docker/compose.yml --profile ai-local up -d</code>, set <code>OLLAMA_URL=http://ollama:11434</code> in
-<code>docker/.env</code>, and run <code>docker compose -f docker/compose.yml exec ollama ollama pull moondream</code>.</p>
+<code>docker/.env</code>, and run <code>docker compose -f docker/compose.yml exec ollama ollama pull moondream</code> and
+<code>docker compose -f docker/compose.yml exec ollama ollama pull llama3.2:1b</code>.</p>
 <p><strong>Update</strong> after new code is pushed: <code>cd evacuai-v2/docker &amp;&amp; git pull &amp;&amp; docker compose up -d --build</code>.
 <strong>Stop</strong> at the end of the round: <code>docker compose down</code> (keeps the data; <code>docker compose down -v</code> deletes it).</p>
 <p>Verification codes for new accounts go to the test mailbox. With a domain it is at <code>https://&lt;domain&gt;/mail/</code> (see

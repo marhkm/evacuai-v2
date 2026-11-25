@@ -96,6 +96,8 @@ services:
     profiles: [ai-local]
     volumes: [ollama:/root/.ollama]
     mem_limit: 3g # leaves the rest of an 8 GB server to EvacuAI
+    environment:
+      OLLAMA_MAX_LOADED_MODELS: 1 # photo check (Moondream) and summaries (llama3.2:1b) take turns inside the 3 GB
     restart: unless-stopped
 
   caddy: # optional HTTPS for a server with a domain: docker compose --profile https up -d (set EVACUAI_DOMAIN)

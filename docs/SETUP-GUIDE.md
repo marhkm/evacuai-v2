@@ -374,11 +374,14 @@ setup (demo accounts, test mailbox), not production. A Linux VPS with 2 CPUs and
    and phones use `https://<domain>` (typing just `<domain>` under **Server: …** works). The testers' APK already
    points at `https://evacuai.tech`. Ports 8000, 8080 and 8081 can then be closed in the firewall.
 
-**The AI photo check** runs on the server itself (photos never leave it): the setup script turns on the optional
-`ollama` service and downloads the small Moondream model (about 1.7 GB, once). It only advises officers; without it,
-reports still work and show **AI: not available**. On your own PC it is off unless you run
+**The server's own AI** (photos and reports never leave it): the setup script turns on the optional `ollama` service
+and downloads two small models once: Moondream for the hazard-photo check (about 1.7 GB) and `llama3.2:1b` for the
+**Summarize** button on Reports (about 1.3 GB). Both only advise officers; without them, reports still work and show
+**AI: not available**. A free `GEMINI_API_KEY` or `GROQ_API_KEY` in `docker/.env` is used first for summaries and
+translations when set. On your own PC the local AI is off unless you run
 `docker compose -f docker/compose.yml --profile ai-local up -d`, set `OLLAMA_URL=http://ollama:11434` in
-`docker/.env`, and run `docker compose -f docker/compose.yml exec ollama ollama pull moondream`.
+`docker/.env`, and run `docker compose -f docker/compose.yml exec ollama ollama pull moondream` and
+`docker compose -f docker/compose.yml exec ollama ollama pull llama3.2:1b`.
 
 **Update** after new code is pushed: `cd evacuai-v2/docker && git pull && docker compose up -d --build`.
 **Stop** at the end of the round: `docker compose down` (keeps the data; `docker compose down -v` deletes it).

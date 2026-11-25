@@ -104,7 +104,8 @@ safe, amber is a warning or a drill, and blue is information.
 
 **Steps**
 
-1. Go home and tap **Campus map**. Choose a building (**Annex 1** or **Basic Education Building**).
+1. Go home and tap **Campus map**. Choose a building (**Annex 1** or **Basic Education Building**). In Annex 1,
+   open the **Fourth** floor.
 2. Switch between **Floor plan**, **All floors** and **3D**.
 3. In **3D**:
    - Drag to turn and pinch (or scroll) to zoom.
@@ -125,6 +126,9 @@ safe, amber is a warning or a drill, and blue is information.
 - [ ] Tapping a room opens a sheet with its name, floor and how many people are inside, with **Route from here**.
 - [ ] **Full screen** opens the 3D view on its own screen; **Close** goes back.
 - [ ] The legend explains the route arrows, your location, blocked and congested paths and stairs.
+- [ ] Annex 1 lists **Ground, Mezzanine, Second, Third, Fourth, Fifth, Sixth**. The **Fourth** floor shows A-42, A-43,
+      Kitchen Lab, Mini Hotel, Travel and Tour, HM Office, HM Faculty and the CRs (traced from a photo of the poster:
+      room shapes only, no poster drawing yet), and a route from any of its rooms leads down the stairs.
 
 ![The 3D building on the phone, with its native controls](images/app-3d.jpg)
 
@@ -139,10 +143,12 @@ safe, amber is a warning or a drill, and blue is information.
    **Send report**.
 5. In the Command Center window, open **Reports**.
 6. Try **Send report** without a photo, and with a photo taken more than 10 minutes ago.
+7. Send one report from the **APK on a phone** (not only the web app).
 
 **Expected result**
 
 - [ ] The app says **Report sent. Safety officers have been notified.**
+- [ ] From the APK it sends too: no **Cannot reach the server** message (that was a bug in older APKs).
 - [ ] The report appears in the Command Center **Reports** list within seconds, with **View photo**.
 - [ ] The report shows what the checks found: an **AI** chip (**looks like fire**, **doesn't look like fire**,
       **unclear**, or **not available** when the server's AI is off), and **Location matches**, **Reporter was
@@ -207,6 +213,9 @@ safe, amber is a warning or a drill, and blue is information.
 - [ ] Checking in again asks **You already checked in at … Update your status?** **Keep** changes nothing; **Update**
       changes it, and **Earlier check-ins** lists the first one.
 - [ ] The camera closes with **Close scanner**, with **Close**, after a good scan, and when you leave the screen.
+- [ ] Standing at **Nature's Spring** with the APK (location on), **Check in safe** says **You are at Nature's Spring
+      (off campus).** with a one-tap **Check in safe at …** button. (The open grounds have no GPS point yet: pick them
+      from the list or scan their sticker.)
 - [ ] **Alerts** lists the drill as active.
 
 Leave the drill active for section 3, or resolve it in the Command Center (**Alerts → Resolve**).
@@ -325,13 +334,17 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
    ```
 
 2. Watch the app and the Command Center **Reports** and **Alerts** pages.
-3. In **Reports**, click **Verify** on one report, **Dismiss** on another and **Reject as false** on a third (it asks
-   first). In **Alerts**, click **Confirm** (or **Retract**) on the new alert.
+3. In **Reports**, click **Summarize** on one report.
+4. Click **Verify** on one report, **Dismiss** on another and **Reject as false** on a third (it asks first). In
+   **Alerts**, click **Confirm** (or **Retract**) on the new alert.
 
 **Expected result**
 
 - [ ] Three fire reports on the same floor arrive, each with a red matching badge (**3**).
 - [ ] An **UNVERIFIED** alert goes out to the app by itself.
+- [ ] **Summarize** shows one or two sentences about the reports on that floor (on the test server it can take up to
+      about 20 seconds: the server's own AI writes it). On a PC without AI set up it says **AI summaries aren't set up
+      on this server.**
 - [ ] **Confirm** marks it verified; **Retract** removes it from the app.
 - [ ] **Reject as false** counts against the student: after 3 in 30 days their reports show **Often false** and no
       longer count. **Dismiss** does not count against anyone.
