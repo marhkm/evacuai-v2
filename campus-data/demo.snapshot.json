@@ -92,7 +92,8 @@
       "room_id": "DEMO/1/R101",
       "building": "DEMO",
       "level": 1,
-      "safe_for": []
+      "safe_for": [],
+      "qr_id": "16A348C3"
     },
     {
       "id": "DEMO/1/C1",
@@ -119,7 +120,8 @@
       "y": 6,
       "building": "DEMO",
       "level": 1,
-      "safe_for": []
+      "safe_for": [],
+      "qr_id": "0A249B3B"
     },
     {
       "id": "DEMO/1/E1",
@@ -140,7 +142,8 @@
         "fire"
       ],
       "building": "DEMO",
-      "level": 1
+      "level": 1,
+      "qr_id": "2A4C4427"
     },
     {
       "id": "DEMO/1/AP",
@@ -152,7 +155,8 @@
         "fire"
       ],
       "building": "DEMO",
-      "level": 1
+      "level": 1,
+      "qr_id": "A99C6FC5"
     },
     {
       "id": "DEMO/2/R201",
@@ -162,7 +166,8 @@
       "room_id": "DEMO/2/R201",
       "building": "DEMO",
       "level": 2,
-      "safe_for": []
+      "safe_for": [],
+      "qr_id": "C2E686DE"
     },
     {
       "id": "DEMO/2/C3",
@@ -191,7 +196,8 @@
       "y": 6,
       "building": "DEMO",
       "level": 2,
-      "safe_for": []
+      "safe_for": [],
+      "qr_id": "D07DAB5D"
     },
     {
       "id": "DEMO/2/E2",

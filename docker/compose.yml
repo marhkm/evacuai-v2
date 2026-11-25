@@ -96,6 +96,7 @@ services:
     profiles: [ai-local]
     volumes: [ollama:/root/.ollama]
     mem_limit: 3g # leaves the rest of an 8 GB server to EvacuAI
+    cpus: 1.5 # on a 2-core server the API, Command Center and live updates always keep half a core while the AI works
     environment:
       OLLAMA_MAX_LOADED_MODELS: 1 # photo check (Moondream) and summaries (llama3.2:1b) take turns inside the 3 GB
     restart: unless-stopped

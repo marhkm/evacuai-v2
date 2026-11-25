@@ -27,7 +27,8 @@ export function RequireOfficer({ children }: { children: ReactNode }) {
   if (me.isPending) return <p className="center muted">Loading…</p>;
   if (me.error instanceof ApiError && me.error.status === 401) return <Navigate to="/sign-in" replace />;
   if (me.error instanceof ApiError && me.error.status === 404) return <Demoted />;
-  if (me.error) {
+  // Only when nothing loaded yet: a background re-check that fails once (slow server) must not blank the page.
+  if (me.error && !me.data) {
     return (
       <div className="center banner" role="alert">
         Can't reach the server. <button onClick={() => me.refetch()}>Retry</button>

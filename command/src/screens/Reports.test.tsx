@@ -54,6 +54,21 @@ test('summarize shows the AI summary', async () => {
   expect(await screen.findByText('Three students report smoke near A-31.')).toBeTruthy();
 });
 
+test('summarize says it is working while the AI writes (it can take a while on the server)', async () => {
+  let answer: (r: Response) => void = () => undefined;
+  const fetch = setup();
+  const real = fetch.getMockImplementation()!;
+  fetch.mockImplementation((url: string, init?: RequestInit) =>
+    url === '/api/officer/reports/3/summary' ? new Promise<Response>(r => { answer = r; }) : real(url, init));
+  renderApp('/reports');
+  fireEvent.click(within(await row('Smoke 3')).getByRole('button', { name: 'Summarize' }));
+  const busy = await within(await row('Smoke 3')).findByRole('button', { name: 'Summarizing…' });
+  expect((busy as HTMLButtonElement).disabled).toBe(true);
+  answer(new Response(JSON.stringify({ text: 'Smoke near A-31.', provider: 'ollama' }), { status: 200 }));
+  expect(await screen.findByText('Smoke near A-31.')).toBeTruthy();
+  expect(within(await row('Smoke 3')).getByRole('button', { name: 'Summarize' })).toBeTruthy();
+});
+
 test('load more asks for the next page', async () => {
   setup();
   renderApp('/reports');

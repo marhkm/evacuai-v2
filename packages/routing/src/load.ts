@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -94,6 +95,7 @@ export function loadCampus(dir: string): CampusSnapshot {
     }
   }
 
+  assignQrIds(nodes);
   const byId = new Map(nodes.map(n => [n.id, n]));
   const floorOf = (n: CampusNode) => buildings.find(b => b.id === n.building)!.floors.find(f => f.level === n.level)!;
   const edges: Edge[] = rawEdges.map(({ edge }) => {
@@ -127,4 +129,21 @@ export function loadCampus(dir: string): CampusSnapshot {
     hazardRoomIds: [],
     weights: DEFAULT_WEIGHTS,
   };
+}
+
+/**
+ * Sticker codes for every room, staircase, exit and safe zone that has none in the data: derived from the node id,
+ * so they never change between builds (printed stickers keep working) and need no hand-numbering. Codes already in
+ * the data (Basic Ed's original stickers) are kept.
+ */
+function assignQrIds(nodes: CampusNode[]) {
+  const taken = new Set(nodes.flatMap(n => (n.qr_id ? [n.qr_id] : [])));
+  for (const n of nodes) {
+    if (n.qr_id || !['room', 'stairwell', 'exit', 'assembly_point'].includes(n.type)) continue;
+    const hash = createHash('sha256').update(n.id).digest('hex').toUpperCase();
+    let len = 8;
+    while (taken.has(hash.slice(0, len))) len += 2; // a clash with an existing sticker: take a longer code
+    n.qr_id = hash.slice(0, len);
+    taken.add(n.qr_id);
+  }
 }

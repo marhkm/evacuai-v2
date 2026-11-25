@@ -69,16 +69,20 @@ export function Reports() {
   const action = useAction(['reports'], ['live'], ['overview']);
   const [photo, setPhoto] = useState<string | null>(null);
   const [summaries, setSummaries] = useState<Record<number, string>>({});
+  const [summarizing, setSummarizing] = useState<number | null>(null); // the server's own AI can take ~20 s
 
   const act = (r: Report, verb: string) => action.run(() => api(`/api/officer/reports/${r.id}/${verb}`, { method: 'POST' }));
   const rejectFalse = (r: Report) => window.confirm(`Count this as a false report by ${r.reporter ?? 'this student'}?`) && act(r, 'reject-false');
   async function summarize(r: Report) {
     action.setError(null);
+    setSummarizing(r.id);
     try {
       const s = await api<{ text: string }>(`/api/officer/reports/${r.id}/summary`, { method: 'POST' });
       setSummaries(m => ({ ...m, [r.id]: s.text }));
     } catch (e) {
       action.setError(e instanceof ApiError && e.status === 404 ? "AI summaries aren't set up on this server." : 'No summary right now. Try again in a minute.');
+    } finally {
+      setSummarizing(null);
     }
   }
 
@@ -127,7 +131,7 @@ export function Reports() {
                     <button onClick={() => act(r, 'dismiss')}>Dismiss</button>
                   </>}
                   {r.status === 'verified' && <button onClick={() => act(r, 'resolve')}>Resolve</button>}
-                  <button onClick={() => summarize(r)}>Summarize</button>
+                  <button disabled={summarizing === r.id} onClick={() => summarize(r)}>{summarizing === r.id ? 'Summarizing…' : 'Summarize'}</button>
                 </td>
               </tr>
             ))}

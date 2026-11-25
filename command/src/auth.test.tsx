@@ -87,3 +87,20 @@ test('an officer demoted mid-use is told so as soon as any officer request is re
   expect(await screen.findByText('Your account no longer has officer access.')).toBeTruthy();
   await waitFor(() => expect(fetch).toHaveBeenCalledWith('/command/session', expect.objectContaining({ method: 'DELETE' })));
 });
+
+test('a background check that fails once keeps the page open (a slow server is not a sign-out)', async () => {
+  let up = true;
+  mockFetch({
+    'GET /api/officer/me': () => (up ? [200, officer] : [503, { message: 'busy' }]),
+    'GET /api/officer/overview': [200, overview],
+    'GET /api/officer/reports': [200, { reports: [], meta: { current_page: 1, last_page: 1, per_page: 50, total: 0 } }],
+  });
+  const { client } = renderApp('/reports');
+  expect(await screen.findByRole('heading', { name: 'Reports' })).toBeTruthy();
+
+  up = false;
+  await client.refetchQueries({ queryKey: ['me'] });
+  await waitFor(() => expect(client.getQueryState(['me'])?.status).toBe('error'));
+  expect(screen.queryByText(/Can't reach the server/)).toBeNull();
+  expect(screen.getByRole('heading', { name: 'Reports' })).toBeTruthy();
+});
