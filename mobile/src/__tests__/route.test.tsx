@@ -138,7 +138,8 @@ test('a barometer floor change moves the start to the stair landing and re-route
 
   await act(async () => mockBaro.floors!(1)); // climbed one floor
   expect(await screen.findByText(/floor change detected/)).toBeTruthy();
-  expect(screen.getByText('Start at S2')).toBeTruthy();
+  // Now on the second floor, which is above the flood level: stay there (no more climbing to do).
+  expect(screen.getByText(/You are above the flood level/)).toBeTruthy();
   expect(screen.queryByText('Take S1 up to Second')).toBeNull();
 });
 
@@ -187,4 +188,28 @@ test('says where a hazard was reported and why this way out was chosen', async (
   await fireEvent.press(await screen.findByRole('button', { name: 'Ground' }));
   await fireEvent.press(screen.getByRole('button', { name: 'R101' }));
   expect(await screen.findByText('Hazard reported at Demo Building · Second. Going to X1, the nearest safe place.')).toBeTruthy();
+});
+
+describe('flood routes explain themselves', () => {
+  beforeEach(() => {
+    alerts = [activeAlert('flood')];
+    for (const n of snapshot.nodes) if (n.level === 2 && n.type !== 'room') n.safe_for = [...n.safe_for, 'flood']; // 2nd floor above the flood
+  });
+
+  test('on the ground floor with no flood reported yet: go up, and say why', async () => {
+    await open();
+    await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Ground' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'R101' }));
+    expect(await screen.findByText(/No flood has been reported yet\. Floods rise from the ground, so the route goes to the nearest higher safe place\./)).toBeTruthy();
+  });
+
+  test('already above the flood level: stay on this floor', async () => {
+    await open();
+    await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Second' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'R201' }));
+    expect(await screen.findByText('You are above the flood level. Stay on this floor, away from the stairs going down. Move up only if water reaches this floor.')).toBeTruthy();
+    expect(screen.queryByText(/m to safety/)).toBeNull();
+  });
 });

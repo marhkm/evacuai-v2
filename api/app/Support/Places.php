@@ -20,6 +20,11 @@ class Places
         }
         $places = app(PlaceDirectory::class);
         $node = $nodeId ? $places->node($nodeId) : null;
+        // A safe zone is a place of its own (an open ground, Nature's Spring): its name alone, never "inside" the building
+        // its point is filed under, which read as being in two places at once.
+        if ($node?->type === 'assembly_point' && $node->name) {
+            return $node->name;
+        }
         $buildingId ??= $node?->building_id;
         $level ??= $node?->level;
         $roomId ??= $node?->room_id;

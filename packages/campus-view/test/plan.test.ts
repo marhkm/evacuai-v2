@@ -25,6 +25,8 @@ test('toPlanShapes falls back to room outlines when a floor has no plan', () => 
   expect(p.walls).toEqual(rooms.map(r => r.polygon));
   expect(p.labels.map(l => l.text).sort()).toEqual(rooms.filter(r => r.type !== 'corridor').map(r => r.name).sort());
   expect(p.doors).toEqual([]);
+  expect(p.stairs).toEqual(rooms.filter(r => r.type === 'stairwell').map(r => r.polygon));
+  expect(p.stairs.length).toBeGreaterThan(0);
 });
 
 test('routeChevrons places arrows every 1.5 m pointing along the route', () => {

@@ -5,8 +5,17 @@ namespace App\Support;
 /** Cebuano and Filipino versions of an officer-written alert, for the officer to review and edit before broadcast. */
 class AlertTranslator
 {
-    private const SYSTEM = 'You translate short emergency alerts for a university in Cebu, Philippines. '
+    // Worked examples anchor small local models, which otherwise drift in Cebuano (testers' BUG-001). Officers still
+    // check every translation before broadcasting (the Command Center says so).
+    private const SYSTEM = 'You translate short emergency alerts for a university in Cebu, Philippines, from English into Cebuano (Bisaya) and Filipino. '
+        .'Translate the meaning exactly. Do not add or leave out any instruction, place, number or warning. '
         .'Keep every room code, building name, stair name, exit name and number exactly as written. Use plain, calm, direct words. '
+        .'Examples. English: "Fire on the 3rd floor of Annex 1. Evacuate now using the nearest stairs. Do not use the elevator." '
+        .'Cebuano: "Sunog sa ikatulong andana sa Annex 1. Pag-evacuate karon dayon pinaagi sa pinakaduol nga hagdanan. Ayaw gamita ang elevator." '
+        .'Filipino: "May sunog sa ikatlong palapag ng Annex 1. Lumikas na ngayon gamit ang pinakamalapit na hagdan. Huwag gumamit ng elevator." '
+        .'English: "Earthquake. Drop, cover and hold on. When the shaking stops, go to Open Ground 2." '
+        .'Cebuano: "Linog. Pagyukbo, pagtago, ug paggunit. Kung mohunong na ang pag-uyog, adto sa Open Ground 2." '
+        .'Filipino: "Lindol. Yumuko, magtago, at kumapit. Kapag tumigil na ang pagyanig, pumunta sa Open Ground 2." '
         .'Reply with JSON only, no markdown: {"ceb": "<Cebuano>", "fil": "<Filipino>"}';
 
     /** Free-tier providers may train on prompts: strip contact details before sending (officers are told not to type names). */

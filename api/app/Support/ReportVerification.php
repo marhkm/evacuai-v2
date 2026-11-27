@@ -67,7 +67,9 @@ class ReportVerification
      */
     public static function evaluate(HazardReport $report): bool
     {
-        if (! Alert::where('status', 'active')->where('verified', true)->exists()) {
+        // Floods verify by enough students on that floor, even before an officer's alert: the water is the evidence and
+        // routes must change in time. Other hazards (AI-assisted) still need an officer's alert.
+        if ($report->hazard_type !== 'flood' && ! Alert::where('status', 'active')->where('verified', true)->exists()) {
             return false; // outside an incident, students alone never put a hazard on the maps
         }
         $since = now()->subMinutes(self::minutes());

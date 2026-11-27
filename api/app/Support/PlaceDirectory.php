@@ -40,7 +40,7 @@ class PlaceDirectory
     /** @return object{name: ?string, building_id: string, level: int, room_id: ?string}|null */
     public function node(string $id): ?object
     {
-        $this->nodes ??= DB::table('evac_nodes')->get(['id', 'name', 'building_id', 'level', 'room_id'])->keyBy('id')->all();
+        $this->nodes ??= DB::table('evac_nodes')->get(['id', 'name', 'type', 'building_id', 'level', 'room_id'])->keyBy('id')->all();
 
         return $this->nodes[$id] ?? null;
     }

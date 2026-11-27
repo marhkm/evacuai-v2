@@ -38,14 +38,16 @@ function BroadcastForm() {
       message: form.message, is_drill: form.is_drill, translations: { ceb: form.ceb || null, fil: form.fil || null },
     };
     const sent = await action.run(async () => { await api('/api/officer/alerts', { method: 'POST', body: payload }); return true; });
-    if (sent) setForm(empty);
+    if (sent) { setForm(empty); setDraftBy(null); }
   }
 
+  const [draftBy, setDraftBy] = useState<string | null>(null); // which AI wrote the translations (they need checking)
   async function translate() {
     action.setError(null);
     try {
-      const t = await api<{ ceb: string; fil: string }>('/api/officer/alerts/translate', { method: 'POST', body: { message: form.message } });
+      const t = await api<{ ceb: string; fil: string; provider?: string }>('/api/officer/alerts/translate', { method: 'POST', body: { message: form.message } });
       set({ ceb: t.ceb, fil: t.fil });
+      setDraftBy(t.provider ?? 'AI');
     } catch (e) {
       action.setError(e instanceof ApiError && e.status === 404 ? "AI translation isn't set up on this server." : 'Translation failed. Type the translations, or send in English only.');
     }
@@ -81,6 +83,7 @@ function BroadcastForm() {
         <label>Filipino<textarea maxLength={600} rows={2} value={form.fil} onChange={e => set({ fil: e.target.value })} /></label>
       </div>
       {action.error && <p className="banner danger" role="alert">{action.error}</p>}
+      {draftBy && <p className="muted">AI draft ({draftBy}). Check that the Cebuano and Filipino say the same as the English before broadcasting.</p>}
       <div className="row end">
         <button type="button" onClick={translate} disabled={!form.message.trim()}>Translate with AI</button>
         <button className="primary" type="submit" disabled={action.busy}>Broadcast</button>

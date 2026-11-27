@@ -326,3 +326,14 @@ it('still alerts PHIVOLCS quakes when USGS is down', function () {
     Feeds::poll();
     expect(Alert::where(['hazard_type' => 'earthquake', 'status' => 'active'])->count())->toBe(1);
 });
+
+it('shows the model worked Cebuano and Filipino examples, so a small local model keeps the meaning', function () {
+    config(['services.llm.groq.key' => 'q']);
+    Http::fake(['api.groq.com/*' => Http::response(['choices' => [['message' => ['content' => '{"ceb":"Sunog.","fil":"Sunog."}']]]])]);
+
+    AlertTranslator::translate('Fire on the 2nd floor.');
+
+    Http::assertSent(fn (Request $r) => str_contains($r['messages'][0]['content'], 'Sunog sa ikatulong andana sa Annex 1')
+        && str_contains($r['messages'][0]['content'], 'May sunog sa ikatlong palapag ng Annex 1')
+        && str_contains($r['messages'][0]['content'], 'Do not add or leave out'));
+});

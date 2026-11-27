@@ -44,6 +44,16 @@ export function findRoute(snap: CampusSnapshot, originId: string, hazard: Hazard
   const passable = (id: string) => id === originId
     || ((!inHazard(id) || nodes.get(id)!.room_id === originRoom) && !hazardNodes.has(id) && !(onFloodedFloor(id) && floorOf(id) !== originFloor));
 
+  // A flood rises from below: someone already on a floor above the flood level (it has flood-safe points) and not on a
+  // reported flooded floor stays where they are, instead of being walked to the stairs.
+  if (hazard === 'flood' && !inHazard(originId) && !unsafe(originId)) {
+    const o = nodes.get(originId)!;
+    if (snap.nodes.some(n => n.building === o.building && n.level === o.level && n.type !== 'assembly_point' && n.type !== 'exit'
+      && (n.safe_for ?? []).includes('flood') && !unsafe(n.id))) {
+      return { ok: true, route: { nodeIds: [originId], distance_m: 0, cost: 0, destinationId: originId } };
+    }
+  }
+
   const adj = new Map<string, { to: string; cost: number; edge: Edge }[]>();
   const link = (from: string, to: string, cost: number, edge: Edge) => {
     if (!adj.has(from)) adj.set(from, []);

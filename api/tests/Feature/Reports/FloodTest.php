@@ -59,3 +59,23 @@ it('verifies floods by the report count, without the AI', function () {
     expect(ReportVerification::evaluate(HazardReport::latest('id')->first()))->toBeTrue()
         ->and(HazardReport::pluck('status')->unique()->all())->toBe(['verified']);
 });
+
+it('verifies floods by the report count even before any officer alert (the water is the evidence)', function () {
+    Event::fake();
+    foreach ([11, 12, 13] as $i) {
+        floodReport($i)->assertCreated();
+    }
+    HazardReport::query()->update(['reporter_place' => 'match']);
+
+    expect(ReportVerification::evaluate(HazardReport::latest('id')->first()))->toBeTrue();
+});
+
+it('still needs an officer alert for other hazards verified by the AI', function () {
+    Event::fake();
+    foreach ([21, 22, 23] as $i) {
+        floodReport($i, ['hazard_type' => 'fire'])->assertCreated();
+    }
+    HazardReport::query()->update(['reporter_place' => 'match', 'ai_verdict' => 'match']);
+
+    expect(ReportVerification::evaluate(HazardReport::latest('id')->first()))->toBeFalse();
+});

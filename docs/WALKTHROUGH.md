@@ -96,6 +96,11 @@ safe, amber is a warning or a drill, and blue is information.
 
 - [ ] A green panel shows **"… m to safety"** and numbered steps such as "Exit BE301" and "Take Stairs Left down to …".
 - [ ] The floor plan shows red arrows along the route and a green figure where you are.
+- [ ] For **Flood** with no flood reported, the route says **No flood has been reported yet. Floods rise from the
+      ground, so the route goes to the nearest higher safe place.** On a floor that is already above the flood level it
+      says **You are above the flood level. Stay on this floor…** instead of sending you to the stairs.
+- [ ] Three students reporting a flood on the same floor (or an officer clicking **Verify**) verify it, even before any
+      officer alert, and routes change within seconds.
 - [ ] With a verified flood, the steps start with **Hazard reported at … Going to …, the nearest safe place.** The
       route never crosses the flooded floor or ends at a flooded open ground: it goes to an upper floor, another
       building or Nature's Spring, whichever safe place is nearest (not always up).
@@ -230,7 +235,8 @@ safe, amber is a warning or a drill, and blue is information.
       **Open Ground 1 · Old Building** and **Open Ground 2 · Basic Ed**.
 - [ ] Each safe zone shows how many people are there, for example **Open Ground 2 · Basic Ed · 1 of 300** (or **· 1 here** when an
       admin has not set a capacity, A6).
-- [ ] Check-in confirms **You checked in safe at … Open Ground 2 · Basic Ed.** There is no **I need help** button: SOS is the way
+- [ ] Check-in confirms **You checked in safe at Open Ground 2 · Basic Ed.** (only the safe zone, not a building as
+      well); at Nature's Spring it says **Nature's Spring (off campus)**, never Annex 1. There is no **I need help** button: SOS is the way
       to ask for help.
 - [ ] Checking in again asks **You already checked in at … Update your status?** **Keep** changes nothing; **Update**
       changes it, and **Earlier check-ins** lists the first one.
@@ -310,12 +316,16 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
 
 **Steps**
 
-1. Open **Alerts**. Choose **Earthquake**, **high**, tick **Drill**, write a message, and click **Broadcast**.
+1. Open **Alerts**. Choose **Earthquake**, **high**, tick **Drill**, write a message, click **Translate with AI**, read
+   the Cebuano and Filipino, and click **Broadcast**.
 2. In the list, click **Resolve** on that drill and confirm.
 
 **Expected result**
 
 - [ ] It goes out at once: no question about how many reports there are (officers may alert on their own).
+- [ ] After **Translate with AI**, a note says **AI draft (…). Check that the Cebuano and Filipino say the same as the
+      English before broadcasting.** Fix any wording before sending: the test server's small local AI makes mistakes
+      (a free Gemini key on the server gives much better translations).
 - [ ] The drill goes out and the app shows its band within seconds.
 - [ ] **Resolve** asks first; then the app's band disappears.
 
@@ -526,7 +536,10 @@ QR stickers. Emergencies are handled in the Command Center (there is a **Command
 
 **Expected result**
 
-- [ ] There is one sticker for every room, stair landing, exit and assembly point, each with its name.
+- [ ] The page opens without an error, showing one building at a time (choose another building or **All buildings**
+      at the top). Every building has stickers: one for every room, stair landing, exit and safe zone, each with its
+      name.
+- [ ] **Reprint all stickers**: stickers printed before this update could carry the wrong code.
 - [ ] Scanning a sticker sets your location to that place.
 
 ---

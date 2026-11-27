@@ -17,6 +17,8 @@ class ReportPhotoCheck
 
     public const JOB_TIMEOUT = 60;
 
+    public const MODEL_PX = 512; // Moondream looks at ~378 px tiles: a bigger photo only adds tiles and seconds on a CPU
+
     private const WORDS = [
         'fire' => 'fire or smoke', 'flood' => 'flooding or standing water', 'earthquake' => 'earthquake damage like cracks or fallen objects',
         'structural_damage' => 'structural damage like cracks or collapse', 'other' => 'a hazard',
@@ -44,6 +46,24 @@ class ReportPhotoCheck
         return self::askBytes($hazard, (string) Storage::disk('local')->get($photoPath), $timeout);
     }
 
+    /** A copy no bigger than MODEL_PX on its longest side (the stored photo stays as it is). */
+    private static function small(string $bytes): string
+    {
+        $img = @imagecreatefromstring($bytes);
+        if (! $img) {
+            return $bytes;
+        }
+        [$w, $h] = [imagesx($img), imagesy($img)];
+        if (max($w, $h) > self::MODEL_PX) {
+            $scale = self::MODEL_PX / max($w, $h);
+            $img = imagescale($img, max(1, (int) round($w * $scale)), max(1, (int) round($h * $scale))) ?: $img;
+        }
+        ob_start();
+        imagejpeg($img, null, 80);
+
+        return (string) ob_get_clean();
+    }
+
     /** @return array{0: string, 1: ?string} the same check for a photo's bytes (also used by evacuai:evaluate-photos) */
     public static function askBytes(string $hazard, string $bytes, int $timeout): array
     {
@@ -55,8 +75,9 @@ class ReportPhotoCheck
             $answer = trim((string) Http::timeout($timeout)->post("{$base}/api/generate", [
                 'model' => config('services.ollama.vision_model'),
                 'prompt' => 'Does this photo show '.self::words($hazard).'? Answer yes, no, or unclear, then one short reason.',
-                'images' => [base64_encode($bytes)],
+                'images' => [base64_encode(self::small($bytes))],
                 'stream' => false,
+                'keep_alive' => '30m', // stay loaded between reports: reloading the model costs more than checking a photo
             ])->throw()->json('response'));
         } catch (Throwable $e) {
             Log::warning("Photo check failed: {$e->getMessage()}");

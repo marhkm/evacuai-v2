@@ -92,9 +92,12 @@ export default function RouteScreen() {
     ...(snapshot.hazardNodeIds ?? []).map(id => displayName(snapshot, id)),
     ...(snapshot.floodedFloors?.length ? [] : snapshot.hazardRoomIds.map(id => snapshot.rooms.find(r => r.id === id)?.name ?? id)),
   ] : [];
-  const reason = route && snapshot && hazardPlaces.length
+  const stayPut = hazard === 'flood' && route?.distance_m === 0; // already above the flood level (see findRoute)
+  const reason = route && snapshot && !stayPut && hazardPlaces.length
     ? `Hazard reported at ${hazardPlaces.slice(0, 2).join(', ')}${hazardPlaces.length > 2 ? ` and ${hazardPlaces.length - 2} more` : ''}. Going to ${displayName(snapshot, route.destinationId)}, the nearest safe place.`
-    : null;
+    : route && hazard === 'flood' && !stayPut
+      ? 'No flood has been reported yet. Floods rise from the ground, so the route goes to the nearest higher safe place.'
+      : null;
 
   function locate(obs: Observation) {
     setViewLevel(null);
@@ -141,9 +144,13 @@ export default function RouteScreen() {
 
       {route && snapshot ? (
         <View style={styles.steps}>
-          <Text style={styles.distance}>{Math.round(route.distance_m)} m to safety</Text>
+          {stayPut ? (
+            <Text style={styles.step}>You are above the flood level. Stay on this floor, away from the stairs going down. Move up only if water reaches this floor.</Text>
+          ) : (
+            <Text style={styles.distance}>{Math.round(route.distance_m)} m to safety</Text>
+          )}
           {reason ? <Text style={styles.step}>{reason}</Text> : null}
-          {routeSteps(snapshot, route).map((s, i) => (
+          {!stayPut && routeSteps(snapshot, route).map((s, i) => (
             <View key={i} style={styles.stepRow}>
               <Text style={styles.stepNo} accessible={false}>{i + 1}</Text>
               <Text style={styles.step}>{s}</Text>

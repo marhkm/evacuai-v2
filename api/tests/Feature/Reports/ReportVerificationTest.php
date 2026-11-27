@@ -138,6 +138,17 @@ describe('AI photo check (local Ollama, advice only)', function () {
             && str_contains($req['prompt'], 'fire or smoke') && count($req['images']) === 1 && $req['stream'] === false);
     });
 
+    it('sends the model a small copy of the photo and keeps the model loaded (fast enough on a server processor)', function () use ($reply) {
+        $reply('Yes, flames.');
+        (new CheckReportPhoto($this->report))->handle();
+
+        Http::assertSent(function ($req) {
+            [$w, $h] = getimagesizefromstring(base64_decode($req['images'][0]));
+
+            return max($w, $h) <= 512 && $req['keep_alive'] === '30m';
+        });
+    });
+
     it('records no and unclear answers', function () {
         Http::fakeSequence('ollama:11434/*')->push(['response' => 'No. It is a classroom.'])->push(['response' => 'Maybe, it is too dark.']);
         (new CheckReportPhoto($this->report))->handle();

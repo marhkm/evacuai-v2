@@ -83,4 +83,6 @@ test('translate fills the Cebuano and Filipino messages', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Translate with AI' }));
   await waitFor(() => expect((screen.getByLabelText('Cebuano') as HTMLTextAreaElement).value).toBe('Sunog! Gawas dayon.'));
   expect((screen.getByLabelText('Filipino') as HTMLTextAreaElement).value).toBe('Sunog! Lumabas agad.');
+  // Machine translation can change the meaning: the officer is told to check it, and by which AI it was written.
+  expect(screen.getByText(/AI draft \(gemini\)\. Check that the Cebuano and Filipino say the same as the English before broadcasting\./)).toBeTruthy();
 });

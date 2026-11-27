@@ -111,7 +111,7 @@ export function toPlanShapes(snap: CampusSnapshot, buildingId: string, level: nu
   const plan = snap.buildings.find(b => b.id === buildingId)?.floors.find(f => f.level === level)?.plan;
   const rooms = snap.rooms.filter(r => r.building === buildingId && r.level === level);
   const rad = (d: number) => (d * Math.PI) / 180;
-  const shapes = plan
+  const shapes = plan?.walls.length
     ? {
       walls: plan.walls,
       doors: plan.doors.map(d => {
@@ -127,7 +127,7 @@ export function toPlanShapes(snap: CampusSnapshot, buildingId: string, level: nu
     : {
       walls: rooms.map(r => r.polygon),
       doors: [],
-      stairs: [],
+      stairs: rooms.filter(r => r.type === 'stairwell').map(r => r.polygon),
       labels: rooms.filter(r => r.type !== 'corridor').map(r => {
         const [x, y] = centroid(r.polygon);
         return { text: r.name, x, y };

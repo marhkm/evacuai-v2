@@ -28,6 +28,19 @@ test('a flooded open ground is never a destination: the route goes to the next s
 
 test('a flooded floor is never crossed or ended on, but people on it can still leave it', () => {
   const snap = campus({ floodedFloors: [{ building: 'B', level: 1 }] });
-  expect(end(snap, 'B/2/R2')).toBe('B/2/U'); // from upstairs: does not go down through the flooded ground floor
+  // From upstairs (the second floor has a flood-safe room, so it is above the flood): stays up, never goes down through
+  // the flooded ground floor.
+  expect(['B/2/R2', 'B/2/U']).toContain(end(snap, 'B/2/R2'));
   expect(end(snap, 'B/1/A')).not.toBe('no_safe_route'); // on the flooded floor: leaves it
+});
+
+test('already on a flood-safe floor: stay there instead of walking to the stairs', () => {
+  const snap = campus();
+  snap.nodes.push(node('H2', 2, 'hallway', ['flood'])); // the second floor is above the flood level
+  snap.edges.push(edge('B/2/R2', 'B/2/H2', 4));
+  const r = findRoute(snap, 'B/2/R2', 'flood');
+  expect(r.ok && r.route.destinationId).toBe('B/2/R2');
+  expect(r.ok && r.route.distance_m).toBe(0);
+  // ...unless that floor is reported flooded: then it moves on
+  expect(end(campus({ floodedFloors: [{ building: 'B', level: 2 }] }), 'B/2/R2')).not.toBe('B/2/R2');
 });

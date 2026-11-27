@@ -21,3 +21,6 @@ __pycache__/
 
 # Command Center build (made inside the Docker image)
 /api/public/command/
+
+# Team-only notes with server passwords: never commit
+/docs/private/

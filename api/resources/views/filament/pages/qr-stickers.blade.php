@@ -17,7 +17,7 @@
         <label>
             Building
             <select wire:model.live="building">
-                <option value="">All buildings</option>
+                <option value="all">All buildings</option>
                 @foreach ($this->buildingOptions() as $id => $name)
                     <option value="{{ $id }}">{{ $name }}</option>
                 @endforeach

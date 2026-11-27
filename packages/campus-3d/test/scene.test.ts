@@ -53,6 +53,12 @@ describe('one building per scene', () => {
     expect(be.labels.building.has('BE')).toBe(true);
   });
 
+  it('falls back to room outlines when a floor plan has no walls', () => {
+    const snap: CampusSnapshot = structuredClone(uclm);
+    snap.buildings.find(b => b.id === 'BE')!.floors[0].plan = { walls: [], doors: [], stairs: [], labels: [], arrows: [] };
+    expect(buildScene(snap, { building: 'BE' }).floors.get('BE/1')!.getObjectByName('walls')).toBeTruthy();
+  });
+
   it('keeps floor styles when live status changes', () => {
     const c = buildScene(uclm, { building: 'A1' });
     const floors = [...c.floors.values()].map(g => ({ key: g.name, building: 'A1', level: g.userData.level as number }));

@@ -26,6 +26,12 @@ class QrStickers extends Page
     #[Url]
     public ?string $building = null;
 
+    /** One building by default: the whole campus is ~270 stickers (~7 MB of SVG). 'all' prints everything. */
+    public function mount(): void
+    {
+        $this->building ??= DB::table('buildings')->orderBy('id')->value('id');
+    }
+
     public static function payload(string $qrId): string
     {
         return "evacuai://q/{$qrId}";
@@ -47,7 +53,7 @@ class QrStickers extends Page
 
         return DB::table('evac_nodes')
             ->whereNotNull('qr_id')
-            ->when($this->building, fn ($q) => $q->where('building_id', $this->building))
+            ->when($this->building && $this->building !== 'all', fn ($q) => $q->where('building_id', $this->building))
             ->orderBy('building_id')->orderBy('level')->orderBy('id')
             ->get()
             ->map(fn ($n) => [
@@ -57,7 +63,8 @@ class QrStickers extends Page
                     $floors["{$n->building_id}/{$n->level}"]->name ?? "Level {$n->level}",
                     $n->name ?? ($n->room_id ? $rooms[$n->room_id] ?? null : null) ?? Places::humanize($n->id),
                 ]),
-                'image' => $qr->render(self::payload($n->qr_id)), // data:image/svg+xml;base64,...
+                // render() appends to the previous segments: clear them, or each QR holds every earlier payload too.
+                'image' => $qr->clearSegments()->render(self::payload($n->qr_id)), // data:image/svg+xml;base64,...
             ])
             ->all();
     }

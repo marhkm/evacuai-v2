@@ -108,7 +108,7 @@ export function buildScene(snap: CampusSnapshot, opts: { building?: string } = {
       }
     }
 
-    const wallLines: Point[][] = f.plan?.walls ?? floorRooms.filter(r => r.type !== 'corridor').map(r => [...r.polygon, r.polygon[0]]);
+    const wallLines: Point[][] = f.plan?.walls.length ? f.plan.walls : floorRooms.filter(r => r.type !== 'corridor').map(r => [...r.polygon, r.polygon[0]]);
     const wallHeight = f.height_m - SLAB_M;
     if (wallLines.length) {
       const walls = new THREE.Mesh(thickWalls(wallLines, { dx, dz, height: wallHeight }), own(standard(COLORS.wall, { roughness: 0.9 })));

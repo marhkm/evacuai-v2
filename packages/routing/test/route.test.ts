@@ -81,7 +81,12 @@ test('property: never uses a blocked edge and always ends safe', () => {
         const used = s.edges.find(e => (e.from === ids[i - 1] && e.to === ids[i]) || (e.bidirectional && e.from === ids[i] && e.to === ids[i - 1]))!;
         expect(used.status).not.toBe('blocked');
       }
-      expect(s.nodes.find(n => n.id === ids.at(-1))!.safe_for).toContain(hazard);
+      const last = s.nodes.find(n => n.id === ids.at(-1))!;
+      if (hazard === 'flood' && r.route.distance_m === 0) { // stays put: only on a floor that has flood-safe points
+        expect(s.nodes.some(n => n.building === last.building && n.level === last.level && (n.safe_for ?? []).includes('flood'))).toBe(true);
+      } else {
+        expect(last.safe_for).toContain(hazard);
+      }
     },
   ));
 });
