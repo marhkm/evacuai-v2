@@ -16,8 +16,9 @@ use RuntimeException;
 use Throwable;
 
 /**
- * External hazard feeds → DRAFT alerts (never broadcast automatically; an officer publishes or discards them).
- * Earthquakes: PHIVOLCS (official, preferred) and USGS, within the radius above the magnitude; one draft per quake.
+ * External hazard feeds → alerts. A fresh earthquake within the radius above the magnitude is BROADCAST at once
+ * (verified, same push/live path as an officer broadcast); everything else is a DRAFT an officer publishes or discards.
+ * Earthquakes: PHIVOLCS (official, preferred) and USGS; one alert per quake.
  * Rain: Open-Meteo forecast above the threshold. Typhoons: a PAGASA wind signal raised over the campus province.
  * PHIVOLCS and PAGASA have no public API, so their pages are scraped: a failed scrape is logged and skipped.
  */
@@ -31,14 +32,18 @@ class Feeds
 
     public const PAGASA_URL = 'https://bagong.pagasa.dost.gov.ph/tropical-cyclone/severe-weather-bulletin';
 
-    /** @return list<Alert> drafts created by this poll */
+    /** A quake older than this when first seen is drafted, not pushed (e.g. right after the feeds are switched on). */
+    public const BROADCAST_WITHIN_MINUTES = 60;
+
+    /** @return list<Alert> alerts created by this poll (broadcast quakes and drafts) */
     public static function poll(): array
     {
         $cfg = config('evacuai.feeds');
-        if ($cfg['campus_lat'] === null || $cfg['campus_lng'] === null) {
+        if (blank($cfg['campus_lat']) || blank($cfg['campus_lng'])) {
             throw new RuntimeException('Set CAMPUS_LAT and CAMPUS_LNG to use the external feeds.');
         }
-        $drafts = array_values(array_filter([...self::earthquakes($cfg), self::rain($cfg), self::typhoon($cfg)]));
+        $alerts = array_values(array_filter([...self::earthquakes($cfg), self::rain($cfg), self::typhoon($cfg)]));
+        $drafts = array_filter($alerts, fn (Alert $a) => $a->status === 'draft');
         if ($drafts) {
             Notification::send(
                 User::whereIn('role', [Role::Admin, Role::SafetyOfficer])->where('is_active', true)->get(),
@@ -46,11 +51,11 @@ class Feeds
             );
         }
 
-        return $drafts;
+        return $alerts;
     }
 
     /**
-     * A quake listed by both agencies gets one draft: the USGS one if it was drafted first, otherwise PHIVOLCS.
+     * A quake listed by both agencies gets one alert: the USGS one if it was drafted first, otherwise PHIVOLCS.
      *
      * @param  array<string, mixed>  $cfg
      * @return list<Alert|null>
@@ -62,13 +67,13 @@ class Feeds
         foreach (self::phivolcs($cfg) as $p) {
             $twins = array_filter($usgs, fn (array $u) => abs($p['time']->diffInMinutes($u['time'])) <= 3);
             if ($twins && Alert::whereIn('external_id', array_column($twins, 'id'))->exists()) {
-                continue; // already drafted from USGS
+                continue; // already alerted from USGS
             }
             $usgs = array_diff_key($usgs, $twins);
             $phivolcs[] = $p;
         }
 
-        return array_map(fn (array $q) => self::draft($q['id'], [
+        return array_map(fn (array $q) => self::quake($q['id'], $q['time'], [
             'hazard_type' => 'earthquake',
             'severity_level' => $q['mag'] >= 6 ? 'critical' : ($q['mag'] >= 5 ? 'high' : 'medium'),
             'message' => sprintf('Magnitude %.1f earthquake %s at %s (%s). Drop, cover and hold on; after the shaking, check for damage and follow safety officers.',
@@ -82,14 +87,20 @@ class Feeds
      */
     private static function usgs(array $cfg): array
     {
-        $data = $cfg['fake'] ? self::fixture('usgs.geojson') : Http::timeout(15)->get(self::USGS_URL, [
-            'format' => 'geojson',
-            'latitude' => $cfg['campus_lat'],
-            'longitude' => $cfg['campus_lng'],
-            'maxradiuskm' => $cfg['quake_radius_km'],
-            'minmagnitude' => $cfg['quake_min_magnitude'],
-            'starttime' => now()->subHours(6)->toIso8601ZuluString(),
-        ])->throw()->json();
+        try {
+            $data = $cfg['fake'] ? self::fixture('usgs.geojson') : Http::timeout(15)->get(self::USGS_URL, [
+                'format' => 'geojson',
+                'latitude' => $cfg['campus_lat'],
+                'longitude' => $cfg['campus_lng'],
+                'maxradiuskm' => $cfg['quake_radius_km'],
+                'minmagnitude' => $cfg['quake_min_magnitude'],
+                'starttime' => now()->subHours(6)->toIso8601ZuluString(),
+            ])->throw()->json();
+        } catch (Throwable $e) {
+            Log::warning("USGS feed skipped: {$e->getMessage()}"); // PHIVOLCS, rain and typhoon still run
+
+            return [];
+        }
 
         return array_map(fn (array $f) => [
             'id' => "usgs:{$f['id']}",
@@ -234,6 +245,29 @@ class Feeds
     }
 
     /** @param array<string, string> $attrs */
+    private static function quake(string $externalId, Carbon $time, array $attrs): ?Alert
+    {
+        $time = $time->copy()->utc(); // PHIVOLCS times are Manila time; the column holds UTC like every other timestamp
+        if ($time->lt(now()->subMinutes(self::BROADCAST_WITHIN_MINUTES))) {
+            return self::draft($externalId, $attrs + ['occurred_at' => $time]);
+        }
+        // The same quake under another id (the other agency, or a revised PHIVOLCS row): within 3 minutes is one quake.
+        if (Alert::where(['hazard_type' => 'earthquake', 'source' => 'feed'])->where('external_id', '!=', $externalId)
+            ->whereBetween('occurred_at', [$time->copy()->subMinutes(3), $time->copy()->addMinutes(3)])->exists()) {
+            return null;
+        }
+        $alert = Alert::firstOrCreate(['external_id' => $externalId], $attrs + [
+            'occurred_at' => $time, 'issued_at' => now(), 'status' => 'active', 'source' => 'feed', 'verified' => true,
+        ]);
+        if (! $alert->wasRecentlyCreated) {
+            return null;
+        }
+        AlertDispatcher::dispatch($alert); // same fan-out as an officer broadcast; logs alert_issued with source "feed"
+
+        return $alert;
+    }
+
+    /** @param array<string, mixed> $attrs */
     private static function draft(string $externalId, array $attrs): ?Alert
     {
         $alert = Alert::firstOrCreate(['external_id' => $externalId], $attrs + ['status' => 'draft', 'source' => 'feed', 'verified' => false]);

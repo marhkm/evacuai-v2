@@ -50,14 +50,10 @@ it('broadcasts, verifies matching reports and dispatches push', function () use 
     expect(DB::table('user_activity_logs')->where('activity_type', 'alert_issued')->exists())->toBeTrue();
 });
 
-it('asks for confirmation below 3 reports and creates nothing', function () use ($alert) {
+it('broadcasts an officer alert at once, whatever the report count (officers may alert on their own)', function () use ($alert) {
     fireReports(1);
 
-    $this->postJson('/api/officer/alerts', $alert)->assertOk()
-        ->assertJson(['needs_confirmation' => true, 'reporters' => 1]);
-    expect(Alert::count())->toBe(0);
-
-    $this->postJson('/api/officer/alerts', $alert + ['confirm' => true])->assertCreated();
+    $this->postJson('/api/officer/alerts', $alert)->assertCreated()->assertJsonMissingPath('needs_confirmation');
     expect(Alert::count())->toBe(1);
 });
 

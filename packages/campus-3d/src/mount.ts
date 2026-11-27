@@ -5,7 +5,7 @@ import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRe
 
 import { attachControls, type Controls } from './controls';
 import { applyStatus, buildScene, explode, routeTick, showRoute, type Campus3D, type LiveState } from './index';
-import { cameraFor, floorStyles, type Focus, type Preset } from './views';
+import { cameraFor, floorStyles, importantRoom, labelsToHide, roomLabelShown, shortLabel, type FloorKey, type FloorStyle, type Focus, type Preset } from './views';
 
 /** The parts of THREE.WebGLRenderer the viewer uses (tests pass a stand-in; there is no WebGL in jsdom). */
 export interface RendererLike {
@@ -49,6 +49,7 @@ export const webglAvailable = (): boolean => {
 };
 
 const FLY_MS = 600;
+const CULL_MS = 150; // overlapping-label check at most this often
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2); // ease-in-out
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const raf = (cb: FrameRequestCallback) => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(cb) : (setTimeout(() => cb(Date.now()), 16) as unknown as number));
@@ -101,9 +102,40 @@ export function mount(
   let lastRoute: Route | null = null;
   let refitTimer: ReturnType<typeof setTimeout> | undefined;
 
+  // Room labels: shown per floor and zoom (views.roomLabelShown), then overlapping ones culled on screen, nearest kept.
+  let roomLabels: CSS2DObject[] = [];
+  let floorStyleMap = new Map<FloorKey, FloorStyle>();
+  let labelSize = 0; // the focused floor's (or building's) diagonal, the zoom yardstick
+  let culled = new Set<string>();
+  let lastCull = -Infinity;
+  let cullTimer: ReturnType<typeof setTimeout> | undefined;
+  const now = () => (typeof performance === 'object' ? performance.now() : Date.now());
+  const showRoomLabels = () => {
+    const hazards = new Set(lastLive.hazardRoomIds ?? snap.hazardRoomIds);
+    const zoom = { distance: camera.position.distanceTo(controls.target), size: labelSize };
+    for (const o of roomLabels) {
+      const room = { id: o.userData.roomId as string, type: o.userData.type as string, floorLabels: floorStyleMap.get(o.userData.floor)?.labels === true };
+      o.visible = roomLabelShown(room, zoom, hazards);
+      o.userData.important = importantRoom(room, hazards);
+    }
+  };
+  const cullLabels = () => {
+    if (now() - lastCull >= CULL_MS) {
+      lastCull = now();
+      const on = roomLabels.filter(o => o.visible && o.element.style.display !== 'none');
+      const at = new THREE.Vector3();
+      culled = labelsToHide(on.map(o => ({ id: o.userData.roomId, rect: o.element.getBoundingClientRect(), depth: o.getWorldPosition(at).distanceTo(camera.position), important: o.userData.important })));
+    } else {
+      clearTimeout(cullTimer); // throttled: cull again once the camera settles
+      cullTimer = setTimeout(render, CULL_MS);
+    }
+    for (const o of roomLabels) if (culled.has(o.userData.roomId)) o.element.style.display = 'none';
+  };
   const render = () => {
     renderer.render(campus.scene, camera);
+    showRoomLabels();
     labels.render(campus.scene, camera);
+    cullLabels();
   };
   controls.addEventListener('change', render);
 
@@ -171,10 +203,10 @@ export function mount(
     const styles = floorStyles(floors, { building: s.building, level: s.level }, { exploded: s.explode > 0.3 });
     campus.setFloorStyles(styles);
     reshadow();
-    campus.scene.traverse(o => {
-      if (!(o instanceof CSS2DObject)) return;
-      o.visible = o.userData.floor ? styles.get(o.userData.floor)?.labels === true : s.level === null;
-    });
+    floorStyleMap = styles;
+    labelSize = focusBox().getSize(new THREE.Vector3()).length();
+    for (const o of nameLabels) o.visible = s.level === null;
+    showRoomLabels();
   };
 
   let nameLabels: CSS2DObject[] = [];
@@ -186,13 +218,16 @@ export function mount(
   };
   const addLabels = () => {
     nameLabels = [];
+    roomLabels = [];
+    culled = new Set();
     for (const [id, l] of campus.labels.rooms) {
       const div = document.createElement('div');
       div.className = 'evac3d-label';
-      div.textContent = l.name;
+      div.textContent = shortLabel(l.name);
       const obj = new CSS2DObject(div);
       obj.position.copy(l.pos);
-      obj.userData = { floor: l.floor, roomId: id };
+      obj.userData = { floor: l.floor, roomId: id, type: l.type };
+      roomLabels.push(obj);
       campus.floors.get(l.floor)?.add(obj); // moves with the floor when exploded
     }
     for (const [id, pos] of campus.labels.building) {
@@ -355,6 +390,7 @@ export function mount(
     dispose() {
       if (frame) caf(frame);
       clearTimeout(refitTimer);
+      clearTimeout(cullTimer);
       bar?.detach();
       observer?.disconnect();
       controls.dispose();

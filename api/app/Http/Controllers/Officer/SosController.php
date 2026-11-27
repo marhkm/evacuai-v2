@@ -9,6 +9,7 @@ use App\Models\SosAlert;
 use App\Models\User;
 use App\Support\Activity;
 use App\Support\Places;
+use App\Support\Unseen;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,7 @@ class SosController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $unseen = Unseen::sosMessages($this->officer($request));
         $sos = SosAlert::with(['user:id,name', 'responder:id,name'])
             ->when($request->boolean('open'), fn ($q) => $q->whereIn('status', SosAlert::OPEN))
             ->latest()->latest('id')->paginate(50);
@@ -32,6 +34,7 @@ class SosController extends Controller
                 'created_at' => $s->created_at->toIso8601String(),
                 'acknowledged_by' => $s->responder?->name,
                 'acknowledged_at' => $s->acknowledged_at?->toIso8601String(),
+                'unseen' => $unseen[$s->id] ?? 0, // the student's messages this officer has not seen
             ])->values()]);
     }
 
@@ -65,7 +68,7 @@ class SosController extends Controller
         if ($owner = $sos->claimFor($this->officer($request))) { // replying claims an unowned case
             return self::handledBy($owner);
         }
-        $sos->messages()->create(['sender_id' => $this->officer($request)->id, 'body' => trim($body)]);
+        $sos->addMessage($this->officer($request), $body);
 
         return $this->sos($sos, $request, 201);
     }
@@ -95,6 +98,7 @@ class SosController extends Controller
     private function sos(SosAlert $sos, Request $request, int $status = 200): JsonResponse
     {
         $sos = $sos->fresh() ?? $sos;
+        Unseen::markSos($this->officer($request), $sos); // the officer is looking at the chat
 
         return response()->json(['sos' => ['person' => $sos->user?->name] + UserSosController::payload($sos, $this->officer($request))], $status);
     }

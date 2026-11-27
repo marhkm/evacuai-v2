@@ -172,3 +172,19 @@ test('checks the map every 30 seconds in case a live update was missed', async (
     jest.useRealTimers();
   }
 });
+
+test('the hazard choice has a neutral heading, not "What is happening?" (after an earthquake it no longer fits)', async () => {
+  await open();
+  expect(await screen.findByText('Select hazard type')).toBeTruthy();
+  expect(screen.queryByText('What is happening?')).toBeNull();
+});
+
+test('says where a hazard was reported and why this way out was chosen', async () => {
+  alerts = [activeAlert('earthquake')];
+  snapshot.floodedFloors = [{ building: 'DEMO', level: 2 }];
+  await open();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Pick my room' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Ground' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'R101' }));
+  expect(await screen.findByText('Hazard reported at Demo Building · Second. Going to X1, the nearest safe place.')).toBeTruthy();
+});

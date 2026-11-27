@@ -86,15 +86,19 @@ safe, amber is a warning or a drill, and blue is information.
 **Steps**
 
 1. Sign in as `student@evacuai.test`. Tap **Evacuation route**.
-2. Under **What is happening?** choose **Fire**.
+2. Under **Select hazard type** choose **Fire**.
 3. Tap **Pick my room**, then **Basic Education Building**, **Third**, **BE301**.
 4. Read the steps. Tap the floor buttons (**Ground**, **Second**, **Third**) under the steps.
+   (When a verified flood is on the map, for example after O5 with flood reports, choose **Flood** here too.)
 5. Go back, pick **Annex 1**, a floor and a room, and look at its route.
 
 **Expected result**
 
 - [ ] A green panel shows **"… m to safety"** and numbered steps such as "Exit BE301" and "Take Stairs Left down to …".
 - [ ] The floor plan shows red arrows along the route and a green figure where you are.
+- [ ] With a verified flood, the steps start with **Hazard reported at … Going to …, the nearest safe place.** The
+      route never crosses the flooded floor or ends at a flooded open ground: it goes to an upper floor, another
+      building or Nature's Spring, whichever safe place is nearest (not always up).
 - [ ] Annex 1 is drawn like the official evacuation posters (walls, doors, stairs, blue room names), and the route
       ends with an **Exit to …** badge.
 
@@ -120,8 +124,11 @@ safe, amber is a warning or a drill, and blue is information.
 
 - [ ] **3D** shows only the chosen building, as a model: full-height walls, tinted rooms, glass stair cores, and the
       building's name.
-- [ ] Picking a floor flies the camera to it and shows its room names; floors above disappear, floors below fade.
-      **Whole building** shows them all again.
+- [ ] Picking a floor flies the camera to it; floors above disappear, floors below fade. **Whole building** shows them
+      all again.
+- [ ] Room names stay out of the way: zoomed out, only exits, stairs and hazard rooms are labelled; pinch in on a floor
+      and its rooms show short labels (room numbers such as **BE301** or **A-42**). Labels never pile on top of each
+      other.
 - [ ] **Top** looks straight down like a plan; **Explode floors** pulls the floors apart so every floor is visible.
 - [ ] Tapping a room opens a sheet with its name, floor and how many people are inside, with **Route from here**.
 - [ ] **Full screen** opens the 3D view on its own screen; **Close** goes back.
@@ -144,10 +151,19 @@ safe, amber is a warning or a drill, and blue is information.
 5. In the Command Center window, open **Reports**.
 6. Try **Send report** without a photo, and with a photo taken more than 10 minutes ago.
 7. Send one report from the **APK on a phone** (not only the web app).
+8. Report **Fire** with a photo of a plain wall or desk (no fire or smoke).
+9. Report **Flood** at **Or an outdoor area: Open Ground 2 · Basic Ed**.
 
 **Expected result**
 
-- [ ] The app says **Report sent. Safety officers have been notified.**
+- [ ] While it sends, the app says **Checking photo…** (up to about 20 seconds on the test server).
+- [ ] The app says **Report sent. Safety officers have been notified.** When the AI saw the fire, an **UNVERIFIED**
+      fire alert goes to every phone at once, without waiting for an officer (officers can **Confirm** or **Retract**
+      it in **Alerts**).
+- [ ] The plain-wall photo is turned back: **The photo doesn't seem to show fire or smoke…** with **Retake photo** and
+      **Send anyway**. **Send anyway** sends it for an officer to check; no alert goes out.
+- [ ] A flood report is not sent to the AI (it often misses water); it can name an outdoor area, and floods are
+      verified by enough students reporting the same place or by an officer.
 - [ ] From the APK it sends too: no **Cannot reach the server** message (that was a bug in older APKs).
 - [ ] The report appears in the Command Center **Reports** list within seconds, with **View photo**.
 - [ ] The report shows what the checks found: an **AI** chip (**looks like fire**, **doesn't look like fire**,
@@ -180,6 +196,12 @@ safe, amber is a warning or a drill, and blue is information.
 - [ ] Picking a room updates the place in the Command Center within seconds.
 - [ ] Messages show their time, with **Today** above the first one.
 - [ ] Messages appear on the other side within seconds, without refreshing.
+- [ ] A student's new message marks the SOS **New · 1** (2, 3…) in the Command Center list and the officer app's
+      **SOS inbox**, and the **SOS** menu badge counts it; opening the chat clears the mark.
+- [ ] When the officer replies and the student is on another screen, the student sees **Safety officer replied** (a
+      banner in the app, or a push notification when the app is closed); tapping it opens the chat.
+- [ ] After **Resolve** there are no more **New** marks, banners or notifications for that SOS. A new SOS from the same
+      student is a new case.
 - [ ] The Command Center's **SOS** menu shows a red count while the SOS is open.
 - [ ] After Resolve, the app says your last SOS was resolved.
 
@@ -288,16 +310,12 @@ arrive instantly, the time, and the active alert. The menu on the left opens eac
 
 **Steps**
 
-1. Open **Alerts**. Choose **Earthquake**, **high**, leave **Drill** unticked, write a message, and click
-   **Broadcast**.
-2. When it asks you to confirm (there are fewer than 3 matching reports), click **Cancel**.
-3. Tick **Drill** and **Broadcast** again.
-4. In the list, click **Resolve** on that drill and confirm.
+1. Open **Alerts**. Choose **Earthquake**, **high**, tick **Drill**, write a message, and click **Broadcast**.
+2. In the list, click **Resolve** on that drill and confirm.
 
 **Expected result**
 
-- [ ] Without **Drill**, the Command Center asks you to confirm that you checked the incident directly; **Cancel**
-      sends nothing.
+- [ ] It goes out at once: no question about how many reports there are (officers may alert on their own).
 - [ ] The drill goes out and the app shows its band within seconds.
 - [ ] **Resolve** asks first; then the app's band disappears.
 
@@ -583,6 +601,22 @@ Each drill uses both windows (and a phone if you have one). Resolve it at the en
 - [ ] After three matching reports, an **UNVERIFIED** fire alert reaches the app by itself.
 - [ ] The officer can confirm it (it is no longer marked unverified) and then resolve it.
 
+### D2b. A real earthquake from PHIVOLCS / USGS (test server)
+
+**Steps**
+
+1. Keep the app open (and the APK installed) on a phone. The test server checks PHIVOLCS and USGS every minute.
+2. When a quake of magnitude **4.5** or more happens within **100 km** of campus, or for a test run, ask the person who
+   runs the server to set `FEEDS_QUAKE_MIN_MAGNITUDE=2.5` for a day (see `docs/quake-latency.md`).
+3. On the server, run `docker compose -f docker/compose.yml exec app php artisan evacuai:quake-latency`.
+
+**Expected result**
+
+- [ ] The quake arrives on phones as an earthquake alert (push notification and the red band) without an officer.
+- [ ] `evacuai:quake-latency` lists each quake with its time, when EvacuAI created the alert and when the push went out,
+      with the delays in seconds. Record them in `docs/quake-latency.md`.
+- [ ] Heavy rain and typhoon signals still arrive as drafts for officers to publish (Alerts).
+
 ### D3. A whole drill with simulated people
 
 **Steps**
@@ -634,6 +668,7 @@ Copy this table into your report and fill it in. Use **Pass**, **Fail** or **Ski
 | A7 Report rules and false reports | | |
 | D1 Fire drill | | |
 | D2 Fire reported by students | | |
+| D2b Real earthquake from PHIVOLCS / USGS | | |
 | D3 Drill with simulated people | | |
 
 Device and browser used: ____________________  Date: ____________  Tester: ____________________

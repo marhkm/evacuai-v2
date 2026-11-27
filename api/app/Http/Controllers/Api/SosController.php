@@ -68,7 +68,7 @@ class SosController extends Controller
             return OfficerSosController::handledBy($owner);
         }
 
-        $sos->messages()->create(['sender_id' => $user->id, 'body' => trim($data['body'])]);
+        $sos->addMessage($user, $data['body']);
 
         return response()->json(['sos' => self::payload($sos->fresh(), $user)], 201);
     }

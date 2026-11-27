@@ -106,3 +106,25 @@ test('says where the SOS location came from', async () => {
   renderApp('/sos/12');
   expect((await screen.findAllByText('Annex 1 · from GPS')).length).toBeGreaterThan(0);
 });
+
+test('each SOS shows New · n for messages this officer has not seen', async () => {
+  setup({
+    'GET /api/officer/sos?open=1': [200, { sos: [{ ...item, unseen: 2 }, { ...item, id: 13, person: 'Pat Student', unseen: 0 }], meta: { current_page: 1, last_page: 1, per_page: 50, total: 2 } }],
+  });
+  renderApp('/sos');
+  const sam = await screen.findByRole('link', { name: /Sam Student/ });
+  expect(sam.textContent).toContain('New · 2');
+  expect(screen.getByRole('link', { name: /Pat Student/ }).textContent).not.toContain('New');
+});
+
+test('opening an SOS refreshes the list and the badges, so its New mark clears', async () => {
+  let opened = false;
+  const fetch = setup({
+    'GET /api/officer/sos?open=1': () => [200, { sos: [{ ...item, unseen: opened ? 0 : 1 }], meta: { current_page: 1, last_page: 1, per_page: 50, total: 1 } }],
+    'GET /api/officer/sos/12': () => { opened = true; return [200, { sos: detail }]; },
+  });
+  renderApp('/sos/12');
+  expect(await screen.findByText('Please hurry')).toBeTruthy();
+  await waitFor(() => expect(screen.getByRole('link', { name: /Sam Student/ }).textContent).not.toContain('New'));
+  expect(fetch.mock.calls.filter(([u]) => u === '/api/officer/overview').length).toBeGreaterThan(1);
+});

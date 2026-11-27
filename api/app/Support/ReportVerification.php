@@ -84,7 +84,9 @@ class ReportVerification
 
         $pending = $reports->where('status', 'pending')->pluck('id');
         $yes = $reports->where('ai_verdict', 'match')->count();
-        if ($pending->isEmpty() || $reports->unique('reported_by')->count() < self::threshold() || $yes < 2 || $yes <= $reports->where('ai_verdict', 'no_match')->count()) {
+        // Floods are not sent to the AI (it often misses standing water): enough different students on that floor is the check.
+        $aiAgrees = $report->hazard_type === 'flood' || ($yes >= 2 && $yes > $reports->where('ai_verdict', 'no_match')->count());
+        if ($pending->isEmpty() || $reports->unique('reported_by')->count() < self::threshold() || ! $aiAgrees) {
             return false;
         }
 

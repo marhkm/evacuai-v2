@@ -1,4 +1,4 @@
-import { cameraFor, floorStyles } from '../src/views';
+import { cameraFor, floorStyles, labelsToHide, roomLabelShown, shortLabel } from '../src/views';
 
 const floors = [1, 2, 3].map(level => ({ key: `A/${level}`, building: 'A', level }));
 const box = { min: [0, 0, 0] as [number, number, number], max: [40, 12, 20] as [number, number, number] };
@@ -57,4 +57,48 @@ describe('cameraFor', () => {
 it('keeps exploded floors nearly solid, since they no longer cover each other', () => {
   const s = floorStyles([1, 2, 3].map(level => ({ key: `A/${level}`, building: 'A', level })), { building: 'A', level: null }, { exploded: true });
   expect(s.get('A/1')!.opacity).toBe(0.8);
+});
+
+describe('room labels', () => {
+  it('shortens names to the room code, else a short name', () => {
+    expect(shortLabel('A-61')).toBe('A-61');
+    expect(shortLabel('BE301')).toBe('BE301');
+    expect(shortLabel('A2 501')).toBe('501');
+    expect(shortLabel('509 CHEMISTRY LAB.')).toBe('509');
+    expect(shortLabel('AUDIO VISUAL ROOM (AVR)')).toBe('AVR');
+    expect(shortLabel('CANTEEN')).toBe('CANTEEN');
+    expect(shortLabel('OLD GUIDANCE OFFICE AND GAD')).toBe('OLD GUIDANCE…');
+  });
+
+  it('shows names only zoomed in on a labelled floor; exits, stairs and hazards always', () => {
+    const far = { distance: 50, size: 30 };
+    const near = { distance: 20, size: 30 };
+    const hazards = new Set(['h']);
+    expect(roomLabelShown({ id: 'r', type: 'classroom', floorLabels: true }, far, hazards)).toBe(false);
+    expect(roomLabelShown({ id: 'r', type: 'classroom', floorLabels: true }, near, hazards)).toBe(true);
+    expect(roomLabelShown({ id: 'r', type: 'classroom', floorLabels: false }, near, hazards)).toBe(false);
+    for (const r of [{ id: 'x', type: 'exit' }, { id: 's', type: 'stairwell' }, { id: 'h', type: 'office' }]) {
+      expect(roomLabelShown({ ...r, floorLabels: true }, far, hazards)).toBe(true);
+      expect(roomLabelShown({ ...r, floorLabels: false }, far, hazards)).toBe(false); // never on a hidden floor
+    }
+  });
+
+  it('hides the farther of two overlapping labels, but never an important one for a plain one', () => {
+    const rect = (left: number, top: number) => ({ left, top, right: left + 40, bottom: top + 16 });
+    expect(labelsToHide([
+      { id: 'far', rect: rect(0, 0), depth: 30, important: false },
+      { id: 'near', rect: rect(20, 5), depth: 10, important: false },
+      { id: 'apart', rect: rect(100, 0), depth: 50, important: false },
+    ])).toEqual(new Set(['far']));
+    expect(labelsToHide([
+      { id: 'exit', rect: rect(0, 0), depth: 30, important: true },
+      { id: 'near', rect: rect(20, 5), depth: 10, important: false },
+    ])).toEqual(new Set(['near']));
+    // Touching edges and empty (unlaid-out) rects do not count as overlapping.
+    expect(labelsToHide([
+      { id: 'a', rect: rect(0, 0), depth: 1, important: false },
+      { id: 'b', rect: rect(40, 0), depth: 2, important: false },
+      { id: 'c', rect: { left: 0, top: 0, right: 0, bottom: 0 }, depth: 3, important: false },
+    ]).size).toBe(0);
+  });
 });

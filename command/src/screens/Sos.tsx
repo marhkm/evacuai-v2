@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { Fragment, useState, type FormEvent } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Fragment, useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { api } from '../api';
@@ -19,6 +19,13 @@ function Chat({ id }: { id: string }) {
   const action = useAction(['sos'], ['live'], ['overview']);
   const [body, setBody] = useState('');
   const s = sos.data?.sos;
+  const client = useQueryClient();
+  // Loading the chat marks it seen on the server: refresh the list's "New" marks and the rail's badge.
+  useEffect(() => {
+    if (!sos.dataUpdatedAt) return;
+    client.invalidateQueries({ queryKey: ['sos', 'list'] });
+    client.invalidateQueries({ queryKey: ['overview'] });
+  }, [sos.dataUpdatedAt, client]);
 
   async function send(e: FormEvent) {
     e.preventDefault();
@@ -101,7 +108,7 @@ export function Sos() {
         {list.isSuccess && list.items.length === 0 && <p className="muted">No open SOS. New requests appear here instantly.</p>}
         {list.items.map(s => (
           <Link key={s.id} to={`/sos/${s.id}`} className={`feed-item sos ${s.status}${String(s.id) === id ? ' selected' : ''}`}>
-            <strong>{s.person ?? 'Someone'}</strong>
+            <strong>{s.person ?? 'Someone'}{s.unseen ? <> <span className="chip info">New · {s.unseen}</span></> : null}</strong>
             <span>{placeWithSource(s)}</span>
             <span className="muted">{s.status} · {when(s.created_at)}</span>
             {s.acknowledged_by && <span>Handled by {s.acknowledged_by}</span>}

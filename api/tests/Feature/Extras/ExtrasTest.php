@@ -10,6 +10,7 @@ use App\Notifications\DraftAlertFromFeed;
 use App\Support\AlertTranslator;
 use App\Support\Feeds;
 use Database\Seeders\CampusSeeder;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
@@ -147,6 +148,67 @@ it('drafts a PAGASA wind signal for the campus province, again only when it rise
     expect(Feeds::poll())->toHaveCount(0); // signal elsewhere only (the script text is ignored)
 });
 
+it('broadcasts a fresh strong nearby quake at once like an officer broadcast; rain stays a draft', function () {
+    $quakeAt = Carbon\Carbon::createFromTimestampMs(1791853200000);
+    $this->travelTo($quakeAt->copy()->addMinutes(2));
+    fakeFeeds();
+
+    expect(Feeds::poll())->toHaveCount(2);
+    $quake = Alert::where('hazard_type', 'earthquake')->sole();
+    expect($quake->status)->toBe('active')->and($quake->verified)->toBeTrue()->and($quake->source)->toBe('feed')
+        ->and($quake->issued_by)->toBeNull()->and($quake->issued_at->equalTo(now()))->toBeTrue()
+        ->and($quake->occurred_at->toIso8601String())->toBe($quakeAt->toIso8601String());
+    expect(Alert::where('hazard_type', 'flood')->sole()->status)->toBe('draft');
+
+    Event::assertDispatched(AlertBroadcast::class, 1);
+    Bus::assertDispatched(SendAlertPush::class, fn (SendAlertPush $job) => $job->alert->is($quake));
+    Notification::assertSentToTimes($this->officer, DraftAlertFromFeed::class, 1); // the rain draft
+    expect(DB::table('user_activity_logs')->where('activity_type', 'alert_issued')->sole()->details)->toContain('"source":"feed"');
+    $this->actingAs($this->officer)->getJson('/api/alerts')->assertJsonCount(1, 'alerts');
+
+    expect(Feeds::poll())->toHaveCount(0); // the same quake again: no second alert or push
+    Bus::assertDispatchedTimes(SendAlertPush::class, 1);
+});
+
+it('drafts instead of broadcasting a quake over an hour old, and skips weak or far ones', function () {
+    $this->travelTo(Carbon\Carbon::parse('2026-10-12 10:00', 'Asia/Manila'));
+    Http::fake([
+        'earthquake.usgs.gov/*' => Http::response(['features' => []]),
+        'api.open-meteo.com/*' => Http::response(['hourly' => ['time' => [], 'precipitation' => []]]),
+        'earthquake.phivolcs.dost.gov.ph/*' => Http::response(phivolcsPage([
+            ['12 October 2026 - 08:40 AM', '10.27', '123.98', '011', '5.0', '009 km S 45° W of Cordova (Cebu)'], // 80 minutes ago
+            ['12 October 2026 - 09:50 AM', '13.17', '124.58', '024', '5.6', '044 km N 72° E of Prieto Diaz (Sorsogon)'], // too far
+            ['12 October 2026 - 09:55 AM', '10.30', '123.90', '005', '3.0', '003 km W of Mandaue City (Cebu)'], // too small
+        ])),
+        'bagong.pagasa.dost.gov.ph/*' => Http::response('No Active Tropical Cyclone'),
+    ]);
+
+    expect(Feeds::poll())->toHaveCount(1)->and(Alert::sole()->status)->toBe('draft')
+        ->and(Alert::sole()->occurred_at->toIso8601String())->toBe('2026-10-12T00:40:00+00:00'); // 08:40 Manila time
+    Event::assertNotDispatched(AlertBroadcast::class);
+    Bus::assertNotDispatched(SendAlertPush::class);
+});
+
+it('polls the feeds every minute', function () {
+    $event = collect(app(Schedule::class)->events())
+        ->first(fn ($e) => str_contains((string) $e->command, 'evacuai:poll-feeds'));
+    expect($event->expression)->toBe('* * * * *');
+});
+
+it('reports quake alert latency: quake, alert created, push handed to Expo', function () {
+    $quake = Alert::create(['hazard_type' => 'earthquake', 'severity_level' => 'medium', 'message' => 'Magnitude 2.6 earthquake', 'status' => 'active',
+        'source' => 'feed', 'external_id' => 'usgs:us7000late', 'occurred_at' => '2026-11-27 01:00:00', 'issued_at' => '2026-11-27 01:03:10']);
+    $quake->forceFill(['created_at' => '2026-11-27 01:03:10'])->save();
+    $user = User::forceCreate(['name' => 'Ana', 'email' => 'ana@example.test', 'email_verified_at' => now()]);
+    DB::table('alert_notifications')->insert(['alert_id' => $quake->id, 'user_id' => $user->id, 'channel' => 'push', 'delivery_status' => 'sent', 'sent_at' => '2026-11-27 01:03:12']);
+
+    $this->artisan('evacuai:quake-latency')
+        ->expectsTable(
+            ['Alert', 'Feed id', 'Quake (origin)', 'Alert created', 'Push to Expo', 'Quake → alert (s)', 'Alert → push (s)', 'Quake → push (s)'],
+            [[$quake->id, 'usgs:us7000late', '2026-11-27 09:00:00', '2026-11-27 09:03:10', '2026-11-27 09:03:12', 190, 2, 192]],
+        )->assertSuccessful();
+});
+
 it('summarizes matching reports for officers without sending who reported them', function () {
     config(['services.llm.groq.key' => 'q']);
     Http::fake(['api.groq.com/*' => Http::response(['choices' => [['message' => ['content' => 'Two people report smoke at R101.']]]])]);
@@ -234,4 +296,33 @@ it('signs in UCLM Microsoft 365 accounts only', function () {
 
     config(['services.microsoft.tenant_id' => null]);
     $login()->assertNotFound()->assertJsonPath('reason', 'microsoft_disabled');
+});
+
+it('does not broadcast the same quake twice when the two agencies list it under different ids', function () {
+    Alert::create(['hazard_type' => 'earthquake', 'severity_level' => 'high', 'message' => 'Magnitude 5.1 (PHIVOLCS)', 'status' => 'active',
+        'source' => 'feed', 'verified' => true, 'external_id' => 'phivolcs:earlier', 'occurred_at' => now()->subMinutes(2), 'issued_at' => now()]);
+    Http::fake([
+        'earthquake.usgs.gov/*' => Http::response(['features' => [
+            ['id' => 'us7000twin', 'properties' => ['mag' => 5.2, 'place' => 'near Danao', 'time' => now()->subMinute()->getTimestampMs()]],
+        ]]),
+        'earthquake.phivolcs.dost.gov.ph/*' => Http::response('', 500), // the scrape fails this time
+        'api.open-meteo.com/*' => Http::response(['hourly' => ['time' => [], 'precipitation' => []]]),
+        'bagong.pagasa.dost.gov.ph/*' => Http::response('<p>No Active Tropical Cyclone</p>'),
+    ]);
+
+    Feeds::poll();
+    expect(Alert::where('hazard_type', 'earthquake')->count())->toBe(1);
+});
+
+it('still alerts PHIVOLCS quakes when USGS is down', function () {
+    $when = now()->subMinutes(5)->timezone('Asia/Manila')->format('j F Y - h:i A');
+    Http::fake([
+        'earthquake.usgs.gov/*' => Http::response('', 503),
+        'earthquake.phivolcs.dost.gov.ph/*' => Http::response("<table><tr><td>{$when}</td><td>10.40</td><td>123.90</td><td>10</td><td>5.0</td><td>012 km N 10° E of Danao</td></tr></table>"),
+        'api.open-meteo.com/*' => Http::response(['hourly' => ['time' => [], 'precipitation' => []]]),
+        'bagong.pagasa.dost.gov.ph/*' => Http::response('<p>No Active Tropical Cyclone</p>'),
+    ]);
+
+    Feeds::poll();
+    expect(Alert::where(['hazard_type' => 'earthquake', 'status' => 'active'])->count())->toBe(1);
 });

@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { loadDemoSnapshot } from './helpers';
@@ -35,6 +36,7 @@ let sosList: object[] = [];
 let alertPosts = 0;
 let secondFloor: Promise<void> = Promise.resolve();
 let sosOver: object = {};
+let unseenSos = 0;
 const sosDetail = {
   id: 3, person: 'Juan', status: 'pending', message: 'Leg is hurt', place: 'Demo Building · Second · R201', responder: null,
   created_at: '2026-10-21T08:05:00+08:00', messages: [{ id: 1, body: 'Please hurry', mine: false, sender: 'Juan', created_at: '2026-10-21T08:06:00+08:00' }],
@@ -53,7 +55,7 @@ function serve(user: object) {
     if (path === '/api/me') return reply(200, { user });
     if (path === '/api/alerts') return reply(200, { alerts: [] });
     if (path === '/api/campus-snapshot') return reply(200, JSON.parse(JSON.stringify(snapshot)));
-    if (path === '/api/officer/overview') return reply(200, { stats: { open_sos: sosList.length, pending_reports: 0, blocked_paths: 0 }, active_alert: alert(7, 'active') });
+    if (path === '/api/officer/overview') return reply(200, { stats: { open_sos: sosList.length, pending_reports: 0, blocked_paths: 0 }, active_alert: alert(7, 'active'), unseen: { sos: unseenSos, reports: 0, feedback: 0 } });
     if (path === '/api/officer/sos?open=1') return reply(200, { sos: sosList, meta: { current_page: 1, last_page: 1 } });
     if (path.startsWith('/api/officer/sos/3')) return reply(200, { sos: { ...sosDetail, ...sosOver } });
     if (path === '/api/officer/safety') {
@@ -69,7 +71,7 @@ function serve(user: object) {
     if (path.startsWith('/api/officer/paths')) {
       return reply(200, method === 'PATCH' ? { path: {} } : { paths: [{ id: 'DEMO/1/C1->DEMO/1/C2', type: 'corridor', building_id: 'DEMO', level: 1, from: 'C1', to: 'C2', status: 'open', updated_by: null }] });
     }
-    if (path === '/api/officer/alerts' && method === 'POST') return reply(200, ++alertPosts === 1 ? { needs_confirmation: true, reporters: 1 } : { alert: alert(8, 'active') });
+    if (path === '/api/officer/alerts' && method === 'POST') return reply(201, (++alertPosts, { alert: alert(8, 'active') }));
     if (path === '/api/officer/alerts') return reply(200, { alerts: [alert(7, 'active'), alert(5, 'draft', { message: 'Draft from PHIVOLCS' })] });
     if (path.startsWith('/api/officer/alerts/')) return reply(200, { alert: alert(7, 'resolved') });
     return reply(200, {});
@@ -83,6 +85,7 @@ beforeEach(() => {
   alertPosts = 0;
   secondFloor = Promise.resolve();
   sosOver = {};
+  unseenSos = 0;
   mockConfirm.mockClear();
   mockConfirm.mockResolvedValue(true);
 });
@@ -131,6 +134,22 @@ test('SOS inbox refreshes live; the chat acknowledges, replies and resolves', as
   expect(mockConfirm).toHaveBeenCalled();
 });
 
+test('the inbox marks SOS with new messages from the person, and the mark clears after opening the chat', async () => {
+  serve(officer);
+  unseenSos = 2;
+  sosList = [{ id: 3, person: 'Juan', place: 'Demo Building', status: 'acknowledged', message: null, created_at: '2026-10-21T08:05:00+08:00', unseen: 2 }];
+  await renderRouter('./src/app', { initialUrl: '/responder' });
+  expect(await screen.findByRole('button', { name: 'SOS inbox (1 open · 2 new)' })).toBeTruthy();
+  await fireEvent.press(screen.getByRole('button', { name: 'SOS inbox (1 open · 2 new)' }));
+  expect(await screen.findByText('New · 2')).toBeTruthy();
+
+  await fireEvent.press(screen.getByRole('button', { name: /Juan/ }));
+  expect(await screen.findByText('Please hurry')).toBeTruthy(); // the server marks the chat seen on this load
+  sosList = [{ ...sosList[0], unseen: 0 }];
+  await act(async () => router.back());
+  await waitFor(() => expect(screen.queryByText('New · 2')).toBeNull());
+});
+
 test("Who's missing lists only people who need help or are unknown, and stores nothing about them", async () => {
   serve(officer);
   await renderRouter('./src/app', { initialUrl: '/responder/missing' });
@@ -164,14 +183,14 @@ test("switching floors never shows the previous floor's paths, so a tap cannot b
   expect(await screen.findByRole('button', { name: 'Blocked: C1 to S2' })).toBeTruthy();
 });
 
-test('broadcast asks for direct confirmation with too few reports; resolve asks first', async () => {
+test('broadcast sends at once (no report count); resolve asks first', async () => {
   serve(officer);
   await renderRouter('./src/app', { initialUrl: '/responder/alerts' });
   await fireEvent.changeText(await screen.findByLabelText('Message'), 'Fire on the 2nd floor');
   await fireEvent.press(screen.getByRole('button', { name: 'Broadcast' }));
-  await waitFor(() => expect(alertPosts).toBe(2));
-  expect(mockConfirm.mock.calls[0]).toEqual(expect.arrayContaining([expect.stringContaining('1 matching report')]));
-  expect(calls.filter(c => c.path === '/api/officer/alerts' && c.method === 'POST')[1].body).toMatchObject({ message: 'Fire on the 2nd floor', confirm: true });
+  await waitFor(() => expect(alertPosts).toBe(1));
+  expect(mockConfirm).not.toHaveBeenCalled();
+  expect(calls.filter(c => c.path === '/api/officer/alerts' && c.method === 'POST')[0].body).toMatchObject({ message: 'Fire on the 2nd floor' });
 
   mockConfirm.mockResolvedValueOnce(false);
   await fireEvent.press(screen.getByRole('button', { name: 'Resolve: Alert 7' }));

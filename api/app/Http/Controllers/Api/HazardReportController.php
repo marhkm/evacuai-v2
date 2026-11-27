@@ -11,12 +11,15 @@ use App\Support\Activity;
 use App\Support\Places;
 use App\Support\ReportClusters;
 use App\Support\ReportPhoto;
+use App\Support\ReportPhotoCheck;
 use App\Support\ReportVerification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
@@ -32,6 +35,7 @@ class HazardReportController extends Controller
             'building_id' => ['required', 'string', Rule::exists('buildings', 'id')],
             'level' => ['required', 'integer'],
             'room_id' => ['nullable', 'string'],
+            'node_id' => ['nullable', 'string', 'prohibits:room_id'], // an outdoor area (a safe zone such as an open ground), instead of a room
             'description' => ['nullable', 'string', 'max:500'],
             // Required, taken in the app just now (reused pictures are the easiest fake). HEIC is not accepted: the app
             // sends JPEG. 8 MB covers full-size phone photos; the server shrinks them.
@@ -39,6 +43,7 @@ class HazardReportController extends Controller
             'taken_at' => ['required', 'date'],
             'at_building' => ['nullable', 'string'], // where the app last placed the reporter (a hint for officers)
             'at_level' => ['nullable', 'integer'],
+            'send_anyway' => ['boolean'], // the AI did not see the hazard: the student sends it for an officer to check
         ], ['photo.required' => 'Take a photo of the hazard.', 'taken_at.required' => 'Update the app, then take a new photo of the hazard.']);
         $taken = Carbon::parse($data['taken_at']);
         if ($taken->lt(now()->subMinutes(10)) || $taken->gt(now()->addMinute())) {
@@ -51,25 +56,63 @@ class HazardReportController extends Controller
             && ! DB::table('rooms')->where(['id' => $data['room_id'], 'building_id' => $data['building_id'], 'level' => $data['level']])->exists()) {
             throw ValidationException::withMessages(['room_id' => 'That room is not on the selected floor.']);
         }
+        if (! empty($data['node_id']) && ! DB::table('evac_nodes')->where(['id' => $data['node_id'], 'type' => 'assembly_point',
+            'building_id' => $data['building_id'], 'level' => $data['level']])->exists()) {
+            throw ValidationException::withMessages(['node_id' => 'Choose an outdoor area from the list.']);
+        }
 
         try {
             $photo = ReportPhoto::store($request->file('photo'));
         } catch (RuntimeException) {
             throw ValidationException::withMessages(['photo' => 'That image could not be read or is too large. Try another photo.']);
         }
+        // The photo check runs now, while the student sees "Checking photo…" (floods skip it: officers or the report
+        // count verify them). No answer in time: the report waits for an officer and the check runs again later.
+        // A re-sent photo is not new evidence: no check. Only one check at a time while reports are sent (the model
+        // answers one request at a time; a burst must not hold every PHP worker): the others wait for the job.
+        $duplicate = self::duplicateOf($photo['hash']);
+        [$verdict, $note] = [null, null];
+        if ($duplicate === null && ReportPhotoCheck::applies($data['hazard_type'])) {
+            $lock = Cache::lock('ollama-submit', ReportPhotoCheck::SUBMIT_TIMEOUT + 5);
+            if ($lock->get()) {
+                try {
+                    [$verdict, $note] = ReportPhotoCheck::ask($data['hazard_type'], $photo['path'], ReportPhotoCheck::SUBMIT_TIMEOUT);
+                } finally {
+                    $lock->release();
+                }
+            }
+        }
+        if ($verdict === 'no_match' && ! ($data['send_anyway'] ?? false)) {
+            Storage::disk('local')->delete($photo['path']);
+            $message = "The photo doesn't seem to show ".ReportPhotoCheck::words($data['hazard_type']).'. Take a new photo, or send it anyway for a safety officer to check.';
+
+            return response()->json(['message' => $message, 'reason' => 'photo_rejected', 'ai_note' => $note, 'errors' => ['photo' => [$message]]], 422);
+        }
+        $checked = in_array($verdict, ['match', 'no_match', 'unclear'], true);
+
         $user = $request->user();
-        $report = HazardReport::create(Arr::except($data, ['photo', 'taken_at', 'at_building', 'at_level']) + [
+        $report = HazardReport::create(Arr::except($data, ['photo', 'taken_at', 'at_building', 'at_level', 'send_anyway']) + [
+            'ai_verdict' => $checked ? $verdict : null,
+            'ai_note' => $checked ? $note : null,
             'reported_by' => $user->id,
             'photo_path' => $photo['path'],
             'photo_hash' => $photo['hash'],
             'photo_taken_at' => $taken,
-            'duplicate_of' => self::duplicateOf($photo['hash']),
+            'duplicate_of' => $duplicate,
         ] + self::reporterPlace($user->id, $data));
         Activity::log('report_submitted', ['report_id' => $report->id, 'hazard' => $report->hazard_type]);
-        ReportClusters::evaluate($report);
+        // The AI saw it in this student's own new photo: the UNVERIFIED alert goes out now. Not for a flagged student
+        // ("Often false"), and once per student while their alert is active (no alert in every building).
+        $aiConfirmed = $verdict === 'match' && ! ReportVerification::flagged($user)
+            && ! HazardReport::where('hazard_reports.reported_by', $user->id)->whereKeyNot($report->id)
+                ->join('alerts', 'alerts.id', '=', 'hazard_reports.alert_id')
+                ->where(['alerts.status' => 'active', 'alerts.source' => 'reports'])->exists();
+        ReportClusters::evaluate($report, $aiConfirmed);
         ReportVerification::evaluate($report); // an earlier AI "yes" in the cluster may already be enough
         rescue(fn () => event(new ReportSubmitted($report))); // officers' live feed only; never fail the report
-        CheckReportPhoto::dispatch($report); // local AI, in the background (may verify the cluster when it agrees)
+        if (! $checked && $report->hazard_type !== 'flood') {
+            CheckReportPhoto::dispatch($report); // the AI was busy or down: check in the background
+        }
 
         return response()->json(['report' => self::payload($report->fresh())], 201);
     }

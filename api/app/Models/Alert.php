@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property ?string $external_id
  * @property ?Carbon $issued_at
  * @property ?Carbon $resolved_at
+ * @property ?Carbon $occurred_at
  */
 class Alert extends Model
 {
@@ -33,7 +34,7 @@ class Alert extends Model
 
     protected function casts(): array
     {
-        return ['translations' => 'array', 'verified' => 'boolean', 'is_drill' => 'boolean', 'issued_at' => 'datetime', 'resolved_at' => 'datetime'];
+        return ['translations' => 'array', 'verified' => 'boolean', 'is_drill' => 'boolean', 'issued_at' => 'datetime', 'resolved_at' => 'datetime', 'occurred_at' => 'datetime'];
     }
 
     /** The incident check-ins, SOS and location events belong to: the most recent active alert. */

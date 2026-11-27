@@ -33,19 +33,17 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test('broadcast asks the officer to confirm when too few reports match, then sends with confirm', async () => {
+test('broadcast sends at once: no report count, no confirm prompt', async () => {
   let posts = 0;
-  const fetch = setup({
-    'POST /api/officer/alerts': () => (++posts === 1 ? [200, { needs_confirmation: true, reporters: 1 }] : [201, { alert: alert(7, 'active') }]),
-  });
+  const fetch = setup({ 'POST /api/officer/alerts': () => (++posts, [201, { alert: alert(7, 'active') }]) });
   const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
   renderApp('/alerts');
   fireEvent.change(await screen.findByLabelText('Message'), { target: { value: 'Fire on the 3rd floor. Evacuate now.' } });
   fireEvent.click(screen.getByRole('button', { name: 'Broadcast' }));
-  await waitFor(() => expect(posts).toBe(2));
-  expect(confirm.mock.calls[0][0]).toContain('1 matching report');
-  const last = JSON.parse(String(fetch.mock.calls.filter(([u, i]) => u === '/api/officer/alerts' && i?.method === 'POST')[1][1]!.body));
-  expect(last).toMatchObject({ hazard_type: 'fire', message: 'Fire on the 3rd floor. Evacuate now.', confirm: true });
+  await waitFor(() => expect(posts).toBe(1));
+  expect(confirm).not.toHaveBeenCalled();
+  const body = JSON.parse(String(fetch.mock.calls.find(([u, i]) => u === '/api/officer/alerts' && i?.method === 'POST')![1]!.body));
+  expect(body).toMatchObject({ hazard_type: 'fire', message: 'Fire on the 3rd floor. Evacuate now.' });
 });
 
 test("publishing a draft sends the officer's edited message", async () => {

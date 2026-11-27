@@ -1,4 +1,4 @@
-import { exitBadge, floorRoutePoints, routeSteps } from '@evacuai/campus-view';
+import { displayName, exitBadge, floorRoutePoints, routeSteps } from '@evacuai/campus-view';
 import { findRoute, type Hazard } from '@evacuai/routing';
 import { Redirect } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -83,6 +83,18 @@ export default function RouteScreen() {
   const level = viewLevel ?? originNode?.level ?? building?.floors[0]?.level;
   const floorRoute = snapshot && route && building && level !== undefined ? floorRoutePoints(snapshot, route, building.id, level) : undefined;
   const badge = snapshot && route && building && level !== undefined ? exitBadge(snapshot, route, building.id, level) : null;
+  // Where hazards were reported (flooded floors, outdoor areas, rooms) and why this way out: the nearest safe place left.
+  const hazardPlaces = snapshot ? [
+    ...(snapshot.floodedFloors ?? []).map(f => {
+      const b = snapshot.buildings.find(x => x.id === f.building);
+      return `${b?.name ?? f.building} · ${b?.floors.find(x => x.level === f.level)?.name ?? `Level ${f.level}`}`;
+    }),
+    ...(snapshot.hazardNodeIds ?? []).map(id => displayName(snapshot, id)),
+    ...(snapshot.floodedFloors?.length ? [] : snapshot.hazardRoomIds.map(id => snapshot.rooms.find(r => r.id === id)?.name ?? id)),
+  ] : [];
+  const reason = route && snapshot && hazardPlaces.length
+    ? `Hazard reported at ${hazardPlaces.slice(0, 2).join(', ')}${hazardPlaces.length > 2 ? ` and ${hazardPlaces.length - 2} more` : ''}. Going to ${displayName(snapshot, route.destinationId)}, the nearest safe place.`
+    : null;
 
   function locate(obs: Observation) {
     setViewLevel(null);
@@ -100,7 +112,7 @@ export default function RouteScreen() {
       {active[0] ? (
         <Text style={styles.hazard}>Routing for {active[0].hazard_type.replace(/_/g, ' ')}{active[0].is_drill ? ' (drill)' : ''}</Text>
       ) : (
-        <Section label="What is happening?">
+        <Section label="Select hazard type">
           <Chips items={HAZARD_CHOICES} active={chosenHazard} onSelect={k => setChosenHazard(k as Hazard)} />
         </Section>
       )}
@@ -130,6 +142,7 @@ export default function RouteScreen() {
       {route && snapshot ? (
         <View style={styles.steps}>
           <Text style={styles.distance}>{Math.round(route.distance_m)} m to safety</Text>
+          {reason ? <Text style={styles.step}>{reason}</Text> : null}
           {routeSteps(snapshot, route).map((s, i) => (
             <View key={i} style={styles.stepRow}>
               <Text style={styles.stepNo} accessible={false}>{i + 1}</Text>

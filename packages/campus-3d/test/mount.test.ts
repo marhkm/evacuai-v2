@@ -35,6 +35,7 @@ describe('viewer', () => {
   it('focuses one floor: floors above hidden, room labels only on that floor', () => {
     const v = open();
     v.setFloor(4);
+    v.update({ hazardRoomIds: ['A1/4/A_35', 'A1/5/A_42'] }); // hazard rooms are labelled at any zoom, on the shown floor only
     expect(v.state().level).toBe(4);
     expect(v.campus.floors.get('A1/7')!.visible).toBe(false);
     const shown = labels(v.campus.scene);
@@ -122,6 +123,20 @@ describe('viewer polish', () => {
   // Reduced motion: camera moves are instant, so the tests can read the camera straight away.
   beforeEach(() => { vi.stubGlobal('matchMedia', () => ({ matches: true })); vi.useFakeTimers(); });
   afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
+
+  it('room labels: short codes, only when zoomed in', () => {
+    const v = open();
+    v.setFloor(4);
+    expect(labels(v.campus.scene)).toHaveLength(0); // framed floor: zoomed out, no exits or stairs on A1/4
+    v.focusRoom('A1/4/A_35');
+    v.update({});
+    expect(labels(v.campus.scene).length).toBeGreaterThan(1);
+    const texts: string[] = [];
+    v.campus.scene.traverse(o => { if ((o as { isCSS2DObject?: boolean }).isCSS2DObject && o.visible && o.userData.floor) texts.push((o as unknown as { element: HTMLElement }).element.textContent!); });
+    expect(texts).toContain('A-35');
+    expect(texts.every(t => t.length <= 14)).toBe(true);
+    v.dispose();
+  });
 
   it('Reset recentres the camera even when floor, view and explode are already the defaults', () => {
     const v = open();

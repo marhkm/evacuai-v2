@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Alert;
 use App\Support\Feeds;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
@@ -23,8 +25,23 @@ Artisan::command('evacuai:purge-personal-data', function () {
 Schedule::command('evacuai:purge-personal-data')->dailyAt('02:00');
 
 Artisan::command('evacuai:poll-feeds', function () {
-    $drafts = Feeds::poll();
-    $this->info(count($drafts).' new draft alert(s).');
-})->purpose('Check USGS earthquakes and Open-Meteo rainfall near campus; create draft alerts for officers to review');
+    $alerts = Feeds::poll();
+    $live = count(array_filter($alerts, fn (Alert $a) => $a->status === 'active'));
+    $this->info(($live ? "{$live} earthquake alert(s) broadcast, " : '').(count($alerts) - $live).' new draft alert(s).');
+})->purpose('Check PHIVOLCS/USGS earthquakes, rainfall and PAGASA signals near campus; broadcast fresh quakes, draft the rest');
 
-Schedule::command('evacuai:poll-feeds')->everyFiveMinutes()->withoutOverlapping()->when(fn () => config('evacuai.feeds.enabled'));
+// Every minute: a nearby quake is pushed within about a minute of the agency listing it (docs/quake-latency.md).
+Schedule::command('evacuai:poll-feeds')->everyMinute()->withoutOverlapping()->when(fn () => config('evacuai.feeds.enabled'));
+
+Artisan::command('evacuai:quake-latency {--limit=20}', function () {
+    $tz = config('evacuai.timezone');
+    $at = fn ($t) => $t ? Carbon::parse($t)->timezone($tz)->format('Y-m-d H:i:s') : '-';
+    $secs = fn ($from, $to) => $from && $to ? (int) Carbon::parse($from)->diffInSeconds(Carbon::parse($to)) : '-';
+    $rows = Alert::where('source', 'feed')->where('hazard_type', 'earthquake')->whereNotNull('occurred_at')
+        ->addSelect(['pushed_at' => DB::table('alert_notifications')->selectRaw('min(sent_at)') // when Expo accepted the first push
+            ->whereColumn('alert_id', 'alerts.id')->where('channel', 'push')])
+        ->latest('id')->limit((int) $this->option('limit'))->get()
+        ->map(fn (Alert $a) => [$a->id, $a->external_id, $at($a->occurred_at), $at($a->created_at), $at($a->pushed_at),
+            $secs($a->occurred_at, $a->created_at), $secs($a->created_at, $a->pushed_at), $secs($a->occurred_at, $a->pushed_at)]);
+    $this->table(['Alert', 'Feed id', 'Quake (origin)', 'Alert created', 'Push to Expo', 'Quake → alert (s)', 'Alert → push (s)', 'Quake → push (s)'], $rows);
+})->purpose('Earthquake alert latency: quake origin time → EvacuAI alert → push handed to Expo (docs/quake-latency.md)');

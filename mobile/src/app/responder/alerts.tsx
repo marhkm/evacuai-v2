@@ -30,13 +30,7 @@ export default function Alerts() {
   async function broadcast() {
     if (!form.message.trim()) return;
     const body = { hazard_type: form.hazard, severity_level: form.severity, building_id: form.building || null, message: form.message.trim(), is_drill: form.drill };
-    const first = await action.run<{ needs_confirmation?: boolean; reporters?: number }>('/api/officer/alerts', 'POST', body);
-    if (!first) return;
-    if (first.needs_confirmation) {
-      const n = first.reporters ?? 0;
-      const ok = await confirm('Confirm this incident', `Only ${n} matching report${n === 1 ? '' : 's'} so far (3 are needed). Broadcast only if you checked it directly.`, 'Broadcast');
-      if (!ok || !(await action.run('/api/officer/alerts', 'POST', { ...body, confirm: true }))) return;
-    }
+    if (!(await action.run('/api/officer/alerts', 'POST', body))) return; // officers may alert on their own: no report count
     setForm(empty);
   }
 

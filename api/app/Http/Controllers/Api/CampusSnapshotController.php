@@ -33,6 +33,11 @@ class CampusSnapshotController extends Controller
         $floors = DB::table('floors')->orderBy('level')->get()->groupBy('building_id');
         $zones = collect(SafeZones::forAlert(Alert::current()?->id))->keyBy('node_id');
 
+        $flooded = DB::table('hazard_reports')->where(['status' => 'verified', 'hazard_type' => 'flood'])
+            ->whereNull('room_id')->whereNull('node_id')->select('building_id', 'level')->distinct()
+            ->orderBy('building_id')->orderBy('level')->get()
+            ->map(fn ($f) => ['building' => $f->building_id, 'level' => (int) $f->level])->values();
+
         return [
             'name' => json_decode((string) DB::table('system_configurations')->where('key', 'campus_name')->value('value')) ?? config('app.name'),
             'buildings' => DB::table('buildings')->orderBy('id')->get()->map(fn ($b) => [
@@ -72,9 +77,17 @@ class CampusSnapshotController extends Controller
                 'lat' => $a->lat === null ? null : self::num($a->lat), 'lng' => $a->lng === null ? null : self::num($a->lng),
                 'radius_m' => $a->radius_m,
             ]),
-            // Rooms with a verified, unresolved hazard: routing will not pass through or end in them.
-            'hazardRoomIds' => DB::table('hazard_reports')->where('status', 'verified')->whereNotNull('room_id')
-                ->distinct()->orderBy('room_id')->pluck('room_id'),
+            // Rooms with a verified, unresolved hazard (and every room on a flooded floor, so maps show it): routing
+            // will not pass through or end in them.
+            'hazardRoomIds' => DB::table('hazard_reports')->where('status', 'verified')->whereNotNull('room_id')->pluck('room_id')
+                ->merge($flooded->isEmpty() ? [] : DB::table('rooms')->where(fn ($q) => $flooded->each(
+                    fn ($f) => $q->orWhere(fn ($w) => $w->where(['building_id' => $f['building'], 'level' => $f['level']])))
+                )->pluck('id'))->unique()->sort()->values(),
+            // Verified hazards at outdoor areas (open grounds, safe zones): never a way through or a destination.
+            'hazardNodeIds' => DB::table('hazard_reports')->where('status', 'verified')->whereNotNull('node_id')
+                ->distinct()->orderBy('node_id')->pluck('node_id'),
+            // Floors with a verified flood reported for the floor itself (no room, no outdoor area).
+            'floodedFloors' => $flooded,
             'weights' => config('evacuai.route_weights'),
         ];
     }

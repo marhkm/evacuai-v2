@@ -60,7 +60,10 @@ beforeEach(() => {
     else if (path === '/api/campus-snapshot') body = demo;
     else if (path === '/api/hazard-reports') {
       const b = parsed instanceof FormData ? Object.fromEntries(parsed.entries()) : parsed;
-      [status, body] = b.room_id === 'DEMO/2/R201' ? [422, { errors: { room_id: ['That room is not on the selected floor.'] } }] : [201, { report: { id: 9, status: 'pending' } }];
+      const rejected = "The photo doesn't seem to show fire or smoke. Take a new photo, or send it anyway for a safety officer to check.";
+      [status, body] = b.room_id === 'DEMO/2/R201' ? [422, { errors: { room_id: ['That room is not on the selected floor.'] } }]
+        : b.description === 'No fire here' && b.send_anyway !== '1' ? [422, { message: rejected, reason: 'photo_rejected', errors: { photo: [rejected] } }]
+        : [201, { report: { id: 9, status: 'pending' } }];
     }
     return { ok: status < 300, status, json: async () => body, headers: { get: () => null } } as unknown as Response;
   }) as jest.Mock;
@@ -147,3 +150,41 @@ test('report requires a hazard type', async () => {
   expect(posted.length).toBe(0);
 });
 
+
+describe('the photo is checked when the report is sent', () => {
+  async function fillAndSend(description: string) {
+    await renderRouter('./src/app', { initialUrl: '/report' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Fire' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Ground' }));
+    await fireEvent.changeText(screen.getByLabelText('What do you see?'), description);
+    await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
+    await screen.findByLabelText('Photo to send with the report');
+    await fireEvent.press(screen.getByRole('button', { name: 'Send report' }));
+  }
+
+  test('when the AI does not see the hazard: retake, or send anyway for an officer', async () => {
+    await fillAndSend('No fire here');
+    expect(await screen.findByText(/doesn't seem to show fire or smoke/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Retake photo' })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Send anyway' }));
+    expect(await screen.findByText(/Report sent/)).toBeTruthy();
+    const last = posted.filter(p => p.url === '/api/hazard-reports').at(-1)!.body as FormData;
+    expect(last.get('send_anyway')).toBe('1');
+  });
+});
+
+test('a hazard can be reported at an outdoor area (open ground or safe zone) instead of a floor', async () => {
+  await renderRouter('./src/app', { initialUrl: '/report' });
+  await fireEvent.press(await screen.findByRole('button', { name: 'Flood' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Outdoor: AP' }));
+  expect(screen.queryByText('Floor')).toBeNull(); // an outdoor area has no floor or room to pick
+  await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
+  await screen.findByLabelText('Photo to send with the report');
+  await fireEvent.press(screen.getByRole('button', { name: 'Send report' }));
+  expect(await screen.findByText(/Report sent/)).toBeTruthy();
+  const form = posted.find(p => p.url === '/api/hazard-reports')!.body as FormData;
+  expect(form.get('node_id')).toBe('DEMO/1/AP');
+  expect(form.get('building_id')).toBe('DEMO');
+  expect(form.get('level')).toBe('1');
+  expect(form.get('room_id')).toBeNull();
+});

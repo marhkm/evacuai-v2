@@ -74,9 +74,9 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       .then(u => (cancelled ? u() : (unsubscribe = u)))
       .catch(() => undefined); // offline: the foreground refresh catches up
     const sub = AppState.addEventListener('change', s => s === 'active' && refresh());
-    // Students go straight to their route; officers to the SOS or the alert to verify.
+    // Students go straight to their route (an officer's reply: their SOS chat); officers to the SOS or the alert to verify.
     const offTap = onNotificationTap(tap => router.push(
-      'sosId' in tap ? `/responder/sos/${tap.sosId}` : officer ? '/responder/alerts' : '/route',
+      'sosId' in tap ? (officer ? `/responder/sos/${tap.sosId}` : '/sos') : officer ? '/responder/alerts' : '/route',
     ));
     return () => {
       cancelled = true;

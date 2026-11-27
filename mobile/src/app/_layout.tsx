@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { SosReplyBanner } from '@/components/SosReplyBanner';
 import { AlertsProvider } from '@/lib/alerts';
 import { AuthProvider } from '@/lib/auth';
 import { useMode, useTheme } from '@/theme';
@@ -18,6 +19,7 @@ export default function RootLayout() {
       <AlertsProvider>
         <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.surface } }} />
+        <SosReplyBanner />
       </AlertsProvider>
     </AuthProvider>
   );

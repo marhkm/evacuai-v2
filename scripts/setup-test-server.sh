@@ -67,6 +67,11 @@ fi
 set_env OLLAMA_URL http://ollama:11434
 set_env OLLAMA_VISION_MODEL moondream
 set_env OLLAMA_MODEL llama3.2:1b         # officers' report summaries (text): small enough to sit beside Moondream
+# Hazard feeds (both modes): nearby PHIVOLCS/USGS earthquakes are broadcast within about a minute; rain/typhoon drafts.
+set_env FEEDS_ENABLED true
+# Earthquake radius is measured from campus (UCLM, Mandaue); kept if the server already has its own value.
+grep -q '^CAMPUS_LAT=.' .env || set_env CAMPUS_LAT 10.3262
+grep -q '^CAMPUS_LNG=.' .env || set_env CAMPUS_LNG 123.9525
 chmod 600 .env
 
 echo "Settings:"; grep -E "^(APP_DEBUG|APP_URL|PUBLIC_API_URL|VITE_REVERB_PORT|VITE_REVERB_SCHEME|COMPOSE_PROFILES)=" .env

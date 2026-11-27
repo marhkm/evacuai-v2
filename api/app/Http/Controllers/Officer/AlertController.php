@@ -10,7 +10,6 @@ use App\Support\AlertActions;
 use App\Support\AlertTranslator;
 use App\Support\DrillReport;
 use App\Support\Llm;
-use App\Support\ReportClusters;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -28,7 +27,7 @@ class AlertController extends Controller
         return response()->json(['alerts' => AlertResource::collection($alerts)->resolve()]);
     }
 
-    /** Broadcast. Without 3 matching reports (and not a drill) the officer must confirm they verified it directly. */
+    /** Broadcast. Officers and admins may alert on their own: no report count is needed (round 3, item 3). */
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -39,13 +38,7 @@ class AlertController extends Controller
             'is_drill' => ['boolean'],
             'translations.ceb' => ['nullable', 'string', 'max:600'],
             'translations.fil' => ['nullable', 'string', 'max:600'],
-            'confirm' => ['boolean'],
         ]);
-        $reporters = ReportClusters::recentReporterCount($data['hazard_type'], $data['building_id'] ?? null);
-        if (! ($data['is_drill'] ?? false) && ! ($data['confirm'] ?? false) && $reporters < config('evacuai.report_cluster_threshold')) {
-            return response()->json(['needs_confirmation' => true, 'reporters' => $reporters]);
-        }
-        unset($data['confirm']);
 
         return $this->alert(AlertActions::broadcast($this->officer($request), $data), 201);
     }

@@ -74,17 +74,16 @@ class ReportClusters
             ->select('hazard_reports.*');
     }
 
-    public static function recentReporterCount(?string $hazard, ?string $buildingId): int
-    {
-        return $hazard ? self::recentReports($hazard, $buildingId)->distinct()->count('hazard_reports.reported_by') : 0;
-    }
-
-    /** Called after each new report: auto-broadcasts one UNVERIFIED alert per incident and pages admins. */
-    public static function evaluate(HazardReport $report): ?Alert
+    /**
+     * Raises the UNVERIFIED alert when enough different students report the same hazard on the same floor, or at once
+     * when the AI saw the hazard in this report's photo ($aiConfirmed). A flagged reporter ("Often false") counts as
+     * nobody, so their report never raises it alone.
+     */
+    public static function evaluate(HazardReport $report, bool $aiConfirmed = false): ?Alert
     {
         $since = now()->subMinutes(ReportVerification::minutes());
         $count = self::reporterCount($report->hazard_type, $report->building_id, $report->level);
-        if ($count < ReportVerification::threshold()) {
+        if ($count < ReportVerification::threshold() && ! ($aiConfirmed && $count >= 1)) {
             return null;
         }
 
@@ -108,7 +107,8 @@ class ReportClusters
             'building_id' => $report->building_id,
             'hazard_type' => $report->hazard_type,
             'severity_level' => 'high',
-            'message' => "Unverified: {$hazard} reported by {$count} people at {$building}, {$floor}. Move away from the area and follow safety officers.",
+            'message' => "Unverified: {$hazard} reported by {$count} ".($count === 1 ? 'person' : 'people')." at {$building}, {$floor}"
+                .($aiConfirmed ? ' (photo checked by AI)' : '').'. Move away from the area and follow safety officers.',
             'status' => 'active',
             'source' => 'reports',
             'verified' => false,

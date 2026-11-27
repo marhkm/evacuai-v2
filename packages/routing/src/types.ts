@@ -79,6 +79,10 @@ export interface CampusSnapshot {
   edges: Edge[];
   assemblyPoints: AssemblyPoint[];
   hazardRoomIds: string[];
+  /** Verified hazards at places that are not rooms (an open ground or safe zone): never crossed or used as the end. */
+  hazardNodeIds?: string[];
+  /** Floors with a verified flood: never crossed or ended on, except to leave the floor you are on. Safe zones outside are not part of a floor. */
+  floodedFloors?: { building: string; level: number }[];
   weights: RuleWeights;
 }
 

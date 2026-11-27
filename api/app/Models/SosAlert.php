@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Events\SosUpdated;
 use App\Exceptions\InvalidState;
+use App\Jobs\SendSosReplyPush;
 use App\Support\Activity;
+use App\Support\Unseen;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -89,6 +91,18 @@ class SosAlert extends Model
         }
 
         return $this->acknowledged_by === $officer->id ? null : $this->responder;
+    }
+
+    /** A chat message. An officer's reply is pushed to the sender, and the officer has seen the chat up to it. */
+    public function addMessage(User $sender, string $body): SosMessage
+    {
+        $message = $this->messages()->create(['sender_id' => $sender->id, 'body' => trim($body)]);
+        if ($sender->id !== $this->user_id) {
+            SendSosReplyPush::dispatch($this, $message->body);
+            Unseen::markSos($sender, $this);
+        }
+
+        return $message;
     }
 
     public function resolve(): void

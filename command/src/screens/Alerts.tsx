@@ -37,14 +37,7 @@ function BroadcastForm() {
       hazard_type: form.hazard_type, severity_level: form.severity_level, building_id: form.building_id || null,
       message: form.message, is_drill: form.is_drill, translations: { ceb: form.ceb || null, fil: form.fil || null },
     };
-    const send = (confirm: boolean) => api<{ needs_confirmation?: boolean; reporters?: number }>('/api/officer/alerts', { method: 'POST', body: { ...payload, confirm } });
-    const sent = await action.run(async () => {
-      const first = await send(false);
-      if (!first.needs_confirmation) return true;
-      const n = first.reporters ?? 0;
-      const ok = window.confirm(`Only ${n} matching report${n === 1 ? '' : 's'} so far (3 are needed to broadcast on reports alone). Broadcast only if you verified this incident directly. Broadcast now?`);
-      return ok ? (await send(true), true) : false;
-    });
+    const sent = await action.run(async () => { await api('/api/officer/alerts', { method: 'POST', body: payload }); return true; });
     if (sent) setForm(empty);
   }
 

@@ -33,7 +33,16 @@ export function findRoute(snap: CampusSnapshot, originId: string, hazard: Hazard
   };
   // Occupants of a hazard room (the origin's room) may move through it to get out; nobody else may enter.
   const originRoom = nodes.get(originId)!.room_id;
-  const passable = (id: string) => id === originId || !inHazard(id) || nodes.get(id)!.room_id === originRoom;
+  // Reported floods and hazards outside rooms: a flooded floor (but not the safe zones outside, which are their own
+  // places) and a hazard at an open ground. People on a flooded floor may cross it to leave; nobody else may.
+  const hazardNodes = new Set(snap.hazardNodeIds ?? []);
+  const flooded = new Set((snap.floodedFloors ?? []).map(f => `${f.building}/${f.level}`));
+  const floorOf = (id: string) => { const n = nodes.get(id)!; return `${n.building}/${n.level}`; };
+  const originFloor = floorOf(originId);
+  const onFloodedFloor = (id: string) => nodes.get(id)!.type !== 'assembly_point' && flooded.has(floorOf(id));
+  const unsafe = (id: string) => hazardNodes.has(id) || onFloodedFloor(id);
+  const passable = (id: string) => id === originId
+    || ((!inHazard(id) || nodes.get(id)!.room_id === originRoom) && !hazardNodes.has(id) && !(onFloodedFloor(id) && floorOf(id) !== originFloor));
 
   const adj = new Map<string, { to: string; cost: number; edge: Edge }[]>();
   const link = (from: string, to: string, cost: number, edge: Edge) => {
@@ -72,7 +81,7 @@ export function findRoute(snap: CampusSnapshot, originId: string, hazard: Hazard
   let best: { id: string; score: number; dist: number } | undefined;
   for (const id of done) {
     const n = nodes.get(id)!;
-    if (!(n.safe_for ?? []).includes(hazard) || inHazard(id)) continue; // never end inside a hazard room
+    if (!(n.safe_for ?? []).includes(hazard) || inHazard(id) || unsafe(id)) continue; // never end inside a hazard place
     const cand = { id, score: cost.get(id)! + penalty(n, snap.weights), dist: dist.get(id)! };
     if (!best || cand.score < best.score
       || (cand.score === best.score && (cand.dist < best.dist || (cand.dist === best.dist && cand.id < best.id)))) best = cand;

@@ -12,7 +12,7 @@ const tapOf = (r: Response): Tap | null => {
 };
 
 /**
- * Tapping an alert push (alert_id) or an officer's SOS push (sos_id) hands its id to `open`, also when the tap is what
+ * Tapping an alert push (alert_id) or an SOS push (sos_id: a new SOS for officers, a reply for the sender) hands its id to `open`, also when the tap is what
  * launched the app. The caller decides where to go (students: the route; officers: Alerts or the SOS). Returns an
  * unsubscribe function.
  */

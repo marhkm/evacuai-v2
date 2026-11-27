@@ -8,11 +8,13 @@ use App\Models\Alert;
 use App\Models\HazardReport;
 use App\Support\ReportActions;
 use App\Support\ReportPhoto;
+use App\Support\ReportPhotoCheck;
 use App\Support\ReportVerification;
 use Database\Seeders\CampusSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
@@ -119,10 +121,10 @@ describe('where the reporter was', function () {
 
 describe('AI photo check (local Ollama, advice only)', function () {
     beforeEach(function () {
-        config(['services.ollama.base' => 'http://ollama:11434', 'services.ollama.vision_model' => 'moondream']);
         Queue::fake(); // the job is run by hand below
-        sendReport(1)->assertCreated();
+        sendReport(1)->assertCreated(); // AI off while sending: the job below is what is tested here
         $this->report = HazardReport::sole();
+        config(['services.ollama.base' => 'http://ollama:11434', 'services.ollama.vision_model' => 'moondream']);
     });
 
     $reply = fn (string $text) => Http::fake(['ollama:11434/*' => Http::response(['response' => $text])]);
@@ -157,6 +159,93 @@ describe('AI photo check (local Ollama, advice only)', function () {
 
     it('is queued when a report arrives', function () {
         Queue::assertPushed(CheckReportPhoto::class);
+    });
+});
+
+describe('the photo is checked when the report is sent (round 3)', function () {
+    beforeEach(function () {
+        Queue::fake();
+        config(['services.ollama.base' => 'http://ollama:11434', 'services.ollama.vision_model' => 'moondream']);
+    });
+
+    it('broadcasts an UNVERIFIED alert at once when the AI sees the hazard', function () {
+        Http::fake(['ollama:11434/*' => Http::response(['response' => 'Yes, flames in a hallway.'])]);
+
+        sendReport(1)->assertCreated();
+        expect(HazardReport::sole()->ai_verdict)->toBe('match');
+
+        expect(Alert::where(['source' => 'reports', 'status' => 'active', 'verified' => false, 'hazard_type' => 'fire'])->count())->toBe(1);
+        Queue::assertNotPushed(CheckReportPhoto::class); // already checked
+    });
+
+    it('turns the photo back when the AI does not see the hazard, unless sent anyway for an officer', function () {
+        Http::fake(['ollama:11434/*' => Http::response(['response' => 'No, it is an empty classroom.'])]);
+
+        sendReport(1)->assertUnprocessable()->assertJsonPath('reason', 'photo_rejected')
+            ->assertJsonPath('errors.photo.0', "The photo doesn't seem to show fire or smoke. Take a new photo, or send it anyway for a safety officer to check.");
+        expect(HazardReport::count())->toBe(0)->and(Alert::count())->toBe(0);
+
+        sendReport(1, ['send_anyway' => '1'])->assertCreated();
+        expect(HazardReport::sole())->status->toBe('pending')->ai_verdict->toBe('no_match')
+            ->and(Alert::count())->toBe(0);
+    });
+
+    it('waits at most 20 s, then keeps the report for an officer and checks it later', function () {
+        Http::fake(['ollama:11434/*' => fn () => throw new ConnectionException('timed out')]);
+
+        sendReport(1)->assertCreated();
+        expect(HazardReport::sole()->status)->toBe('pending')->and(Alert::count())->toBe(0);
+        Queue::assertPushed(CheckReportPhoto::class);
+        expect(ReportPhotoCheck::SUBMIT_TIMEOUT)->toBe(20);
+    });
+
+    it('one student cannot set off AI alerts in several places', function () {
+        Http::fake(['ollama:11434/*' => Http::response(['response' => 'Yes.'])]);
+        $student = officerUser(Role::Student);
+        Sanctum::actingAs($student);
+        $send = fn (array $over, int $seed) => $this->post('/api/hazard-reports', array_merge(['hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1], photoFields($seed), $over), ['Accept' => 'application/json']);
+
+        $send([], 301)->assertCreated();
+        $send(['hazard_type' => 'structural_damage', 'level' => 2], 302)->assertCreated();
+
+        expect(Alert::where('source', 'reports')->count())->toBe(1);
+    });
+
+    it('a flagged student or a re-sent photo cannot set off the AI alert by riding on another report', function () {
+        Http::fakeSequence('ollama:11434/*')->push(['response' => 'Unclear.'])->push(['response' => 'Yes.'])->push(['response' => 'Yes.']);
+        sendReport(401)->assertCreated(); // the AI is unsure: pending, no alert
+
+        $flagged = officerUser(Role::Student);
+        foreach ([1, 2, 3] as $i) {
+            ReportActions::rejectFalse(HazardReport::create(['reported_by' => $flagged->id, 'building_id' => 'DEMO', 'level' => 2, 'hazard_type' => 'flood']), officerUser());
+        }
+        Sanctum::actingAs($flagged);
+        $this->post('/api/hazard-reports', ['hazard_type' => 'fire', 'building_id' => 'DEMO', 'level' => 1] + photoFields(402), ['Accept' => 'application/json'])->assertCreated();
+        expect(Alert::count())->toBe(0);
+
+        sendReport(0, [], hazardPhoto(401, 55))->assertCreated(); // the first photo, sent again
+        expect(Alert::count())->toBe(0);
+        Http::assertSentCount(2); // the re-sent photo is not even sent to the AI
+    });
+
+    it('checks one photo at a time while reports arrive; the others wait for an officer and the background check', function () {
+        Http::fake(['ollama:11434/*' => Http::response(['response' => 'Yes.'])]);
+        $busy = Cache::lock('ollama-submit', 30);
+        $busy->get(); // another report's check is running
+
+        sendReport(501)->assertCreated();
+        Http::assertNothingSent();
+        expect(HazardReport::sole()->status)->toBe('pending')->and(Alert::count())->toBe(0);
+        Queue::assertPushed(CheckReportPhoto::class);
+        $busy->release();
+    });
+
+    it('does not ask the AI about floods (counted reports or an officer verify them)', function () {
+        Http::fake();
+        sendReport(1, ['hazard_type' => 'flood'])->assertCreated();
+        Http::assertNothingSent();
+        Queue::assertNotPushed(CheckReportPhoto::class);
+        expect(Alert::count())->toBe(0);
     });
 });
 

@@ -33,7 +33,7 @@ export interface Campus3D {
   nodeFloor: Map<string, FloorKey>;
   exits: Set<string>;
   /** Anchor points for DOM labels (made by mount): the building name, and every room's name. */
-  labels: { building: Map<string, THREE.Vector3>; rooms: Map<string, { pos: THREE.Vector3; name: string; floor: FloorKey }> };
+  labels: { building: Map<string, THREE.Vector3>; rooms: Map<string, { pos: THREE.Vector3; name: string; type: string; floor: FloorKey }> };
   /** Floor visibility and opacity (see views.floorStyles); kept across applyStatus and showRoute. */
   setFloorStyles(styles: Map<FloorKey, FloorStyle>): void;
   styles: Map<FloorKey, FloorStyle> | null;
@@ -104,7 +104,7 @@ export function buildScene(snap: CampusSnapshot, opts: { building?: string } = {
       group.add(mesh);
       if (r.type !== 'corridor') {
         const c = centroid(r.polygon);
-        labels.rooms.set(r.id, { pos: new THREE.Vector3(c[0] + dx, f.elevation_m + 0.6, c[1] + dz), name: r.name, floor: key });
+        labels.rooms.set(r.id, { pos: new THREE.Vector3(c[0] + dx, f.elevation_m + 0.6, c[1] + dz), name: r.name, type: r.type, floor: key });
       }
     }
 

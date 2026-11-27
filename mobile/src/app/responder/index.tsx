@@ -8,7 +8,7 @@ import { useAlerts } from '@/lib/alerts';
 import { useAuth } from '@/lib/auth';
 import { useOfficer } from '@/lib/officer';
 
-type Overview = { stats: { open_sos: number; pending_reports: number; blocked_paths: number } };
+type Overview = { stats: { open_sos: number; pending_reports: number; blocked_paths: number }; unseen?: { sos: number } };
 
 /** Officers' home: open SOS first, then who's missing, paths and alerts. */
 export default function ResponderHome() {
@@ -17,6 +17,7 @@ export default function ResponderHome() {
   const { active } = useAlerts();
   const { data, error } = useOfficer<Overview>('/api/officer/overview');
   const s = data?.stats;
+  const fresh = data?.unseen?.sos ? ` · ${data.unseen.sos} new` : ''; // new SOS and unread messages from the person
   const name = state.status === 'signedIn' ? state.user.name : '';
 
   return (
@@ -29,7 +30,7 @@ export default function ResponderHome() {
         <Counter value={s?.blocked_paths} label="Blocked paths" />
       </View>
       <Message text={error} />
-      <Button label={s?.open_sos ? `SOS inbox (${s.open_sos} open)` : 'SOS inbox'} variant="danger" onPress={() => router.push('/responder/sos')} />
+      <Button label={s?.open_sos ? `SOS inbox (${s.open_sos} open${fresh})` : 'SOS inbox'} variant="danger" onPress={() => router.push('/responder/sos')} />
       <Button label="Who's missing" onPress={() => router.push('/responder/missing')} />
       <Button label="Paths" onPress={() => router.push('/responder/paths')} />
       <Button label="Alerts" onPress={() => router.push('/responder/alerts')} />
