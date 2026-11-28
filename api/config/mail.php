@@ -81,10 +81,8 @@ return [
 
         'failover' => [
             'transport' => 'failover',
-            'mailers' => [
-                'smtp',
-                'log',
-            ],
+            // Resend first, Mailpit/SMTP if Resend refuses (bad key, unverified domain): MAIL_FAILOVER=resend,smtp
+            'mailers' => explode(',', env('MAIL_FAILOVER', 'smtp,log')),
             'retry_after' => 60,
         ],
 

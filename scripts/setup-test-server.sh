@@ -69,12 +69,23 @@ set_env OLLAMA_VISION_MODEL moondream
 set_env OLLAMA_MODEL llama3.2:1b         # officers' report summaries (text): small enough to sit beside Moondream
 # Hazard feeds (both modes): nearby PHIVOLCS/USGS earthquakes are broadcast within about a minute; rain/typhoon drafts.
 set_env FEEDS_ENABLED true
+# Real email through Resend once its key is in .env (nothing changes without it: all email stays in Mailpit).
+# Resend goes first; if it refuses (bad key, domain not verified yet) the email still lands in Mailpit.
+if grep -q '^RESEND_API_KEY=.' .env; then
+  set_env MAIL_MAILER failover
+  set_env MAIL_FAILOVER resend,smtp
+  if grep -q '^MAIL_FROM_ADDRESS=.*evacuai\.test' .env && [[ ! "$HOST" =~ ^[0-9.]+$ ]]; then
+    set_env MAIL_FROM_ADDRESS "no-reply@$HOST"
+  fi
+else
+  set_env MAIL_MAILER smtp
+fi
 # Earthquake radius is measured from campus (UCLM, Mandaue); kept if the server already has its own value.
 grep -q '^CAMPUS_LAT=.' .env || set_env CAMPUS_LAT 10.3262
 grep -q '^CAMPUS_LNG=.' .env || set_env CAMPUS_LNG 123.9525
 chmod 600 .env
 
-echo "Settings:"; grep -E "^(APP_DEBUG|APP_URL|PUBLIC_API_URL|VITE_REVERB_PORT|VITE_REVERB_SCHEME|COMPOSE_PROFILES)=" .env
+echo "Settings:"; grep -E "^(APP_DEBUG|APP_URL|PUBLIC_API_URL|VITE_REVERB_PORT|VITE_REVERB_SCHEME|COMPOSE_PROFILES|MAIL_MAILER|MAIL_FROM_ADDRESS)=" .env
 echo "Building and starting EvacuAI (15-25 minutes the first time)..."
 docker compose up -d --build
 echo "Getting the AI photo-check model (about 1.7 GB, once)..."
