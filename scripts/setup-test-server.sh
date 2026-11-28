@@ -79,6 +79,8 @@ echo "Building and starting EvacuAI (15-25 minutes the first time)..."
 docker compose up -d --build
 echo "Getting the AI photo-check model (about 1.7 GB, once)..."
 docker compose exec -T ollama ollama pull moondream || echo "Could not get the model now; reports still work, the AI check shows 'not available'."
+# Load it now and keep it loaded, so the first report's photo check does not wait for the model to load.
+docker compose exec -T ollama ollama run --keepalive 24h moondream "Say ready." >/dev/null 2>&1 || true
 echo "Getting the AI summary model (about 1.3 GB, once)..."
 docker compose exec -T ollama ollama pull llama3.2:1b || echo "Could not get the summary model now; Summarize says it is not available until the next run."
 

@@ -145,7 +145,7 @@ describe('AI photo check (local Ollama, advice only)', function () {
         Http::assertSent(function ($req) {
             [$w, $h] = getimagesizefromstring(base64_decode($req['images'][0]));
 
-            return max($w, $h) <= 512 && $req['keep_alive'] === '30m';
+            return max($w, $h) <= 512 && $req['keep_alive'] === '24h';
         });
     });
 

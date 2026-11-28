@@ -45,6 +45,8 @@ services:
   queue-ai: # AI photo checks only (slow on a CPU): alerts and pushes keep the `queue` worker to themselves
     <<: *php
     command: ["php", "artisan", "queue:work", "--queue=ai", "--tries=2", "--timeout=80"]
+    volumes:
+      - uploads:/app/storage/app/private # the photo check reads the uploaded photo: without it every check is "not available"
     depends_on:
       app: { condition: service_healthy }
 

@@ -77,7 +77,7 @@ class ReportPhotoCheck
                 'prompt' => 'Does this photo show '.self::words($hazard).'? Answer yes, no, or unclear, then one short reason.',
                 'images' => [base64_encode(self::small($bytes))],
                 'stream' => false,
-                'keep_alive' => '30m', // stay loaded between reports: reloading the model costs more than checking a photo
+                'keep_alive' => '24h', // stay loaded between reports: loading the model takes longer than the 20 s a student waits
             ])->throw()->json('response'));
         } catch (Throwable $e) {
             Log::warning("Photo check failed: {$e->getMessage()}");
